@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicYear;
 use App\Models\Activite;
 use App\Models\Enfant;
 use App\Models\Incident;
+use App\Models\Inscription;
 use App\Models\ParentModel;
 use App\Models\Presence;
 use App\Models\Salle;
@@ -25,12 +27,38 @@ class DashboardController extends Controller
 
         $today = Carbon::today();
         $now = Carbon::now();
-        $totalEnfants = Enfant::query()->count();
+        $activeAcademicYear = AcademicYear::query()->active()->first();
+        $activeAcademicYearLabel = $activeAcademicYear?->label;
+        $activeAcademicYearStart = $activeAcademicYear?->start_date?->copy()?->startOfDay();
+        $activeAcademicYearEnd = $activeAcademicYear?->end_date?->copy()?->endOfDay();
+
+        $isWithinActiveAcademicPeriod = $activeAcademicYearStart && $activeAcademicYearEnd
+            ? $today->betweenIncluded($activeAcademicYearStart->copy()->startOfDay(), $activeAcademicYearEnd->copy()->endOfDay())
+            : true;
+
+        $currentYearChildrenQuery = Enfant::query()
+            ->when($activeAcademicYearLabel, function ($query, $yearLabel) {
+                $query->whereHas('inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $yearLabel));
+            });
+
+        $currentYearInscriptionChildrenIds = Inscription::query()
+            ->when($activeAcademicYearLabel, fn ($query, $yearLabel) => $query->where('annee_scolaire', $yearLabel))
+            ->distinct()
+            ->pluck('enfant_id');
+
+        $totalEnfants = (clone $currentYearChildrenQuery)->count();
 
         $presentToday = Presence::query()
             ->whereDate('date', $today)
+            ->when($activeAcademicYearLabel, function ($query, $yearLabel) {
+                $query->whereHas('enfant.inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $yearLabel));
+            })
             ->distinct('enfant_id')
             ->count('enfant_id');
+
+        if (! $isWithinActiveAcademicPeriod) {
+            $presentToday = 0;
+        }
 
         $absentToday = max($totalEnfants - $presentToday, 0);
         $presenceRateToday = $totalEnfants > 0
@@ -38,21 +66,26 @@ class DashboardController extends Controller
             : 0.0;
 
         $genderCounts = [
-            'F' => Enfant::query()->where('sexe', 'F')->count(),
-            'M' => Enfant::query()->where('sexe', 'M')->count(),
+            'F' => (clone $currentYearChildrenQuery)->where('sexe', 'F')->count(),
+            'M' => (clone $currentYearChildrenQuery)->where('sexe', 'M')->count(),
         ];
 
-        $avgAgeYears = round((float) (Enfant::query()->selectRaw('AVG(TIMESTAMPDIFF(YEAR, date_naissance, CURDATE())) as avg_age')->value('avg_age') ?? 0), 1);
+        $avgAgeYears = round((float) ((clone $currentYearChildrenQuery)
+            ->selectRaw('AVG(TIMESTAMPDIFF(YEAR, date_naissance, CURDATE())) as avg_age')
+            ->value('avg_age') ?? 0), 1);
 
         $ageBandCounts = [
-            '2-3 ans' => Enfant::query()->whereBetween('date_naissance', [$today->copy()->subYears(3), $today->copy()->subYears(2)])->count(),
-            '4-5 ans' => Enfant::query()->whereBetween('date_naissance', [$today->copy()->subYears(5), $today->copy()->subYears(4)])->count(),
-            '6+ ans' => Enfant::query()->whereDate('date_naissance', '<', $today->copy()->subYears(6))->count(),
+            '2-3 ans' => (clone $currentYearChildrenQuery)->whereBetween('date_naissance', [$today->copy()->subYears(3), $today->copy()->subYears(2)])->count(),
+            '4-5 ans' => (clone $currentYearChildrenQuery)->whereBetween('date_naissance', [$today->copy()->subYears(5), $today->copy()->subYears(4)])->count(),
+            '6+ ans' => (clone $currentYearChildrenQuery)->whereDate('date_naissance', '<', $today->copy()->subYears(6))->count(),
         ];
 
         $childrenBySchool = School::query()
             ->leftJoin('school_classes', 'schools.id', '=', 'school_classes.school_id')
             ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
+                $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
+            })
             ->groupBy('schools.id', 'schools.name')
             ->orderByDesc('children_count')
             ->get([
@@ -62,6 +95,9 @@ class DashboardController extends Controller
 
         $childrenByLevel = SchoolClass::query()
             ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
+                $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
+            })
             ->selectRaw("COALESCE(NULLIF(school_classes.level, ''), 'Non defini') as level_label")
             ->selectRaw('COUNT(enfants.id) as children_count')
             ->groupBy('level_label')
@@ -71,6 +107,9 @@ class DashboardController extends Controller
         $schoolOccupancy = School::query()
             ->leftJoin('school_classes', 'schools.id', '=', 'school_classes.school_id')
             ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
+                $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
+            })
             ->groupBy('schools.id', 'schools.name')
             ->get([
                 'schools.name',
@@ -93,18 +132,43 @@ class DashboardController extends Controller
             ->sortByDesc('children_count')
             ->values();
 
-        $totalSchools = School::query()->count();
-        $activeClasses = SchoolClass::query()->where('is_active', true)->count();
-        $childrenWithoutClass = Enfant::query()->whereNull('school_class_id')->count();
+        $totalSchools = School::query()
+            ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
+                $query->whereHas('classes.enfants', fn ($children) => $children->whereIn('enfants.id', $currentYearInscriptionChildrenIds));
+            })
+            ->count();
+
+        $activeClasses = SchoolClass::query()
+            ->where('is_active', true)
+            ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
+                $query->whereHas('enfants', fn ($children) => $children->whereIn('enfants.id', $currentYearInscriptionChildrenIds));
+            })
+            ->count();
+
+        $childrenWithoutClass = (clone $currentYearChildrenQuery)
+            ->when($activeAcademicYearLabel, function ($query) {
+                $query->where(function ($inner) {
+                    $inner->whereNull('school_class_id')
+                        ->orWhereDoesntHave('schoolClass');
+                });
+            }, fn ($query) => $query->whereNull('school_class_id'))
+            ->count();
 
         $presenceTrend = Presence::query()
             ->whereDate('date', '>=', $today->copy()->subDays(6))
+            ->when($activeAcademicYearLabel, function ($query, $yearLabel) {
+                $query->whereHas('enfant.inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $yearLabel));
+            })
             ->selectRaw('DATE(date) as date_key')
             ->selectRaw('COUNT(DISTINCT enfant_id) as present_count')
             ->groupBy('date_key')
             ->orderBy('date_key')
             ->get()
             ->keyBy('date_key');
+
+        if (! $isWithinActiveAcademicPeriod) {
+            $presenceTrend = collect();
+        }
 
         $presenceTrendLabels = [];
         $presenceTrendData = [];
@@ -116,37 +180,53 @@ class DashboardController extends Controller
         }
 
         $incidentStatusCounts = [
-            'Ouvert' => Incident::query()->where('workflow_status', Incident::WORKFLOW_OPEN)->count(),
-            'Pris en charge' => Incident::query()->where('workflow_status', Incident::WORKFLOW_TAKEN)->count(),
-            'En cours' => Incident::query()->where('workflow_status', Incident::WORKFLOW_IN_PROGRESS)->count(),
-            'En attente' => Incident::query()->where('workflow_status', Incident::WORKFLOW_WAITING)->count(),
-            'Cloture' => Incident::query()->where('workflow_status', Incident::WORKFLOW_CLOSED)->count(),
+            'Ouvert' => Incident::query()->where('workflow_status', Incident::WORKFLOW_OPEN)
+                ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
+                ->count(),
+            'Pris en charge' => Incident::query()->where('workflow_status', Incident::WORKFLOW_TAKEN)
+                ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
+                ->count(),
+            'En cours' => Incident::query()->where('workflow_status', Incident::WORKFLOW_IN_PROGRESS)
+                ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
+                ->count(),
+            'En attente' => Incident::query()->where('workflow_status', Incident::WORKFLOW_WAITING)
+                ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
+                ->count(),
+            'Cloture' => Incident::query()->where('workflow_status', Incident::WORKFLOW_CLOSED)
+                ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
+                ->count(),
         ];
 
         $openIncidents = Incident::query()
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->where(function ($query) {
                 $query->whereNull('workflow_status')
                     ->orWhere('workflow_status', '!=', Incident::WORKFLOW_CLOSED);
             })
             ->count();
+
         $closedIncidents30d = Incident::query()
             ->where('workflow_status', Incident::WORKFLOW_CLOSED)
             ->whereDate('date', '>=', $today->copy()->subDays(30))
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->count();
 
         $avgTakeoverMinutes = round((float) (Incident::query()
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->whereNotNull('opened_at')
             ->whereNotNull('taken_at')
             ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, opened_at, taken_at)) as avg_takeover')
             ->value('avg_takeover') ?? 0), 1);
 
         $avgResolutionMinutes = round((float) (Incident::query()
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->whereNotNull('opened_at')
             ->whereNotNull('resolved_at')
             ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, opened_at, resolved_at)) as avg_resolution')
             ->value('avg_resolution') ?? 0), 1);
 
         $incidentsByType = Incident::query()
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->select('type_incident')
             ->selectRaw('COUNT(*) as incidents_count')
             ->groupBy('type_incident')
@@ -158,6 +238,7 @@ class DashboardController extends Controller
             ->with(['salle'])
             ->withCount('participations')
             ->whereDate('date', $today)
+            ->when($activeAcademicYearStart && $activeAcademicYearEnd, fn ($query) => $query->whereBetween('date', [$activeAcademicYearStart, $activeAcademicYearEnd]))
             ->get();
 
         $inProgressActivities = $todayActivities->filter(function (Activite $activite) use ($now): bool {
@@ -226,7 +307,47 @@ class DashboardController extends Controller
             ->sortByDesc('participants')
             ->values();
 
+        $archivedYearStats = AcademicYear::query()
+            ->when($activeAcademicYear?->id, fn ($query, $id) => $query->whereKeyNot($id))
+            ->orderByDesc('start_date')
+            ->get()
+            ->map(function (AcademicYear $year) {
+                $childrenCount = Inscription::query()
+                    ->where('annee_scolaire', $year->label)
+                    ->distinct('enfant_id')
+                    ->count('enfant_id');
+
+                $inscriptionsCount = Inscription::query()
+                    ->where('annee_scolaire', $year->label)
+                    ->count();
+
+                $presencesCount = Presence::query()
+                    ->whereBetween('date', [$year->start_date, $year->end_date])
+                    ->count();
+
+                $incidentsCount = Incident::query()
+                    ->whereBetween('date', [$year->start_date, $year->end_date])
+                    ->count();
+
+                $activitiesCount = Activite::query()
+                    ->whereBetween('date', [$year->start_date, $year->end_date])
+                    ->count();
+
+                return [
+                    'label' => $year->label,
+                    'period' => $year->start_date?->format('d/m/Y').' - '.$year->end_date?->format('d/m/Y'),
+                    'children_count' => $childrenCount,
+                    'inscriptions_count' => $inscriptionsCount,
+                    'presences_count' => $presencesCount,
+                    'incidents_count' => $incidentsCount,
+                    'activities_count' => $activitiesCount,
+                ];
+            })
+            ->values();
+
         return view('dashboard', compact(
+            'activeAcademicYear',
+            'activeAcademicYearLabel',
             'totalEnfants',
             'presentToday',
             'absentToday',
@@ -258,7 +379,8 @@ class DashboardController extends Controller
             'roomsInMaintenance',
             'roomsUnavailable',
             'roomsReserved',
-            'roomLiveLoad'
+            'roomLiveLoad',
+            'archivedYearStats'
         ));
     }
 

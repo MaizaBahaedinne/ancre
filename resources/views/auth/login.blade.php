@@ -1,47 +1,58 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="auth-card-header">
+        <span class="auth-pill"><i class="fa-solid fa-shield-halved"></i> Connexion securisee</span>
+        <p class="auth-kicker">Bienvenue</p>
+        <h1 class="auth-title">Heureux de vous revoir</h1>
+        <p class="auth-subtitle">Connectez-vous pour acceder a votre espace Ancre Des Elites.</p>
+    </div>
 
-    <form method="POST" action="{{ route('login') }}">
+    @if (session('status'))
+        <div class="alert alert-success mb-3">{{ session('status') }}</div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger mb-3">{{ $errors->first() }}</div>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="auth-form-grid">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="auth-field">
+            <label for="email" class="form-label">Email</label>
+            <div class="auth-input-wrap">
+                <i class="fa-regular fa-envelope"></i>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="form-control auth-input @error('email') is-invalid @enderror" placeholder="vous@domaine.tn">
+            </div>
+            @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="auth-field">
+            <label for="password" class="form-label">Mot de passe</label>
+            <div class="auth-input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input id="password" type="password" name="password" required autocomplete="current-password" class="form-control auth-input @error('password') is-invalid @enderror" placeholder="Votre mot de passe">
+            </div>
+            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <div class="auth-form-row">
+            <label for="remember_me" class="form-check d-flex align-items-center gap-2 m-0">
+                <input id="remember_me" type="checkbox" class="form-check-input m-0" name="remember">
+                <span class="form-check-label">Se souvenir de moi</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+                <a class="auth-link" href="{{ route('password.request') }}">Mot de passe oublie ?</a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <div class="auth-assist-row">
+            <span><i class="fa-solid fa-lock"></i> Session protegee</span>
+            <span><i class="fa-regular fa-clock"></i> Acces rapide</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary auth-submit-btn">Se connecter</button>
+
+        <p class="auth-footnote">En vous connectant, vous acceptez les regles de securite de la plateforme.</p>
     </form>
 </x-guest-layout>

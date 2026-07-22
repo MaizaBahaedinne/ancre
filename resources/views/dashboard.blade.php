@@ -111,14 +111,23 @@
 @stop
 
 @section('content_header')
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="m-0">Tableau de Bord</h1>
-            <small class="text-muted">Pilotage operationnel en temps reel</small>
+            <small class="text-muted">
+                {{ $activeAcademicYearLabel ? "Statistiques de l'annee scolaire en cours: {$activeAcademicYearLabel}" : "Aucune annee scolaire active definie" }}
+            </small>
         </div>
-        <span class="badge badge-primary p-2">
-            Roles: {{ auth()->user()->getRoleNames()->join(', ') ?: 'Aucun role' }}
-        </span>
+        <div class="d-flex align-items-center gap-2">
+            @if($activeAcademicYearLabel)
+                <span class="badge badge-success p-2">Annee en cours: {{ $activeAcademicYearLabel }}</span>
+            @else
+                <span class="badge badge-warning p-2">Annee scolaire active non definie</span>
+            @endif
+            <span class="badge badge-primary p-2">
+                Roles: {{ auth()->user()->getRoleNames()->join(', ') ?: 'Aucun role' }}
+            </span>
+        </div>
     </div>
 @stop
 
@@ -158,14 +167,14 @@
             </div>
         </div>
     @else
-        <p class="dashboard-section-title">Synthese instantanee</p>
+        <p class="dashboard-section-title">Synthese annee scolaire en cours</p>
         <div class="row dashboard-grid g-3 mb-1">
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="dashboard-kpi-card h-100">
                     <span class="dashboard-kpi-icon"><i class="fas fa-children"></i></span>
                     <p class="kpi-label">Enfants inscrits</p>
                     <p class="kpi-value">{{ $totalEnfants }}</p>
-                    <div class="kpi-meta">Population active</div>
+                    <div class="kpi-meta">Inscrits sur l'annee en cours</div>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-xl-3">
@@ -189,7 +198,7 @@
                     <span class="dashboard-kpi-icon"><i class="fas fa-triangle-exclamation"></i></span>
                     <p class="kpi-label">Incidents ouverts</p>
                     <p class="kpi-value">{{ $openIncidents }}</p>
-                    <div class="kpi-meta">A suivre immediatement</div>
+                    <div class="kpi-meta">Sur l'annee en cours</div>
                 </div>
             </div>
         </div>
@@ -229,7 +238,7 @@
             </div>
         </div>
 
-        <p class="dashboard-section-title">Enfants et presence</p>
+        <p class="dashboard-section-title">Enfants et presence (annee en cours)</p>
         <div class="row dashboard-grid g-3">
             <div class="col-lg-4 col-12">
                 <div class="card card-outline card-primary dashboard-card h-100">
@@ -266,7 +275,7 @@
             </div>
         </div>
 
-        <p class="dashboard-section-title">Salles et ecoles</p>
+        <p class="dashboard-section-title">Salles et ecoles (annee en cours)</p>
         <div class="row dashboard-grid g-3">
             <div class="col-lg-6 col-12">
                 <div class="card card-outline card-warning dashboard-card h-100">
@@ -354,7 +363,7 @@
             </div>
         </div>
 
-        <p class="dashboard-section-title">Incidents et activites</p>
+        <p class="dashboard-section-title">Incidents et activites (annee en cours)</p>
         <div class="row dashboard-grid g-3">
             <div class="col-lg-8 col-12">
                 <div class="card card-outline card-danger dashboard-card h-100">
@@ -414,6 +423,48 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="dashboard-section-title">Archives des annees scolaires precedentes</p>
+        <div class="card card-outline card-secondary dashboard-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">Statistiques archivees par annee scolaire</h3>
+                <span class="badge badge-secondary">{{ ($archivedYearStats ?? collect())->count() }} annee(s)</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Annee scolaire</th>
+                                <th>Periode</th>
+                                <th>Enfants inscrits</th>
+                                <th>Inscriptions</th>
+                                <th>Presences</th>
+                                <th>Incidents</th>
+                                <th>Activites</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(($archivedYearStats ?? collect()) as $archive)
+                                <tr>
+                                    <td class="fw-bold">{{ $archive['label'] }}</td>
+                                    <td>{{ $archive['period'] }}</td>
+                                    <td>{{ $archive['children_count'] }}</td>
+                                    <td>{{ $archive['inscriptions_count'] }}</td>
+                                    <td>{{ $archive['presences_count'] }}</td>
+                                    <td>{{ $archive['incidents_count'] }}</td>
+                                    <td>{{ $archive['activities_count'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">Aucune annee archivee disponible.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
