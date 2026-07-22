@@ -1,0 +1,10 @@
+@extends('adminlte::page')
+
+@section('title', 'Detail ecole')
+@section('content_header')<h1 class="m-0">Detail ecole</h1>@stop
+
+@section('content')
+<div class="card mb-4"><div class="card-body"><dl class="row mb-0"><dt class="col-sm-3">Nom</dt><dd class="col-sm-9">{{ $school->name }}</dd><dt class="col-sm-3">Route / Avenue</dt><dd class="col-sm-9">{{ $school->address_route ?: '-' }}</dd><dt class="col-sm-3">Rue / Complement</dt><dd class="col-sm-9">{{ $school->address_street ?: '-' }}</dd><dt class="col-sm-3">Code postal</dt><dd class="col-sm-9">{{ $school->address_postal_code ?: '-' }}</dd><dt class="col-sm-3">Ville</dt><dd class="col-sm-9">{{ $school->address_city ?: ($school->city ?: '-') }}</dd><dt class="col-sm-3">Gouvernorat</dt><dd class="col-sm-9">{{ $school->address_governorate ?: '-' }}</dd><dt class="col-sm-3">Telephone</dt><dd class="col-sm-9">{{ $school->phone ?: '-' }}</dd><dt class="col-sm-3">Directeur</dt><dd class="col-sm-9">{{ $school->director_name ?: '-' }}</dd><dt class="col-sm-3">Contact directeur</dt><dd class="col-sm-9">{{ $school->director_contact ?: '-' }}</dd></dl></div></div>
+
+<div class="card"><div class="card-header"><h3 class="card-title mb-0">Classes par annee scolaire</h3></div><div class="card-body modern-table-card"><div class="table-responsive"><table class="table table-striped table-bordered mb-0"><thead><tr><th>Classe</th><th>Niveau</th><th>Annee scolaire</th><th>Capacite</th><th>Statut</th></tr></thead><tbody>@forelse($school->classes as $class)<tr><td>{{ $class->name }}</td><td>{{ $class->level ?: '-' }}</td><td>{{ $class->academicYear?->label ?: '-' }}</td><td>{{ $class->capacity ?: '-' }}</td><td>{{ $class->is_active ? 'Active' : 'Inactive' }}</td></tr>@empty<tr><td colspan="5" class="text-center">Aucune classe.</td></tr>@endforelse</tbody></table></div></div></div>
+@stop

@@ -1,0 +1,19 @@
+Options -Indexes
+
+<IfModule mod_dir.c>
+    DirectoryIndex index.php
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Expose common static assets from public/ when app runs from project root.
+    RewriteRule ^(vendor|build|storage|images)/(.*)$ public/$1/$2 [L,QSA]
+    RewriteRule ^favicon\.ico$ public/favicon.ico [L,QSA]
+    RewriteRule ^robots\.txt$ public/robots.txt [L,QSA]
+
+    # Send all non-file, non-directory requests to Laravel front controller.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
