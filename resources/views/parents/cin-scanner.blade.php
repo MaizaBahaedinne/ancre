@@ -166,6 +166,11 @@
             font-size: 0.92rem;
         }
 
+        .camera-disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
         @media (max-width: 767.98px) {
             .scanner-grid {
                 grid-template-columns: 1fr;
@@ -198,7 +203,7 @@
                         </div>
                     </div>
 
-                    <div class="scanner-actions">
+                    <div class="scanner-actions" id="scanner-actions-wrap">
                         <button type="button" class="btn btn-dark" data-capture-side="cin_recto">
                             <i class="fa-solid fa-id-card me-1"></i> Capturer recto
                         </button>
@@ -288,9 +293,11 @@
             const rectoFallback = document.getElementById('fallback-recto');
             const versoFallback = document.getElementById('fallback-verso');
             const captureButtons = document.querySelectorAll('[data-capture-side]');
+            const scannerActions = document.getElementById('scanner-actions-wrap');
 
             let stream = null;
             let statusState = { recto: null, verso: null, completed: false };
+            let cameraSupported = Boolean(window.isSecureContext && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
 
             const showMessage = (message, isError = false) => {
                 feedback.textContent = message;
@@ -328,6 +335,15 @@
                 updatePreview(versoPreviewBox, statusState.verso?.url || null);
                 overlay.classList.toggle('d-none', Boolean(stream));
             };
+
+            const disableCameraUi = () => {
+                scannerActions?.classList.add('camera-disabled');
+                showMessage('La camera web n est pas disponible dans ce contexte. Utilisez le chargement de fichier classique ou ouvrez cette page en HTTPS avec un navigateur mobile compatible.', true);
+            };
+
+            if (!cameraSupported) {
+                disableCameraUi();
+            }
 
             const refreshStatus = async () => {
                 try {
@@ -372,6 +388,11 @@
 
             const startCamera = async () => {
                 try {
+                    if (!cameraSupported) {
+                        disableCameraUi();
+                        return;
+                    }
+
                     if (stream) {
                         return;
                     }
@@ -386,7 +407,16 @@
                     renderStatus();
                     showMessage('Camera activee. Capturez maintenant le recto ou le verso.');
                 } catch (error) {
-                    showMessage('Impossible d activer la camera. Utilisez le chargement de fichier classique.', true);
+                    const messageByError = {
+                        NotAllowedError: 'Autorisation camera refusee par le navigateur. Activez la permission puis reessayez.',
+                        NotFoundError: 'Aucune camera detectee sur cet appareil.',
+                        NotReadableError: 'La camera est deja utilisee par une autre application.',
+                        OverconstrainedError: 'La camera demandee n est pas disponible. Essayez sans contrainte ou utilisez le chargement de fichier.',
+                        SecurityError: 'Acces camera bloque sur une connexion non securisee. Ouvrez cette page en HTTPS.',
+                    };
+
+                    const friendlyMessage = messageByError[error?.name] || `Impossible d activer la camera (${error?.name || 'erreur inconnue'}). Utilisez le chargement de fichier classique.`;
+                    showMessage(friendlyMessage, true);
                 }
             };
 
