@@ -90,15 +90,17 @@ class ParentController extends Controller
             ])->withInput();
         }
 
-        ParentModel::create($data);
+        $data['verification_status'] = 'pending';
+
+        $parent = ParentModel::create($data);
 
         if ($scanToken) {
             $this->cleanupScanDirectory($scanToken);
         }
 
         return redirect()
-            ->route('parents.index')
-            ->with('success', 'Parent ajoute avec succes.');
+            ->route('parents.show', $parent)
+            ->with('success', 'Parent ajoute avec succes. Une verification de compte est maintenant disponible.');
     }
 
     /**
@@ -119,7 +121,44 @@ class ParentController extends Controller
             ->orderBy('prenom')
             ->get();
 
-        return view('parents.show', compact('parent', 'linkedEnfants'));
+        return view('parents.show', [
+            'parent' => $parent,
+            'linkedEnfants' => $linkedEnfants,
+            'verificationUrl' => route('parents.verification', $parent),
+        ]);
+    }
+
+    public function verification(ParentModel $parent): View
+    {
+        return view('parents.verification', [
+            'parent' => $parent,
+        ]);
+    }
+
+    public function submitVerification(Request $request, ParentModel $parent): RedirectResponse
+    {
+        $validated = $request->validate([
+            'verification_signature' => ['required', 'string', 'max:255'],
+            'terms_accepted' => ['accepted'],
+            'identity_documents' => ['required', 'array', 'min:2'],
+            'identity_documents.*' => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+        ]);
+
+        foreach ($request->file('identity_documents', []) as $file) {
+            $file->store('parents/verifications/' . $parent->id, 'public');
+        }
+
+        $parent->update([
+            'verification_status' => 'verified',
+            'verification_submitted_at' => now(),
+            'verified_at' => now(),
+            'verification_signature' => $validated['verification_signature'],
+            'verification_terms_accepted_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('parents.show', $parent)
+            ->with('success', 'Verification de compte parent enregistree avec succes.');
     }
 
     public function createUser(ParentModel $parent, Request $request): RedirectResponse

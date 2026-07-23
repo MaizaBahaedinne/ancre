@@ -17,6 +17,35 @@
         <div class="alert alert-info">Mot de passe temporaire du compte parent: <strong>{{ session('temporary_password') }}</strong></div>
     @endif
 
+    @php
+        $verificationStatus = $parent->verification_status ?? 'pending';
+        $needsVerification = $verificationStatus !== 'verified';
+    @endphp
+
+    <div class="modal fade" id="verificationPromptModal" tabindex="-1" aria-labelledby="verificationPromptModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="verificationPromptModalLabel">Verification du compte parent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Le compte parent n'est pas encore finalise. Lancez la verification pour telecharger le recto/verso de la piece, signer et accepter les reglements.</p>
+                    <div class="text-center mb-3">
+                        <div id="parent-verification-qr" class="d-inline-block p-2 bg-white border rounded"></div>
+                    </div>
+                    <div class="small text-muted">Statut actuel: {{ ucfirst($verificationStatus) }}</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Plus tard</button>
+                    <a href="{{ $verificationUrl }}" class="btn btn-primary">Aller a la verification</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <dl class="row mb-0">
@@ -70,10 +99,12 @@
 
                 <dt class="col-sm-3">Statut profil</dt>
                 <dd class="col-sm-9">
-                    @if($parent->cin_recto && $parent->cin_verso)
-                        <span class="badge badge-success">Valide</span>
+                    @if($verificationStatus === 'verified')
+                        <span class="badge badge-success">Verifie</span>
+                    @elseif($verificationStatus === 'submitted')
+                        <span class="badge badge-warning">En attente de validation</span>
                     @else
-                        <span class="badge badge-danger">Non valide (documents manquants)</span>
+                        <span class="badge badge-secondary">A verifier</span>
                     @endif
                 </dd>
 
@@ -102,6 +133,7 @@
             </dl>
         </div>
         <div class="card-footer">
+            <a href="{{ $verificationUrl }}" class="btn btn-info">Verifier le compte</a>
             <a href="{{ route('parents.edit', $parent) }}" class="btn btn-warning">Modifier</a>
             <a href="{{ route('parents.index') }}" class="btn btn-secondary">Retour</a>
         </div>
@@ -161,4 +193,28 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        (() => {
+            const verificationUrl = @json($verificationUrl);
+            const qrContainer = document.getElementById('parent-verification-qr');
+            const needsVerification = @json($needsVerification);
+
+            if (qrContainer) {
+                new QRCode(qrContainer, {
+                    text: verificationUrl,
+                    width: 170,
+                    height: 170,
+                    correctLevel: QRCode.CorrectLevel.M,
+                });
+            }
+
+            if (needsVerification && window.jQuery) {
+                window.jQuery('#verificationPromptModal').modal('show');
+            }
+        })();
+    </script>
 @stop

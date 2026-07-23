@@ -28,11 +28,19 @@ class ParentModel extends Model
         'user_id',
         'cin_recto',
         'cin_verso',
+        'verification_status',
+        'verification_submitted_at',
+        'verified_at',
+        'verification_signature',
+        'verification_terms_accepted_at',
     ];
 
     protected $casts = [
         'date_delivrance_cin' => 'date',
         'date_naissance' => 'date',
+        'verification_submitted_at' => 'datetime',
+        'verified_at' => 'datetime',
+        'verification_terms_accepted_at' => 'datetime',
     ];
 
     public function enfants(): HasMany
