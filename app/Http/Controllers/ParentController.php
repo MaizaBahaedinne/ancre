@@ -90,6 +90,7 @@ class ParentController extends Controller
             ])->withInput();
         }
 
+        $data['verification_token'] = Str::random(64);
         $data['verification_status'] = 'pending';
 
         $parent = ParentModel::create($data);
@@ -124,20 +125,26 @@ class ParentController extends Controller
         return view('parents.show', [
             'parent' => $parent,
             'linkedEnfants' => $linkedEnfants,
-            'verificationUrl' => route('parents.verification', $parent),
+            'verificationUrl' => route('parents.verification', $parent->verification_token),
         ]);
     }
 
-    public function verification(ParentModel $parent): View
+    public function verification(string $token): View
     {
+        $parent = ParentModel::query()->where('verification_token', $token)->firstOrFail();
+
         return view('parents.verification', [
             'parent' => $parent,
+            'verificationUrl' => route('parents.verification', $parent->verification_token),
         ]);
     }
 
-    public function submitVerification(Request $request, ParentModel $parent): RedirectResponse
+    public function submitVerification(Request $request, string $token): RedirectResponse
     {
+        $parent = ParentModel::query()->where('verification_token', $token)->firstOrFail();
+
         $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255'],
             'verification_signature' => ['required', 'string', 'max:255'],
             'terms_accepted' => ['accepted'],
             'identity_documents' => ['required', 'array', 'min:2'],
@@ -149,16 +156,42 @@ class ParentController extends Controller
         }
 
         $parent->update([
+            'email' => $validated['email'],
+        ]);
+
+        $temporaryPassword = null;
+        $user = User::query()->where('email', $validated['email'])->first();
+
+        if (! $user) {
+            $temporaryPassword = Str::password(10);
+
+            $user = User::create([
+                'name' => trim($parent->nom.' '.$parent->prenom),
+                'email' => $validated['email'],
+                'password' => Hash::make($temporaryPassword),
+            ]);
+        }
+
+        Role::firstOrCreate([
+            'name' => 'Parent',
+            'guard_name' => 'web',
+        ]);
+
+        $user->assignRole('Parent');
+
+        $parent->update([
             'verification_status' => 'verified',
             'verification_submitted_at' => now(),
             'verified_at' => now(),
             'verification_signature' => $validated['verification_signature'],
             'verification_terms_accepted_at' => now(),
+            'user_id' => $user->id,
         ]);
 
         return redirect()
-            ->route('parents.show', $parent)
-            ->with('success', 'Verification de compte parent enregistree avec succes.');
+            ->route('parents.verification', $token)
+            ->with('success', 'Verification de compte parent enregistree avec succes.')
+            ->with('temporary_password', $temporaryPassword);
     }
 
     public function createUser(ParentModel $parent, Request $request): RedirectResponse

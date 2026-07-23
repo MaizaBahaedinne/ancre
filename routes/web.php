@@ -91,8 +91,11 @@ Route::middleware(['auth', 'permission:requests.parent'])->group(function () {
 Route::middleware(['auth', 'permission:parents.view'])->group(function () {
     Route::get('parents', [ParentController::class, 'index'])->name('parents.index');
     Route::get('parents/{parent}', [ParentController::class, 'show'])->name('parents.show')->whereNumber('parent');
-    Route::get('parents/{parent}/verification', [ParentController::class, 'verification'])->name('parents.verification')->whereNumber('parent');
 });
+
+Route::get('parents/verification/{token}', [ParentController::class, 'verification'])
+    ->name('parents.verification')
+    ->where('token', '[A-Za-z0-9]+');
 
 Route::middleware(['auth', 'permission:parents.create'])->group(function () {
     Route::get('parents/create', [ParentController::class, 'create'])->name('parents.create');
@@ -115,8 +118,11 @@ Route::middleware(['auth', 'permission:parents.update'])->group(function () {
     Route::get('parents/{parent}/edit', [ParentController::class, 'edit'])->name('parents.edit')->whereNumber('parent');
     Route::put('parents/{parent}', [ParentController::class, 'update'])->name('parents.update')->whereNumber('parent');
     Route::patch('parents/{parent}', [ParentController::class, 'update'])->whereNumber('parent');
-    Route::post('parents/{parent}/verification', [ParentController::class, 'submitVerification'])->name('parents.verification.store')->whereNumber('parent');
 });
+
+Route::post('parents/verification/{token}', [ParentController::class, 'submitVerification'])
+    ->name('parents.verification.store')
+    ->where('token', '[A-Za-z0-9]+');
 
 Route::middleware(['auth', 'permission:parents.delete'])->group(function () {
     Route::delete('parents/{parent}', [ParentController::class, 'destroy'])->name('parents.destroy')->whereNumber('parent');

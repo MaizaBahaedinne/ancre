@@ -1,75 +1,85 @@
-@extends('adminlte::page')
-
-@section('title', 'Verification parent')
-
-@section('content_header')
-    <h1 class="m-0">Verification du compte parent</h1>
-@stop
-
-@section('content')
-    <div class="row">
-        <div class="col-lg-5 mb-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    <div id="verification-qr-code" class="d-inline-block p-2 bg-white border rounded mb-3"></div>
-                    <div class="small text-muted">Scannez ce QR code pour ouvrir cette page sur mobile.</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="mb-3">Parent</h5>
-                    <div><strong>Nom:</strong> {{ $parent->nom }} {{ $parent->prenom }}</div>
-                    <div><strong>CIN:</strong> {{ $parent->numero_cin ?: '-' }}</div>
-                    <div><strong>Email:</strong> {{ $parent->email ?: '-' }}</div>
-                    <div><strong>Statut:</strong> {{ ucfirst($parent->verification_status ?? 'pending') }}</div>
-                </div>
-            </div>
+<x-guest-layout>
+    <div class="d-flex flex-column gap-4">
+        <div>
+            <h1 class="h3 fw-bold mb-2 text-dark">Verification du compte parent</h1>
+            <p class="text-secondary mb-0">Cette page est accessible par QR code et ne demande aucun login pour finaliser la creation du compte parent.</p>
         </div>
 
-        <div class="col-lg-7 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST" action="{{ route('parents.verification.store', $parent) }}" enctype="multipart/form-data">
-                        @csrf
+        @if (session('success'))
+            <div class="alert alert-success mb-0">{{ session('success') }}</div>
+        @endif
 
-                        <div class="alert alert-info">
-                            Chargez le recto et le verso de la piece d'identite, ajoutez la signature du parent et acceptez les reglements avant de valider.
+        @if (session('temporary_password'))
+            <div class="alert alert-info mb-0">Compte parent cree avec succes. Mot de passe temporaire: <strong>{{ session('temporary_password') }}</strong></div>
+        @endif
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-5 text-center">
+                        <div id="verification-qr-code" class="d-inline-block p-2 bg-white border rounded mb-3"></div>
+                        <div class="small text-muted">Scannez ce QR code pour ouvrir cette page sur mobile.</div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <div><strong>Nom:</strong> {{ $parent->nom }} {{ $parent->prenom }}</div>
+                            <div><strong>CIN:</strong> {{ $parent->numero_cin ?: '-' }}</div>
+                            <div><strong>Email:</strong> {{ $parent->email ?: '-' }}</div>
+                            <div><strong>Statut:</strong> {{ ucfirst($parent->verification_status ?? 'pending') }}</div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Recto de la piece</label>
-                            <input type="file" name="identity_documents[]" class="form-control @error('identity_documents') is-invalid @enderror" accept="image/*,application/pdf" required>
-                            @error('identity_documents')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
+                        @if(($parent->verification_status ?? 'pending') !== 'verified')
+                            <form method="POST" action="{{ route('parents.verification.store', $parent->verification_token) }}" enctype="multipart/form-data" class="d-grid gap-3">
+                                @csrf
 
-                        <div class="form-group">
-                            <label>Verso de la piece</label>
-                            <input type="file" name="identity_documents[]" class="form-control @error('identity_documents') is-invalid @enderror" accept="image/*,application/pdf" required>
-                        </div>
+                                <div class="alert alert-info mb-0">
+                                    Chargez le recto et le verso de la piece d'identite, ajoutez la signature du parent et acceptez les reglements avant de valider.
+                                </div>
 
-                        <div class="form-group">
-                            <label>Signature du parent</label>
-                            <input type="text" name="verification_signature" class="form-control @error('verification_signature') is-invalid @enderror" value="{{ old('verification_signature') }}" placeholder="Nom complet et signature" required>
-                            @error('verification_signature')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
+                                <div>
+                                    <label class="form-label">Email du parent</label>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $parent->email) }}" required>
+                                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
 
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="terms_accepted" name="terms_accepted" value="1" required>
-                            <label class="form-check-label" for="terms_accepted">J'accepte les reglements et les conditions de la societe</label>
-                            @error('terms_accepted')<div class="text-danger small">{{ $message }}</div>@enderror
-                        </div>
+                                <div>
+                                    <label class="form-label">Recto de la piece</label>
+                                    <input type="file" name="identity_documents[]" class="form-control @error('identity_documents') is-invalid @enderror" accept="application/pdf,image/*" required>
+                                    @error('identity_documents')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
 
-                        <button type="submit" class="btn btn-primary">Soumettre la verification</button>
-                        <a href="{{ route('parents.show', $parent) }}" class="btn btn-secondary">Retour</a>
-                    </form>
+                                <div>
+                                    <label class="form-label">Verso de la piece</label>
+                                    <input type="file" name="identity_documents[]" class="form-control" accept="application/pdf,image/*" required>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Signature du parent</label>
+                                    <input type="text" name="verification_signature" class="form-control @error('verification_signature') is-invalid @enderror" value="{{ old('verification_signature') }}" placeholder="Nom complet et signature" required>
+                                    @error('verification_signature')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="terms_accepted" name="terms_accepted" value="1" required>
+                                    <label class="form-check-label" for="terms_accepted">J'accepte les reglements et les conditions de la societe</label>
+                                    @error('terms_accepted')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="submit" class="btn btn-primary">Soumettre la verification</button>
+                                    <a href="{{ route('parents.show', $parent) }}" class="btn btn-outline-secondary">Retour admin</a>
+                                </div>
+                            </form>
+                        @else
+                            <div class="alert alert-success mb-0">La verification est deja completee. Le compte parent a ete cree.</div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-@stop
 
-@section('js')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         (() => {
@@ -77,7 +87,7 @@
 
             if (qrContainer) {
                 new QRCode(qrContainer, {
-                    text: @json(route('parents.verification', $parent)),
+                    text: @json(route('parents.verification', $parent->verification_token)),
                     width: 180,
                     height: 180,
                     correctLevel: QRCode.CorrectLevel.M,
@@ -85,4 +95,4 @@
             }
         })();
     </script>
-@stop
+</x-guest-layout>

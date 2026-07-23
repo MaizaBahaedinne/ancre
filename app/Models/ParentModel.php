@@ -28,6 +28,7 @@ class ParentModel extends Model
         'user_id',
         'cin_recto',
         'cin_verso',
+        'verification_token',
         'verification_status',
         'verification_submitted_at',
         'verified_at',
