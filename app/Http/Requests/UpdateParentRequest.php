@@ -44,7 +44,9 @@ class UpdateParentRequest extends FormRequest
                 'max:255',
                 Rule::unique('parents', 'email')->ignore($parentId),
             ],
-            'adresse' => ['nullable', 'string', 'max:255'],
+            'adresse_rue' => ['nullable', 'string', 'max:255'],
+            'adresse_ville' => ['nullable', 'string', 'max:255'],
+            'adresse_gouvernorat' => ['nullable', 'string', 'max:255'],
             'profession' => ['nullable', 'string', 'max:255'],
             'contact_urgence' => ['nullable', 'string', 'max:30'],
             'cin_recto' => [

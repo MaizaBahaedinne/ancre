@@ -81,10 +81,22 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Adresse</label>
-                    <input type="text" name="adresse" class="form-control @error('adresse') is-invalid @enderror" value="{{ old('adresse', $parent->adresse) }}">
-                    @error('adresse') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label>Rue</label>
+                        <input type="text" name="adresse_rue" class="form-control @error('adresse_rue') is-invalid @enderror" value="{{ old('adresse_rue', $parent->adresse_rue) }}">
+                        @error('adresse_rue') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Ville</label>
+                        <input type="text" name="adresse_ville" class="form-control @error('adresse_ville') is-invalid @enderror" value="{{ old('adresse_ville', $parent->adresse_ville) }}">
+                        @error('adresse_ville') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Gouvernorat</label>
+                        <input type="text" name="adresse_gouvernorat" class="form-control @error('adresse_gouvernorat') is-invalid @enderror" value="{{ old('adresse_gouvernorat', $parent->adresse_gouvernorat) }}">
+                        @error('adresse_gouvernorat') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
                 <div class="card card-outline card-info">

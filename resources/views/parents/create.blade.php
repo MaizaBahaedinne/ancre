@@ -7,56 +7,10 @@
 @stop
 
 @section('content')
-    @php
-        $scanTokenValue = old('cin_scan_token', $scanToken ?? '');
-        $scannerUrl = $scanTokenValue ? route('parents.cin-scanner', $scanTokenValue) : null;
-        $scannerStatusUrl = $scanTokenValue ? route('parents.cin-scanner.status', $scanTokenValue) : null;
-    @endphp
-
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="{{ route('parents.store') }}" enctype="multipart/form-data" id="parent-create-form" data-scan-status-url="{{ $scannerStatusUrl }}">
+            <form method="POST" action="{{ route('parents.store') }}" enctype="multipart/form-data" id="parent-create-form">
                 @csrf
-                <input type="hidden" name="cin_scan_token" value="{{ $scanTokenValue }}">
-
-                <div class="alert alert-info">
-                    Vous pouvez soit charger les documents depuis cet appareil, soit scanner la CIN avec votre smartphone via le QR code ci-dessous.
-                </div>
-
-                <div class="card card-outline card-primary mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h3 class="card-title mb-0">Assistant de scan smartphone</h3>
-                        @if($scannerUrl)
-                            <span class="badge badge-primary">Token actif</span>
-                        @endif
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-4 align-items-center">
-                            <div class="col-md-4 text-center">
-                                <div id="cin-qr-code" class="d-inline-block p-2 bg-white rounded border"></div>
-                                @if($scannerUrl)
-                                    <div class="mt-2">
-                                        <a href="{{ $scannerUrl }}" target="_blank" rel="noopener">Ouvrir la page scanner</a>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="col-md-8">
-                                <p class="mb-2">Scannez ce QR code avec votre smartphone pour ouvrir la caméra et transférer les deux faces de la CIN.</p>
-                                <div class="d-grid gap-2">
-                                    <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2" data-scan-status-item="cin_recto">
-                                        <span>Recto via smartphone</span>
-                                        <span class="badge badge-secondary" data-scan-badge="cin_recto">En attente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2" data-scan-status-item="cin_verso">
-                                        <span>Verso via smartphone</span>
-                                        <span class="badge badge-secondary" data-scan-badge="cin_verso">En attente</span>
-                                    </div>
-                                </div>
-                                <small class="text-muted d-block mt-2">Le bouton d'enregistrement reste disponible aussi pour l'upload classique depuis PC, tablette ou mobile.</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="col-md-6 form-group">
@@ -127,121 +81,41 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Adresse</label>
-                    <input type="text" name="adresse" class="form-control @error('adresse') is-invalid @enderror" value="{{ old('adresse') }}">
-                    @error('adresse') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label>Rue</label>
+                        <input type="text" name="adresse_rue" class="form-control @error('adresse_rue') is-invalid @enderror" value="{{ old('adresse_rue') }}">
+                        @error('adresse_rue') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Ville</label>
+                        <input type="text" name="adresse_ville" class="form-control @error('adresse_ville') is-invalid @enderror" value="{{ old('adresse_ville') }}">
+                        @error('adresse_ville') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Gouvernorat</label>
+                        <input type="text" name="adresse_gouvernorat" class="form-control @error('adresse_gouvernorat') is-invalid @enderror" value="{{ old('adresse_gouvernorat') }}">
+                        @error('adresse_gouvernorat') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">Documents d'identite (obligatoires)</h3>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>CIN Recto (image ou PDF)</label>
+                        <input type="file" name="cin_recto" id="cin-recto-file" class="form-control-file @error('cin_recto') is-invalid @enderror" accept="image/*,application/pdf">
+                        @error('cin_recto') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label>CIN Recto (image ou PDF)</label>
-                                <input type="file" name="cin_recto" id="cin-recto-file" class="form-control-file @error('cin_recto') is-invalid @enderror" accept="image/*,application/pdf">
-                                @error('cin_recto') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label>CIN Verso (image ou PDF)</label>
-                                <input type="file" name="cin_verso" id="cin-verso-file" class="form-control-file @error('cin_verso') is-invalid @enderror" accept="image/*,application/pdf">
-                                @error('cin_verso') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                        <small class="text-muted">Le profil parent ne peut pas etre valide sans ces documents.</small>
+                    <div class="col-md-6 form-group">
+                        <label>CIN Verso (image ou PDF)</label>
+                        <input type="file" name="cin_verso" id="cin-verso-file" class="form-control-file @error('cin_verso') is-invalid @enderror" accept="image/*,application/pdf">
+                        @error('cin_verso') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                     </div>
                 </div>
+                <small class="text-muted d-block mb-3">Le profil parent ne peut pas etre valide sans ces documents.</small>
 
                 <button class="btn btn-primary" id="parent-submit-btn">Enregistrer</button>
                 <a href="{{ route('parents.index') }}" class="btn btn-secondary">Annuler</a>
             </form>
         </div>
     </div>
-@stop
-
-@section('js')
-    @if($scannerUrl)
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-        <script>
-            (() => {
-                const qrContainer = document.getElementById('cin-qr-code');
-                const form = document.getElementById('parent-create-form');
-                const statusUrl = form?.dataset.scanStatusUrl;
-                const submitButton = document.getElementById('parent-submit-btn');
-                const rectoInput = document.getElementById('cin-recto-file');
-                const versoInput = document.getElementById('cin-verso-file');
-                const badgeRecto = document.querySelector('[data-scan-badge="cin_recto"]');
-                const badgeVerso = document.querySelector('[data-scan-badge="cin_verso"]');
-                const tokenValue = @json($scanTokenValue);
-                let scanState = { recto: false, verso: false };
-
-                if (qrContainer) {
-                    new QRCode(qrContainer, {
-                        text: @json($scannerUrl),
-                        width: 180,
-                        height: 180,
-                        correctLevel: QRCode.CorrectLevel.M,
-                    });
-                }
-
-                const manualReady = (input) => Boolean(input && input.files && input.files.length > 0);
-
-                const refreshUi = () => {
-                    const rectoReady = manualReady(rectoInput) || scanState.recto;
-                    const versoReady = manualReady(versoInput) || scanState.verso;
-
-                    if (badgeRecto) {
-                        badgeRecto.textContent = rectoReady ? 'Prêt' : 'En attente';
-                        badgeRecto.className = rectoReady ? 'badge badge-success' : 'badge badge-secondary';
-                    }
-
-                    if (badgeVerso) {
-                        badgeVerso.textContent = versoReady ? 'Prêt' : 'En attente';
-                        badgeVerso.className = versoReady ? 'badge badge-success' : 'badge badge-secondary';
-                    }
-
-                    if (submitButton) {
-                        submitButton.disabled = !(rectoReady && versoReady);
-                    }
-                };
-
-                const loadStatus = async () => {
-                    if (!statusUrl || !tokenValue) {
-                        refreshUi();
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(statusUrl, {
-                            headers: { 'Accept': 'application/json' },
-                        });
-
-                        if (!response.ok) {
-                            refreshUi();
-                            return;
-                        }
-
-                        const payload = await response.json();
-                        scanState = {
-                            recto: Boolean(payload.recto),
-                            verso: Boolean(payload.verso),
-                        };
-                    } catch (error) {
-                        // ignore polling errors and keep the form usable for manual upload
-                    }
-
-                    refreshUi();
-                };
-
-                rectoInput?.addEventListener('change', refreshUi);
-                versoInput?.addEventListener('change', refreshUi);
-
-                refreshUi();
-                loadStatus();
-                window.setInterval(loadStatus, 4000);
-            })();
-        </script>
-    @endif
 @stop

@@ -226,61 +226,63 @@
         $needsVerification = ! $verificationCompleted;
     @endphp
 
-    <div class="modal fade" id="verificationPromptModal" tabindex="-1" aria-labelledby="verificationPromptModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="verificationPromptModalLabel">Verification du compte parent</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-2">Scannez le QR code avec le smartphone du parent pour envoyer le recto, le verso et la signature manuscrite. L'etat se met a jour automatiquement sur cet ecran.</p>
-                    <div class="text-center mb-3">
-                        <div id="parent-verification-qr" class="d-inline-block p-2 bg-white border rounded"></div>
+    @if($needsVerification)
+        <div class="modal fade" id="verificationPromptModal" tabindex="-1" aria-labelledby="verificationPromptModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="verificationPromptModalLabel">Verification du compte parent</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <div class="d-grid gap-2 mb-3">
-                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
-                            <span>Recto smartphone</span>
-                            <span class="badge badge-secondary" data-verification-badge="recto">En attente</span>
+                    <div class="modal-body">
+                        <p class="mb-2">Scannez le QR code avec le smartphone du parent pour envoyer le recto, le verso et la signature manuscrite. L'etat se met a jour automatiquement sur cet ecran.</p>
+                        <div class="text-center mb-3">
+                            <div id="parent-verification-qr" class="d-inline-block p-2 bg-white border rounded"></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
-                            <span>Verso smartphone</span>
-                            <span class="badge badge-secondary" data-verification-badge="verso">En attente</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
-                            <span>Signature manuscrite</span>
-                            <span class="badge badge-secondary" data-verification-badge="signature">En attente</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
-                            <span>Verification complete</span>
-                            <span class="badge badge-secondary" data-verification-badge="verified">En attente</span>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <div class="border rounded p-2 h-100 bg-light">
-                                <div class="small fw-semibold mb-2">Apercu recto</div>
-                                <div data-verification-preview="recto" class="small text-muted">Aucun document recu</div>
+                        <div class="d-grid gap-2 mb-3">
+                            <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                                <span>Recto smartphone</span>
+                                <span class="badge badge-secondary" data-verification-badge="recto">En attente</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                                <span>Verso smartphone</span>
+                                <span class="badge badge-secondary" data-verification-badge="verso">En attente</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                                <span>Signature manuscrite</span>
+                                <span class="badge badge-secondary" data-verification-badge="signature">En attente</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                                <span>Verification complete</span>
+                                <span class="badge badge-secondary" data-verification-badge="verified">En attente</span>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="border rounded p-2 h-100 bg-light">
-                                <div class="small fw-semibold mb-2">Apercu verso</div>
-                                <div data-verification-preview="verso" class="small text-muted">Aucun document recu</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="border rounded p-2 h-100 bg-light">
+                                    <div class="small fw-semibold mb-2">Apercu recto</div>
+                                    <div data-verification-preview="recto" class="small text-muted">Aucun document recu</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border rounded p-2 h-100 bg-light">
+                                    <div class="small fw-semibold mb-2">Apercu verso</div>
+                                    <div data-verification-preview="verso" class="small text-muted">Aucun document recu</div>
+                                </div>
                             </div>
                         </div>
+                        <div class="small text-muted">Statut actuel: {{ ucfirst($verificationStatus) }}</div>
                     </div>
-                    <div class="small text-muted">Statut actuel: {{ ucfirst($verificationStatus) }}</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Plus tard</button>
-                    <a href="{{ $verificationUrl }}" class="btn btn-primary">Aller a la verification</a>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Plus tard</button>
+                        <a href="{{ $verificationUrl }}" class="btn btn-primary">Aller a la verification</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <div class="parent-profile-shell">
         <section class="parent-profile-hero card border-0">
@@ -313,7 +315,9 @@
                         </div>
                     </div>
                     <div class="parent-profile-actions">
-                        <a href="{{ $verificationUrl }}" class="btn btn-info">Verifier le compte</a>
+                        @if($needsVerification)
+                            <a href="{{ $verificationUrl }}" class="btn btn-info">Verifier le compte</a>
+                        @endif
                         <a href="{{ route('parents.edit', $parent) }}" class="btn btn-warning">Modifier</a>
                         <a href="{{ route('parents.index', $parent) }}" class="btn btn-secondary">Retour</a>
                     </div>
@@ -374,7 +378,9 @@
                             <li><i class="fa-solid fa-id-card"></i><div><span>Numero CIN</span><strong>{{ $parent->numero_cin ?: '-' }}</strong></div></li>
                             <li><i class="fa-solid fa-calendar-days"></i><div><span>Date de delivrance</span><strong>{{ optional($parent->date_delivrance_cin)->format('d/m/Y') ?: '-' }}</strong></div></li>
                             <li><i class="fa-solid fa-cake-candles"></i><div><span>Date de naissance</span><strong>{{ optional($parent->date_naissance)->format('d/m/Y') ?: '-' }}</strong></div></li>
-                            <li><i class="fa-solid fa-location-dot"></i><div><span>Adresse</span><strong>{{ $parent->adresse ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-road"></i><div><span>Rue</span><strong>{{ $parent->adresse_rue ?: ($parent->adresse ?: '-') }}</strong></div></li>
+                            <li><i class="fa-solid fa-city"></i><div><span>Ville</span><strong>{{ $parent->adresse_ville ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-map-location-dot"></i><div><span>Gouvernorat</span><strong>{{ $parent->adresse_gouvernorat ?: '-' }}</strong></div></li>
                             <li><i class="fa-solid fa-briefcase"></i><div><span>Profession</span><strong>{{ $parent->profession ?: '-' }}</strong></div></li>
                             <li><i class="fa-solid fa-triangle-exclamation"></i><div><span>Contact urgence</span><strong>{{ $parent->contact_urgence ?: '-' }}</strong></div></li>
                         </ul>
