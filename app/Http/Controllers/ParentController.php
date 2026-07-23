@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
@@ -109,8 +110,6 @@ class ParentController extends Controller
      */
     public function show(ParentModel $parent): View
     {
-        $verificationToken = $this->ensureVerificationToken($parent);
-
         $parent->load(['user.roles'])->loadCount('enfants');
 
         $linkedEnfants = Enfant::query()
@@ -127,24 +126,20 @@ class ParentController extends Controller
         return view('parents.show', [
             'parent' => $parent,
             'linkedEnfants' => $linkedEnfants,
-            'verificationUrl' => route('parents.verification', $verificationToken),
+            'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
         ]);
     }
 
-    public function verification(string $token): View
+    public function verification(ParentModel $parent): View
     {
-        $parent = ParentModel::query()->where('verification_token', $token)->firstOrFail();
-
         return view('parents.verification', [
             'parent' => $parent,
-            'verificationUrl' => route('parents.verification', $parent->verification_token),
+            'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
         ]);
     }
 
-    public function submitVerification(Request $request, string $token): RedirectResponse
+    public function submitVerification(Request $request, ParentModel $parent): RedirectResponse
     {
-        $parent = ParentModel::query()->where('verification_token', $token)->firstOrFail();
-
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],
             'verification_signature' => ['required', 'string', 'max:255'],
@@ -191,22 +186,9 @@ class ParentController extends Controller
         ]);
 
         return redirect()
-            ->route('parents.verification', $token)
+            ->to(URL::signedRoute('parents.verification', ['parent' => $parent->id]))
             ->with('success', 'Verification de compte parent enregistree avec succes.')
             ->with('temporary_password', $temporaryPassword);
-    }
-
-    private function ensureVerificationToken(ParentModel $parent): string
-    {
-        if ($parent->verification_token) {
-            return $parent->verification_token;
-        }
-
-        $parent->forceFill([
-            'verification_token' => Str::random(64),
-        ])->save();
-
-        return $parent->verification_token;
     }
 
     public function createUser(ParentModel $parent, Request $request): RedirectResponse

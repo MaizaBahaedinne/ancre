@@ -94,9 +94,10 @@ Route::middleware(['auth', 'permission:parents.view'])->group(function () {
     Route::get('parents/{parent}', [ParentController::class, 'show'])->name('parents.show')->whereNumber('parent');
 });
 
-Route::get('parents/verification/{token}', [ParentController::class, 'verification'])
+Route::get('parents/{parent}/verification', [ParentController::class, 'verification'])
     ->name('parents.verification')
-    ->where('token', '[A-Za-z0-9]+');
+    ->middleware('signed')
+    ->whereNumber('parent');
 
 Route::middleware(['auth', 'permission:parents.create'])->group(function () {
     Route::get('parents/create', [ParentController::class, 'create'])->name('parents.create');
@@ -121,9 +122,10 @@ Route::middleware(['auth', 'permission:parents.update'])->group(function () {
     Route::patch('parents/{parent}', [ParentController::class, 'update'])->whereNumber('parent');
 });
 
-Route::post('parents/verification/{token}', [ParentController::class, 'submitVerification'])
+Route::post('parents/{parent}/verification', [ParentController::class, 'submitVerification'])
     ->name('parents.verification.store')
-    ->where('token', '[A-Za-z0-9]+');
+    ->middleware('signed')
+    ->whereNumber('parent');
 
 Route::middleware(['auth', 'permission:parents.delete'])->group(function () {
     Route::delete('parents/{parent}', [ParentController::class, 'destroy'])->name('parents.destroy')->whereNumber('parent');

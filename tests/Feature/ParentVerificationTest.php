@@ -6,6 +6,7 @@ use App\Models\ParentModel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\URL;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -33,10 +34,7 @@ class ParentVerificationTest extends TestCase
         $response->assertOk();
         $response->assertSee('Verification du compte parent', false);
 
-        $parent->refresh();
-
-        $this->assertNotNull($parent->verification_token);
-        $response->assertSee(route('parents.verification', $parent->verification_token), false);
+        $response->assertSee(URL::signedRoute('parents.verification', ['parent' => $parent->id]), false);
     }
 
     public function test_verification_page_is_public_and_renders_form(): void
@@ -47,10 +45,9 @@ class ParentVerificationTest extends TestCase
             'telephone' => '12345678',
             'email' => 'parent@example.com',
             'verification_status' => 'pending',
-            'verification_token' => 'ABC123TOKEN',
         ]);
 
-        $response = $this->get(route('parents.verification', $parent->verification_token));
+        $response = $this->get(URL::signedRoute('parents.verification', ['parent' => $parent->id]));
 
         $response->assertOk();
         $response->assertSee('Soumettre la verification', false);
@@ -65,10 +62,11 @@ class ParentVerificationTest extends TestCase
             'telephone' => '12345678',
             'email' => 'parent@example.com',
             'verification_status' => 'pending',
-            'verification_token' => 'ABC123TOKEN',
         ]);
 
-        $response = $this->from(route('parents.verification', $parent->verification_token))->post(route('parents.verification.store', $parent->verification_token), [
+        $verificationUrl = URL::signedRoute('parents.verification', ['parent' => $parent->id]);
+
+        $response = $this->from($verificationUrl)->post(URL::signedRoute('parents.verification.store', ['parent' => $parent->id]), [
             'email' => 'parent@example.com',
             'verification_signature' => 'Parent Signature',
             'terms_accepted' => 1,
@@ -78,7 +76,7 @@ class ParentVerificationTest extends TestCase
             ],
         ]);
 
-        $response->assertRedirect(route('parents.verification', $parent->verification_token));
+        $response->assertRedirect($verificationUrl);
         $response->assertSessionHas('success');
 
         $createdUser = User::query()->where('email', 'parent@example.com')->first();

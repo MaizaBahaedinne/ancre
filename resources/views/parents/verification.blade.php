@@ -30,7 +30,7 @@
                         </div>
 
                         @if(($parent->verification_status ?? 'pending') !== 'verified')
-                            <form method="POST" action="{{ route('parents.verification.store', $parent->verification_token) }}" enctype="multipart/form-data" class="d-grid gap-3">
+                            <form method="POST" action="{{ $verificationUrl }}" enctype="multipart/form-data" class="d-grid gap-3">
                                 @csrf
 
                                 <div class="alert alert-info mb-0">
@@ -87,7 +87,7 @@
 
             if (qrContainer) {
                 new QRCode(qrContainer, {
-                    text: @json(route('parents.verification', $parent->verification_token)),
+                    text: @json($verificationUrl),
                     width: 180,
                     height: 180,
                     correctLevel: QRCode.CorrectLevel.M,
