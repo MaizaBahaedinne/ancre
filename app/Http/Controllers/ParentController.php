@@ -152,21 +152,27 @@ class ParentController extends Controller
 
         return response()->json([
             'parent_id' => $parent->id,
-            'recto' => [
-                'ready' => (bool) ($draftRecto || $parent->cin_recto),
-                'source' => $draftRecto ? 'smartphone' : ($parent->cin_recto ? 'stored' : null),
-            ],
-            'verso' => [
-                'ready' => (bool) ($draftVerso || $parent->cin_verso),
-                'source' => $draftVerso ? 'smartphone' : ($parent->cin_verso ? 'stored' : null),
-            ],
-            'signature' => [
-                'ready' => (bool) ($draftSignature || $parent->verification_signature),
-                'source' => $draftSignature ? 'smartphone' : ($parent->verification_signature ? 'stored' : null),
-            ],
+            'recto' => $this->verificationAssetPayload($draftRecto ?: $parent->cin_recto, $draftRecto ? 'smartphone' : ($parent->cin_recto ? 'stored' : null)),
+            'verso' => $this->verificationAssetPayload($draftVerso ?: $parent->cin_verso, $draftVerso ? 'smartphone' : ($parent->cin_verso ? 'stored' : null)),
+            'signature' => $this->verificationAssetPayload($draftSignature ?: $parent->verification_signature, $draftSignature ? 'smartphone' : ($parent->verification_signature ? 'stored' : null)),
             'verified' => ($parent->verification_status ?? 'pending') === 'verified',
             'user_created' => (bool) $parent->user_id,
         ]);
+    }
+
+    private function verificationAssetPayload(?string $path, ?string $source): array
+    {
+        $extension = $path ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : null;
+        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
+
+        return [
+            'ready' => (bool) $path,
+            'source' => $source,
+            'path' => $path,
+            'url' => $path ? Storage::disk('public')->url($path) : null,
+            'is_image' => $isImage,
+            'extension' => $extension,
+        ];
     }
 
     public function storeVerificationDocument(Request $request, ParentModel $parent): JsonResponse

@@ -54,6 +54,20 @@
                             <span class="badge badge-secondary" data-verification-badge="verified">En attente</span>
                         </div>
                     </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2 h-100 bg-light">
+                                <div class="small fw-semibold mb-2">Apercu recto</div>
+                                <div data-verification-preview="recto" class="small text-muted">Aucun document recu</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2 h-100 bg-light">
+                                <div class="small fw-semibold mb-2">Apercu verso</div>
+                                <div data-verification-preview="verso" class="small text-muted">Aucun document recu</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="small text-muted">Statut actuel: {{ ucfirst($verificationStatus) }}</div>
                 </div>
                 <div class="modal-footer">
@@ -227,6 +241,10 @@
                 signature: document.querySelector('[data-verification-badge="signature"]'),
                 verified: document.querySelector('[data-verification-badge="verified"]'),
             };
+            const previews = {
+                recto: document.querySelector('[data-verification-preview="recto"]'),
+                verso: document.querySelector('[data-verification-preview="verso"]'),
+            };
 
             if (qrContainer) {
                 new QRCode(qrContainer, {
@@ -244,6 +262,24 @@
 
                 element.textContent = ready ? doneText : 'En attente';
                 element.className = ready ? 'badge badge-success' : 'badge badge-secondary';
+            };
+
+            const renderPreview = (container, payload) => {
+                if (!container) {
+                    return;
+                }
+
+                if (!payload?.ready || !payload?.url) {
+                    container.innerHTML = '<span class="small text-muted">Aucun document recu</span>';
+                    return;
+                }
+
+                if (payload.is_image) {
+                    container.innerHTML = `<img src="${payload.url}" alt="Document" class="img-fluid rounded border">`;
+                    return;
+                }
+
+                container.innerHTML = `<a href="${payload.url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">Ouvrir le fichier ${payload.extension ? payload.extension.toUpperCase() : ''}</a>`;
             };
 
             const loadStatus = async () => {
@@ -266,6 +302,8 @@
                     setBadgeState(badges.verso, Boolean(payload.verso?.ready));
                     setBadgeState(badges.signature, Boolean(payload.signature?.ready), 'Signee');
                     setBadgeState(badges.verified, Boolean(payload.verified), 'Complete');
+                    renderPreview(previews.recto, payload.recto);
+                    renderPreview(previews.verso, payload.verso);
 
                     if (payload.verified) {
                         window.setTimeout(() => window.location.reload(), 1200);

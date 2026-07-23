@@ -51,8 +51,9 @@ class ParentVerificationTest extends TestCase
         $response = $this->get(URL::signedRoute('parents.verification', ['parent' => $parent->id]));
 
         $response->assertOk();
-        $response->assertSee('Soumettre la verification', false);
+        $response->assertSee('Finaliser et creer le compte', false);
         $response->assertSee('Email du parent', false);
+        $response->assertSee('Signature manuscrite du parent', false);
     }
 
     public function test_verification_submission_creates_parent_user_after_validation(): void
