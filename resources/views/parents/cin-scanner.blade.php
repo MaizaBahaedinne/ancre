@@ -115,6 +115,73 @@
             font-weight: 700;
         }
 
+        .scanner-stepper {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.65rem;
+            margin-top: 0.9rem;
+        }
+
+        .scanner-step {
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 16px;
+            padding: 0.8rem 0.85rem;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .scanner-step::before {
+            content: '';
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 4px;
+            background: #cbd5e1;
+        }
+
+        .scanner-step.is-active::before {
+            background: linear-gradient(90deg, #0b2448, #0c7abf);
+        }
+
+        .scanner-step.is-done::before {
+            background: #16a34a;
+        }
+
+        .scanner-step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 999px;
+            margin-bottom: 0.45rem;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #fff;
+            background: #94a3b8;
+        }
+
+        .scanner-step.is-active .scanner-step-number {
+            background: linear-gradient(135deg, #0b2448, #0c7abf);
+        }
+
+        .scanner-step.is-done .scanner-step-number {
+            background: #16a34a;
+        }
+
+        .scanner-step-title {
+            font-size: 0.88rem;
+            font-weight: 800;
+            margin: 0 0 0.2rem;
+        }
+
+        .scanner-step-text {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.84rem;
+            line-height: 1.4;
+        }
+
         .status-item {
             display: flex;
             justify-content: space-between;
@@ -179,6 +246,10 @@
             .scanner-actions {
                 grid-template-columns: 1fr;
             }
+
+            .scanner-stepper {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -188,6 +259,24 @@
             <header class="scanner-hero">
                 <h1>Scanner la piece d'identite</h1>
                 <p>Utilisez la camera de votre smartphone pour envoyer le recto et le verso. Le dossier sur l'ordinateur attendra la reception des images.</p>
+
+                <div class="scanner-stepper">
+                    <div class="scanner-step is-active" data-step="recto">
+                        <div class="scanner-step-number">1</div>
+                        <p class="scanner-step-title">Scanner recto</p>
+                        <p class="scanner-step-text">Capturez la face avant de la CIN.</p>
+                    </div>
+                    <div class="scanner-step" data-step="verso">
+                        <div class="scanner-step-number">2</div>
+                        <p class="scanner-step-title">Valider verso</p>
+                        <p class="scanner-step-text">Ensuite, envoyez la face arriere.</p>
+                    </div>
+                    <div class="scanner-step" data-step="complete">
+                        <div class="scanner-step-number">3</div>
+                        <p class="scanner-step-title">Validation complete</p>
+                        <p class="scanner-step-text">Les deux documents sont recus.</p>
+                    </div>
+                </div>
             </header>
 
             <div class="scanner-grid">
@@ -245,15 +334,15 @@
 
                     <div class="status-item">
                         <div>
-                            <div class="status-title">Recto</div>
-                            <small class="text-muted">Attente ou reception</small>
+                            <div class="status-title">Etape 1 - Recto</div>
+                            <small class="text-muted">Scanner puis valider le recto</small>
                         </div>
                         <span class="badge bg-secondary" id="recto-status">En attente</span>
                     </div>
                     <div class="status-item">
                         <div>
-                            <div class="status-title">Verso</div>
-                            <small class="text-muted">Attente ou reception</small>
+                            <div class="status-title">Etape 2 - Verso</div>
+                            <small class="text-muted">Disponible apres validation du recto</small>
                         </div>
                         <span class="badge bg-secondary" id="verso-status">En attente</span>
                     </div>
@@ -288,6 +377,11 @@
             const versoStatus = document.getElementById('verso-status');
             const rectoPreviewBox = document.getElementById('recto-preview-box');
             const versoPreviewBox = document.getElementById('verso-preview-box');
+            const steps = {
+                recto: document.querySelector('[data-step="recto"]'),
+                verso: document.querySelector('[data-step="verso"]'),
+                complete: document.querySelector('[data-step="complete"]'),
+            };
             const startCameraBtn = document.getElementById('start-camera-btn');
             const switchCameraBtn = document.getElementById('switch-camera-btn');
             const rectoFallback = document.getElementById('fallback-recto');
@@ -325,15 +419,37 @@
             const renderStatus = () => {
                 const rectoReady = Boolean(statusState.recto);
                 const versoReady = Boolean(statusState.verso);
+                const complete = statusState.completed;
                 rectoStatus.className = rectoReady ? 'badge bg-success' : 'badge bg-secondary';
                 versoStatus.className = versoReady ? 'badge bg-success' : 'badge bg-secondary';
                 rectoStatus.textContent = rectoReady ? 'Recu' : 'En attente';
                 versoStatus.textContent = versoReady ? 'Recu' : 'En attente';
-                overallStatus.className = statusState.completed ? 'badge bg-success' : 'badge bg-secondary';
-                overallStatus.textContent = statusState.completed ? 'Pret' : 'En attente';
+                overallStatus.className = complete ? 'badge bg-success' : (rectoReady ? 'badge bg-primary' : 'badge bg-secondary');
+                overallStatus.textContent = complete ? 'Validation complete' : (rectoReady ? 'Recto valide' : 'En attente');
                 updatePreview(rectoPreviewBox, statusState.recto?.url || null);
                 updatePreview(versoPreviewBox, statusState.verso?.url || null);
                 overlay.classList.toggle('d-none', Boolean(stream));
+
+                if (steps.recto) {
+                    steps.recto.classList.toggle('is-done', rectoReady);
+                    steps.recto.classList.toggle('is-active', !rectoReady);
+                }
+
+                if (steps.verso) {
+                    steps.verso.classList.toggle('is-active', rectoReady && !versoReady);
+                    steps.verso.classList.toggle('is-done', versoReady);
+                }
+
+                if (steps.complete) {
+                    steps.complete.classList.toggle('is-active', complete);
+                    steps.complete.classList.toggle('is-done', complete);
+                }
+
+                const versoCaptureButton = document.querySelector('[data-capture-side="cin_verso"]');
+                if (versoCaptureButton) {
+                    versoCaptureButton.disabled = !rectoReady;
+                    versoCaptureButton.title = rectoReady ? '' : 'Validez d abord le recto';
+                }
             };
 
             const disableCameraUi = () => {
@@ -421,6 +537,11 @@
             };
 
             const captureFromCamera = async (side) => {
+                if (side === 'cin_verso' && !statusState.recto) {
+                    showMessage('Scannez et validez d abord le recto avant le verso.', true);
+                    return;
+                }
+
                 if (!stream) {
                     await startCamera();
                 }
@@ -456,6 +577,7 @@
                 if (rectoFallback.files?.[0]) {
                     try {
                         await uploadFile('cin_recto', rectoFallback.files[0]);
+                        showMessage('Recto valide. Vous pouvez maintenant envoyer le verso.', false);
                     } catch (error) {
                         showMessage('Le chargement du recto a echoue.', true);
                     }
@@ -463,9 +585,16 @@
             });
 
             versoFallback.addEventListener('change', async () => {
+                if (!statusState.recto) {
+                    showMessage('Validez d abord le recto avant d envoyer le verso.', true);
+                    versoFallback.value = '';
+                    return;
+                }
+
                 if (versoFallback.files?.[0]) {
                     try {
                         await uploadFile('cin_verso', versoFallback.files[0]);
+                        showMessage('Verso transmis. La validation complete est en cours.', false);
                     } catch (error) {
                         showMessage('Le chargement du verso a echoue.', true);
                     }
