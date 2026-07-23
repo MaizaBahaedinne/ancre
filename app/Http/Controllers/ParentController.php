@@ -21,6 +21,7 @@ use Spatie\Permission\Models\Role;
 class ParentController extends Controller
 {
     private const CIN_SCAN_PREFIX = 'parents/cin-scans';
+    private const VERIFICATION_DRAFT_PREFIX = 'parents/verification-drafts';
 
     /**
      * Display a listing of the resource.
@@ -127,6 +128,7 @@ class ParentController extends Controller
             'parent' => $parent,
             'linkedEnfants' => $linkedEnfants,
             'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
+            'verificationStatusUrl' => URL::signedRoute('parents.verification.status', ['parent' => $parent->id]),
         ]);
     }
 
@@ -135,6 +137,67 @@ class ParentController extends Controller
         return view('parents.verification', [
             'parent' => $parent,
             'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
+            'verificationStatusUrl' => URL::signedRoute('parents.verification.status', ['parent' => $parent->id]),
+            'verificationSubmitUrl' => URL::signedRoute('parents.verification.store', ['parent' => $parent->id]),
+            'verificationDocumentUrl' => URL::signedRoute('parents.verification.document', ['parent' => $parent->id]),
+            'verificationSignatureUrl' => URL::signedRoute('parents.verification.signature', ['parent' => $parent->id]),
+        ]);
+    }
+
+    public function verificationStatus(ParentModel $parent): JsonResponse
+    {
+        $draftRecto = $this->verificationDraftDocumentPath($parent, 'cin_recto');
+        $draftVerso = $this->verificationDraftDocumentPath($parent, 'cin_verso');
+        $draftSignature = $this->verificationDraftSignaturePath($parent);
+
+        return response()->json([
+            'parent_id' => $parent->id,
+            'recto' => [
+                'ready' => (bool) ($draftRecto || $parent->cin_recto),
+                'source' => $draftRecto ? 'smartphone' : ($parent->cin_recto ? 'stored' : null),
+            ],
+            'verso' => [
+                'ready' => (bool) ($draftVerso || $parent->cin_verso),
+                'source' => $draftVerso ? 'smartphone' : ($parent->cin_verso ? 'stored' : null),
+            ],
+            'signature' => [
+                'ready' => (bool) ($draftSignature || $parent->verification_signature),
+                'source' => $draftSignature ? 'smartphone' : ($parent->verification_signature ? 'stored' : null),
+            ],
+            'verified' => ($parent->verification_status ?? 'pending') === 'verified',
+            'user_created' => (bool) $parent->user_id,
+        ]);
+    }
+
+    public function storeVerificationDocument(Request $request, ParentModel $parent): JsonResponse
+    {
+        $validated = $request->validate([
+            'side' => ['required', 'in:cin_recto,cin_verso'],
+            'cin_file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:8192'],
+        ]);
+
+        $path = $this->storeVerificationDraftDocument($parent, $validated['side'], $request->file('cin_file'));
+
+        return response()->json([
+            'success' => true,
+            'side' => $validated['side'],
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
+        ]);
+    }
+
+    public function storeVerificationSignature(Request $request, ParentModel $parent): JsonResponse
+    {
+        $validated = $request->validate([
+            'signature_data' => ['required', 'string'],
+        ]);
+
+        $path = $this->storeVerificationDraftSignature($parent, $validated['signature_data']);
+
+        return response()->json([
+            'success' => true,
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
         ]);
     }
 
@@ -142,14 +205,17 @@ class ParentController extends Controller
     {
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],
-            'verification_signature' => ['required', 'string', 'max:255'],
             'terms_accepted' => ['accepted'],
-            'identity_documents' => ['required', 'array', 'min:2'],
-            'identity_documents.*' => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
         ]);
 
-        foreach ($request->file('identity_documents', []) as $file) {
-            $file->store('parents/verifications/' . $parent->id, 'public');
+        $rectoPath = $this->finalizeVerificationDocument($parent, 'cin_recto');
+        $versoPath = $this->finalizeVerificationDocument($parent, 'cin_verso');
+        $signaturePath = $this->finalizeVerificationSignature($parent);
+
+        if (! $rectoPath || ! $versoPath || ! $signaturePath) {
+            return back()->withErrors([
+                'verification' => 'Le recto, le verso et la signature manuscrite doivent etre completes depuis le smartphone avant validation.',
+            ])->withInput();
         }
 
         $parent->update([
@@ -177,13 +243,17 @@ class ParentController extends Controller
         $user->assignRole('Parent');
 
         $parent->update([
+            'cin_recto' => $rectoPath,
+            'cin_verso' => $versoPath,
             'verification_status' => 'verified',
             'verification_submitted_at' => now(),
             'verified_at' => now(),
-            'verification_signature' => $validated['verification_signature'],
+            'verification_signature' => $signaturePath,
             'verification_terms_accepted_at' => now(),
             'user_id' => $user->id,
         ]);
+
+        $this->cleanupVerificationDraftDirectory($parent);
 
         return redirect()
             ->to(URL::signedRoute('parents.verification', ['parent' => $parent->id]))
@@ -366,6 +436,127 @@ class ParentController extends Controller
     private function scanDirectory(string $token): string
     {
         return self::CIN_SCAN_PREFIX.'/'.$token;
+    }
+
+    private function verificationDraftDirectory(ParentModel $parent): string
+    {
+        return self::VERIFICATION_DRAFT_PREFIX.'/'.$parent->id;
+    }
+
+    private function verificationDraftDocumentPath(ParentModel $parent, string $side): ?string
+    {
+        $directory = $this->verificationDraftDirectory($parent);
+
+        foreach (Storage::disk('public')->files($directory) as $file) {
+            if (Str::startsWith(basename($file), $side.'.')) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    private function verificationDraftSignaturePath(ParentModel $parent): ?string
+    {
+        $path = $this->verificationDraftDirectory($parent).'/signature.png';
+
+        return Storage::disk('public')->exists($path) ? $path : null;
+    }
+
+    private function storeVerificationDraftDocument(ParentModel $parent, string $side, UploadedFile $file): string
+    {
+        $directory = $this->verificationDraftDirectory($parent);
+        Storage::disk('public')->makeDirectory($directory);
+
+        $existing = $this->verificationDraftDocumentPath($parent, $side);
+
+        if ($existing && Storage::disk('public')->exists($existing)) {
+            Storage::disk('public')->delete($existing);
+        }
+
+        $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension() ?: 'jpg');
+        $filename = $side.'.'.$extension;
+
+        Storage::disk('public')->putFileAs($directory, $file, $filename);
+
+        return $directory.'/'.$filename;
+    }
+
+    private function storeVerificationDraftSignature(ParentModel $parent, string $signatureData): string
+    {
+        if (! preg_match('/^data:image\/(png|jpg|jpeg);base64,(.+)$/', $signatureData, $matches)) {
+            abort(422, 'Format de signature invalide.');
+        }
+
+        $binary = base64_decode($matches[2], true);
+
+        if ($binary === false) {
+            abort(422, 'Signature illisible.');
+        }
+
+        $directory = $this->verificationDraftDirectory($parent);
+        Storage::disk('public')->makeDirectory($directory);
+
+        $path = $directory.'/signature.png';
+        Storage::disk('public')->put($path, $binary);
+
+        return $path;
+    }
+
+    private function finalizeVerificationDocument(ParentModel $parent, string $side): ?string
+    {
+        $draftPath = $this->verificationDraftDocumentPath($parent, $side);
+
+        if (! $draftPath) {
+            return $parent->{$side};
+        }
+
+        $extension = pathinfo($draftPath, PATHINFO_EXTENSION) ?: 'jpg';
+        $finalPath = 'parents/cin/'.$parent->id.'-'.$side.'.'.$extension;
+
+        if ($parent->{$side} && Storage::disk('public')->exists($parent->{$side}) && $parent->{$side} !== $finalPath) {
+            Storage::disk('public')->delete($parent->{$side});
+        }
+
+        if (Storage::disk('public')->exists($finalPath)) {
+            Storage::disk('public')->delete($finalPath);
+        }
+
+        Storage::disk('public')->move($draftPath, $finalPath);
+
+        return $finalPath;
+    }
+
+    private function finalizeVerificationSignature(ParentModel $parent): ?string
+    {
+        $draftPath = $this->verificationDraftSignaturePath($parent);
+
+        if (! $draftPath) {
+            return $parent->verification_signature;
+        }
+
+        $finalPath = 'parents/signatures/'.$parent->id.'-signature.png';
+
+        if ($parent->verification_signature && Storage::disk('public')->exists($parent->verification_signature) && $parent->verification_signature !== $finalPath) {
+            Storage::disk('public')->delete($parent->verification_signature);
+        }
+
+        if (Storage::disk('public')->exists($finalPath)) {
+            Storage::disk('public')->delete($finalPath);
+        }
+
+        Storage::disk('public')->move($draftPath, $finalPath);
+
+        return $finalPath;
+    }
+
+    private function cleanupVerificationDraftDirectory(ParentModel $parent): void
+    {
+        $directory = $this->verificationDraftDirectory($parent);
+
+        if (Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->deleteDirectory($directory);
+        }
     }
 
     private function cleanupScanDirectory(string $token): void

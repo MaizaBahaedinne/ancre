@@ -99,6 +99,21 @@ Route::get('parents/{parent}/verification', [ParentController::class, 'verificat
     ->middleware('signed')
     ->whereNumber('parent');
 
+Route::get('parents/{parent}/verification/status', [ParentController::class, 'verificationStatus'])
+    ->name('parents.verification.status')
+    ->middleware('signed')
+    ->whereNumber('parent');
+
+Route::post('parents/{parent}/verification/document', [ParentController::class, 'storeVerificationDocument'])
+    ->name('parents.verification.document')
+    ->middleware('signed')
+    ->whereNumber('parent');
+
+Route::post('parents/{parent}/verification/signature', [ParentController::class, 'storeVerificationSignature'])
+    ->name('parents.verification.signature')
+    ->middleware('signed')
+    ->whereNumber('parent');
+
 Route::middleware(['auth', 'permission:parents.create'])->group(function () {
     Route::get('parents/create', [ParentController::class, 'create'])->name('parents.create');
     Route::post('parents', [ParentController::class, 'store'])->name('parents.store');

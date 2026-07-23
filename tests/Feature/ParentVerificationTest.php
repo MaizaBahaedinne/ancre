@@ -6,6 +6,7 @@ use App\Models\ParentModel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -56,6 +57,8 @@ class ParentVerificationTest extends TestCase
 
     public function test_verification_submission_creates_parent_user_after_validation(): void
     {
+        Storage::fake('public');
+
         $parent = ParentModel::create([
             'nom' => 'Test',
             'prenom' => 'Parent',
@@ -65,15 +68,26 @@ class ParentVerificationTest extends TestCase
         ]);
 
         $verificationUrl = URL::signedRoute('parents.verification', ['parent' => $parent->id]);
+        $documentUrl = URL::signedRoute('parents.verification.document', ['parent' => $parent->id]);
+        $signatureUrl = URL::signedRoute('parents.verification.signature', ['parent' => $parent->id]);
+
+        $this->post($documentUrl, [
+            'side' => 'cin_recto',
+            'cin_file' => UploadedFile::fake()->create('recto.pdf', 100, 'application/pdf'),
+        ])->assertOk();
+
+        $this->post($documentUrl, [
+            'side' => 'cin_verso',
+            'cin_file' => UploadedFile::fake()->create('verso.pdf', 100, 'application/pdf'),
+        ])->assertOk();
+
+        $this->postJson($signatureUrl, [
+            'signature_data' => 'data:image/png;base64,'.base64_encode('fake-signature-binary'),
+        ])->assertOk();
 
         $response = $this->from($verificationUrl)->post(URL::signedRoute('parents.verification.store', ['parent' => $parent->id]), [
             'email' => 'parent@example.com',
-            'verification_signature' => 'Parent Signature',
             'terms_accepted' => 1,
-            'identity_documents' => [
-                UploadedFile::fake()->create('recto.pdf', 100, 'application/pdf'),
-                UploadedFile::fake()->create('verso.pdf', 100, 'application/pdf'),
-            ],
         ]);
 
         $response->assertRedirect($verificationUrl);

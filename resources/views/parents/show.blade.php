@@ -32,9 +32,27 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">Le compte parent n'est pas encore finalise. Lancez la verification pour telecharger le recto/verso de la piece, signer et accepter les reglements.</p>
+                    <p class="mb-2">Scannez le QR code avec le smartphone du parent pour envoyer le recto, le verso et la signature manuscrite. L'etat se met a jour automatiquement sur cet ecran.</p>
                     <div class="text-center mb-3">
                         <div id="parent-verification-qr" class="d-inline-block p-2 bg-white border rounded"></div>
+                    </div>
+                    <div class="d-grid gap-2 mb-3">
+                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                            <span>Recto smartphone</span>
+                            <span class="badge badge-secondary" data-verification-badge="recto">En attente</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                            <span>Verso smartphone</span>
+                            <span class="badge badge-secondary" data-verification-badge="verso">En attente</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                            <span>Signature manuscrite</span>
+                            <span class="badge badge-secondary" data-verification-badge="signature">En attente</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
+                            <span>Verification complete</span>
+                            <span class="badge badge-secondary" data-verification-badge="verified">En attente</span>
+                        </div>
                     </div>
                     <div class="small text-muted">Statut actuel: {{ ucfirst($verificationStatus) }}</div>
                 </div>
@@ -200,8 +218,15 @@
     <script>
         (() => {
             const verificationUrl = @json($verificationUrl);
+            const verificationStatusUrl = @json($verificationStatusUrl);
             const qrContainer = document.getElementById('parent-verification-qr');
             const needsVerification = @json($needsVerification);
+            const badges = {
+                recto: document.querySelector('[data-verification-badge="recto"]'),
+                verso: document.querySelector('[data-verification-badge="verso"]'),
+                signature: document.querySelector('[data-verification-badge="signature"]'),
+                verified: document.querySelector('[data-verification-badge="verified"]'),
+            };
 
             if (qrContainer) {
                 new QRCode(qrContainer, {
@@ -212,8 +237,51 @@
                 });
             }
 
+            const setBadgeState = (element, ready, doneText = 'Recu') => {
+                if (!element) {
+                    return;
+                }
+
+                element.textContent = ready ? doneText : 'En attente';
+                element.className = ready ? 'badge badge-success' : 'badge badge-secondary';
+            };
+
+            const loadStatus = async () => {
+                if (!verificationStatusUrl) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(verificationStatusUrl, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const payload = await response.json();
+
+                    setBadgeState(badges.recto, Boolean(payload.recto?.ready));
+                    setBadgeState(badges.verso, Boolean(payload.verso?.ready));
+                    setBadgeState(badges.signature, Boolean(payload.signature?.ready), 'Signee');
+                    setBadgeState(badges.verified, Boolean(payload.verified), 'Complete');
+
+                    if (payload.verified) {
+                        window.setTimeout(() => window.location.reload(), 1200);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
             if (needsVerification && window.jQuery) {
                 window.jQuery('#verificationPromptModal').modal('show');
+            }
+
+            if (needsVerification) {
+                loadStatus();
+                window.setInterval(loadStatus, 3000);
             }
         })();
     </script>
