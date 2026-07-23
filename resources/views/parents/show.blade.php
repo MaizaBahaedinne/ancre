@@ -6,6 +6,203 @@
     <h1 class="m-0">Detail parent</h1>
 @stop
 
+@section('css')
+    <style>
+        .parent-profile-shell {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .parent-profile-hero {
+            overflow: hidden;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #fff8ee 0%, #ffffff 52%, #eef7ff 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .parent-profile-hero-body {
+            padding: 1.75rem;
+        }
+
+        .parent-profile-hero-grid {
+            display: grid;
+            grid-template-columns: 124px minmax(0, 1fr) auto;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .parent-profile-avatar {
+            width: 124px;
+            height: 124px;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0b2448, #0c7abf);
+            color: #fff;
+            font-size: 2.7rem;
+            font-weight: 800;
+            box-shadow: 0 16px 36px rgba(12, 122, 191, 0.28);
+        }
+
+        .parent-profile-kicker {
+            margin: 0 0 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .parent-profile-name {
+            margin: 0;
+            font-size: clamp(1.75rem, 3vw, 2.35rem);
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .parent-profile-meta,
+        .parent-profile-tags,
+        .parent-profile-actions,
+        .parent-profile-doc-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .parent-profile-meta {
+            margin-top: 0.75rem;
+            color: #475569;
+        }
+
+        .parent-profile-meta span,
+        .parent-profile-tags span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .parent-profile-chip {
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.12);
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .parent-profile-chip.is-safe {
+            background: rgba(34, 197, 94, 0.14);
+            color: #166534;
+        }
+
+        .parent-profile-chip.is-warn {
+            background: rgba(245, 158, 11, 0.16);
+            color: #92400e;
+        }
+
+        .parent-stat-card {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.1rem 1.2rem;
+            border-radius: 1.25rem;
+            background: #fff;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .parent-stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+
+        .parent-stat-card small,
+        .parent-stat-card span {
+            display: block;
+        }
+
+        .parent-stat-card small {
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .parent-stat-card strong {
+            display: block;
+            margin: 0.18rem 0;
+            color: #0f172a;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .parent-stat-card span {
+            color: #94a3b8;
+            font-size: 0.82rem;
+        }
+
+        .parent-side-card .card-body,
+        .parent-panel {
+            padding: 1rem;
+        }
+
+        .parent-facts {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .parent-facts li {
+            display: grid;
+            grid-template-columns: 1.35rem minmax(0, 1fr);
+            gap: 0.7rem;
+            align-items: start;
+        }
+
+        .parent-facts i {
+            color: #0c7abf;
+            margin-top: 0.2rem;
+        }
+
+        .parent-facts span,
+        .parent-detail-grid p small {
+            display: block;
+            color: #64748b;
+            font-size: 0.84rem;
+            margin-bottom: 0.16rem;
+        }
+
+        .parent-facts strong,
+        .parent-detail-grid p strong {
+            color: #0f172a;
+        }
+
+        .parent-detail-grid p {
+            margin-bottom: 1rem;
+        }
+
+        .parent-linked-table .table {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .parent-profile-hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+@stop
+
 @section('content')
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -78,106 +275,167 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Nom complet</dt>
-                <dd class="col-sm-9">{{ $parent->nom }} {{ $parent->prenom }}</dd>
+    <div class="parent-profile-shell">
+        <section class="parent-profile-hero card border-0">
+            <div class="parent-profile-hero-body">
+                <div class="parent-profile-hero-grid">
+                    <div class="parent-profile-avatar">{{ strtoupper(substr($parent->prenom ?: $parent->nom, 0, 1)) }}</div>
+                    <div>
+                        <p class="parent-profile-kicker">Profil parent</p>
+                        <h2 class="parent-profile-name">{{ $parent->nom }} {{ $parent->prenom }}</h2>
+                        <div class="parent-profile-meta">
+                            <span><i class="fa-solid fa-phone"></i>{{ $parent->telephone ?: '-' }}</span>
+                            <span><i class="fa-solid fa-envelope"></i>{{ $parent->email ?: '-' }}</span>
+                            <span><i class="fa-solid fa-id-card"></i>{{ $parent->numero_cin ?: '-' }}</span>
+                        </div>
+                        <div class="parent-profile-tags mt-3">
+                            <span class="parent-profile-chip">{{ $parent->sexe === 'M' ? 'Masculin' : ($parent->sexe === 'F' ? 'Feminin' : 'Sexe non renseigne') }}</span>
+                            <span class="parent-profile-chip">{{ $parent->profession ?: 'Profession non renseignee' }}</span>
+                            <span class="parent-profile-chip {{ $verificationStatus === 'verified' ? 'is-safe' : 'is-warn' }}">
+                                {{ $verificationStatus === 'verified' ? 'Compte verifie' : 'Verification en attente' }}
+                            </span>
+                            <span class="parent-profile-chip {{ $parent->user ? 'is-safe' : 'is-warn' }}">
+                                {{ $parent->user ? 'Compte utilisateur cree' : 'Aucun compte utilisateur' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="parent-profile-actions">
+                        <a href="{{ $verificationUrl }}" class="btn btn-info">Verifier le compte</a>
+                        <a href="{{ route('parents.edit', $parent) }}" class="btn btn-warning">Modifier</a>
+                        <a href="{{ route('parents.index', $parent) }}" class="btn btn-secondary">Retour</a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                <dt class="col-sm-3">N CIN</dt>
-                <dd class="col-sm-9">{{ $parent->numero_cin ?: '-' }}</dd>
+        <div class="row g-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="parent-stat-card">
+                    <div class="parent-stat-icon bg-primary"><i class="fa-solid fa-children"></i></div>
+                    <div>
+                        <small>Enfants</small>
+                        <strong>{{ $parent->enfants_count }}</strong>
+                        <span>rattaches au parent</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="parent-stat-card">
+                    <div class="parent-stat-icon bg-success"><i class="fa-solid fa-file-shield"></i></div>
+                    <div>
+                        <small>Verification</small>
+                        <strong>{{ $verificationStatus === 'verified' ? 'OK' : 'En attente' }}</strong>
+                        <span>{{ $verificationStatus === 'verified' ? 'profil valide' : 'action requise' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="parent-stat-card">
+                    <div class="parent-stat-icon bg-info"><i class="fa-solid fa-user-lock"></i></div>
+                    <div>
+                        <small>Compte parent</small>
+                        <strong>{{ $parent->user ? 'Actif' : 'Non cree' }}</strong>
+                        <span>{{ $parent->user?->email ?: 'aucune liaison utilisateur' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="parent-stat-card">
+                    <div class="parent-stat-icon bg-warning"><i class="fa-solid fa-phone-volume"></i></div>
+                    <div>
+                        <small>Urgence</small>
+                        <strong>{{ $parent->contact_urgence ?: '-' }}</strong>
+                        <span>contact prioritaire</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <dt class="col-sm-3">Date de delivrance</dt>
-                <dd class="col-sm-9">{{ optional($parent->date_delivrance_cin)->format('d/m/Y') ?: '-' }}</dd>
+        <div class="row g-4 mt-1">
+            <div class="col-lg-4">
+                <div class="card parent-side-card h-100">
+                    <div class="card-body">
+                        <ul class="parent-facts mb-0">
+                            <li><i class="fa-solid fa-envelope"></i><div><span>Email</span><strong>{{ $parent->email ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-phone"></i><div><span>Telephone</span><strong>{{ $parent->telephone ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-id-card"></i><div><span>Numero CIN</span><strong>{{ $parent->numero_cin ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-calendar-days"></i><div><span>Date de delivrance</span><strong>{{ optional($parent->date_delivrance_cin)->format('d/m/Y') ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-cake-candles"></i><div><span>Date de naissance</span><strong>{{ optional($parent->date_naissance)->format('d/m/Y') ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-location-dot"></i><div><span>Adresse</span><strong>{{ $parent->adresse ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-briefcase"></i><div><span>Profession</span><strong>{{ $parent->profession ?: '-' }}</strong></div></li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i><div><span>Contact urgence</span><strong>{{ $parent->contact_urgence ?: '-' }}</strong></div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-                <dt class="col-sm-3">Date de naissance</dt>
-                <dd class="col-sm-9">{{ optional($parent->date_naissance)->format('d/m/Y') ?: '-' }}</dd>
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body parent-panel">
+                        <h4 class="mb-3">Identite et verification</h4>
+                        <div class="row parent-detail-grid">
+                            <div class="col-md-6">
+                                <p><small>Statut profil</small><strong>{{ $verificationStatus === 'verified' ? 'Verifie' : ($verificationStatus === 'submitted' ? 'En attente de validation' : 'A verifier') }}</strong></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><small>Compte utilisateur parent</small><strong>{{ $parent->user ? $parent->user->email : 'Aucun compte utilisateur associe' }}</strong></p>
+                            </div>
+                            <div class="col-md-12">
+                                <small class="d-block mb-2 text-muted">Documents CIN</small>
+                                <div class="parent-profile-doc-links">
+                                    @if($parent->cin_recto)
+                                        <a href="{{ asset('storage/' . $parent->cin_recto) }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">Voir recto</a>
+                                    @else
+                                        <span class="parent-profile-chip is-warn">Recto manquant</span>
+                                    @endif
+                                    @if($parent->cin_verso)
+                                        <a href="{{ asset('storage/' . $parent->cin_verso) }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">Voir verso</a>
+                                    @else
+                                        <span class="parent-profile-chip is-warn">Verso manquant</span>
+                                    @endif
+                                    @if($parent->verification_signature)
+                                        <a href="{{ asset('storage/' . $parent->verification_signature) }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm">Voir signature</a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">Sexe</dt>
-                <dd class="col-sm-9">{{ $parent->sexe ?: '-' }}</dd>
-
-                <dt class="col-sm-3">Telephone</dt>
-                <dd class="col-sm-9">{{ $parent->telephone }}</dd>
-
-                <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9">{{ $parent->email ?: '-' }}</dd>
-
-                <dt class="col-sm-3">Adresse</dt>
-                <dd class="col-sm-9">{{ $parent->adresse ?: '-' }}</dd>
-
-                <dt class="col-sm-3">Profession</dt>
-                <dd class="col-sm-9">{{ $parent->profession ?: '-' }}</dd>
-
-                <dt class="col-sm-3">Contact urgence</dt>
-                <dd class="col-sm-9">{{ $parent->contact_urgence ?: '-' }}</dd>
-
-                <dt class="col-sm-3">Nombre d'enfants</dt>
-                <dd class="col-sm-9">{{ $parent->enfants_count }}</dd>
-
-                <dt class="col-sm-3">Documents CIN</dt>
-                <dd class="col-sm-9">
-                    @if($parent->cin_recto)
-                        <a href="{{ asset('storage/' . $parent->cin_recto) }}" target="_blank" rel="noopener">Recto</a>
-                    @else
-                        <span class="text-danger">Recto manquant</span>
-                    @endif
-                    |
-                    @if($parent->cin_verso)
-                        <a href="{{ asset('storage/' . $parent->cin_verso) }}" target="_blank" rel="noopener">Verso</a>
-                    @else
-                        <span class="text-danger">Verso manquant</span>
-                    @endif
-                </dd>
-
-                <dt class="col-sm-3">Statut profil</dt>
-                <dd class="col-sm-9">
-                    @if($verificationStatus === 'verified')
-                        <span class="badge badge-success">Verifie</span>
-                    @elseif($verificationStatus === 'submitted')
-                        <span class="badge badge-warning">En attente de validation</span>
-                    @else
-                        <span class="badge badge-secondary">A verifier</span>
-                    @endif
-                </dd>
-
-                <dt class="col-sm-3">Compte utilisateur parent</dt>
-                <dd class="col-sm-9">
-                    @if($parent->user)
-                        <div>{{ $parent->user->email }}</div>
-                        <small class="text-muted">Roles: {{ $parent->user->getRoleNames()->join(', ') ?: '-' }}</small>
-                    @else
-                        <span class="text-warning">Aucun compte utilisateur associe</span>
-
-                        @can('users.manage')
-                            <div class="mt-2">
+                @if(! $parent->user)
+                    <div class="card mb-4">
+                        <div class="card-body parent-panel">
+                            <h4 class="mb-3">Compte utilisateur</h4>
+                            @can('users.manage')
                                 @if($parent->email)
+                                    <p class="text-muted">Le compte parent n'est pas encore lie. Vous pouvez le creer manuellement si besoin.</p>
                                     <form method="POST" action="{{ route('parents.create-user', $parent) }}" class="d-inline" onsubmit="return confirm('Creer et associer un compte utilisateur pour ce parent ?')">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-primary">Creer un user parent</button>
+                                        <button type="submit" class="btn btn-primary">Creer un user parent</button>
                                     </form>
                                 @else
-                                    <small class="text-danger d-block">Ajoutez un email au parent pour pouvoir generer son compte utilisateur.</small>
+                                    <div class="alert alert-warning mb-0">Ajoutez un email au parent pour pouvoir generer son compte utilisateur.</div>
                                 @endif
-                            </div>
-                        @endcan
-                    @endif
-                </dd>
-            </dl>
-        </div>
-        <div class="card-footer">
-            <a href="{{ $verificationUrl }}" class="btn btn-info">Verifier le compte</a>
-            <a href="{{ route('parents.edit', $parent) }}" class="btn btn-warning">Modifier</a>
-            <a href="{{ route('parents.index') }}" class="btn btn-secondary">Retour</a>
-        </div>
-    </div>
+                            @else
+                                <div class="alert alert-light mb-0">Aucun compte utilisateur associe.</div>
+                            @endcan
+                        </div>
+                    </div>
+                @endif
 
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Enfants rattaches</h3>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered mb-0">
+                <div class="card parent-linked-table">
+                    <div class="card-header border-0 pt-4 px-4 pb-0 bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <p class="parent-profile-kicker mb-1">Famille rattachee</p>
+                            <h3 class="card-title mb-0">Enfants rattaches</h3>
+                        </div>
+                        <div class="parent-profile-tags">
+                            <span class="parent-profile-chip"><i class="fa-solid fa-children"></i>{{ $linkedEnfants->count() }} enfant(s)</span>
+                        </div>
+                    </div>
+                    <div class="card-body pt-3 p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered mb-0">
                     <thead>
                     <tr>
                         <th>Lien</th>
@@ -221,7 +479,10 @@
                         </tr>
                     @endforelse
                     </tbody>
-                </table>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -185,6 +185,20 @@
                     </div>
                 @endcan
 
+                @can('developer.tools.view')
+                    <div class="modern-nav-section">
+                        <span class="modern-nav-label">Developpeur</span>
+                        <a href="{{ route('admin.developer.index') }}" class="modern-nav-link {{ request()->routeIs('admin.developer.index') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-rocket"></i>
+                            <span>Deploiement</span>
+                        </a>
+                        <a href="{{ route('admin.developer.logs') }}" class="modern-nav-link {{ request()->routeIs('admin.developer.logs') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <span>Logs</span>
+                        </a>
+                    </div>
+                @endcan
+
                 <div class="modern-nav-section">
                     <span class="modern-nav-label">Compte</span>
                     <a href="{{ route('profile.edit') }}" class="modern-nav-link {{ request()->routeIs('profile.*') ? 'is-active' : '' }}">
