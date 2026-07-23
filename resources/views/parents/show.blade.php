@@ -18,8 +18,8 @@
     @endif
 
     @php
-        $verificationStatus = $parent->verification_status ?? 'pending';
-        $needsVerification = $verificationStatus !== 'verified';
+        $verificationStatus = $verificationCompleted ? 'verified' : ($parent->verification_status ?? 'pending');
+        $needsVerification = ! $verificationCompleted;
     @endphp
 
     <div class="modal fade" id="verificationPromptModal" tabindex="-1" aria-labelledby="verificationPromptModalLabel" aria-hidden="true">

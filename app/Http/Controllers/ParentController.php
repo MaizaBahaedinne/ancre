@@ -13,6 +13,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -92,8 +93,13 @@ class ParentController extends Controller
             ])->withInput();
         }
 
-        $data['verification_token'] = Str::random(64);
-        $data['verification_status'] = 'pending';
+        if ($this->parentColumnExists('verification_token')) {
+            $data['verification_token'] = Str::random(64);
+        }
+
+        if ($this->parentColumnExists('verification_status')) {
+            $data['verification_status'] = 'pending';
+        }
 
         $parent = ParentModel::create($data);
 
@@ -129,6 +135,7 @@ class ParentController extends Controller
             'linkedEnfants' => $linkedEnfants,
             'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
             'verificationStatusUrl' => URL::signedRoute('parents.verification.status', ['parent' => $parent->id]),
+            'verificationCompleted' => $this->isParentVerified($parent),
         ]);
     }
 
@@ -141,6 +148,7 @@ class ParentController extends Controller
             'verificationSubmitUrl' => URL::signedRoute('parents.verification.store', ['parent' => $parent->id]),
             'verificationDocumentUrl' => URL::signedRoute('parents.verification.document', ['parent' => $parent->id]),
             'verificationSignatureUrl' => URL::signedRoute('parents.verification.signature', ['parent' => $parent->id]),
+            'verificationCompleted' => $this->isParentVerified($parent),
         ]);
     }
 
@@ -149,13 +157,14 @@ class ParentController extends Controller
         $draftRecto = $this->verificationDraftDocumentPath($parent, 'cin_recto');
         $draftVerso = $this->verificationDraftDocumentPath($parent, 'cin_verso');
         $draftSignature = $this->verificationDraftSignaturePath($parent);
+        $storedSignature = $this->storedVerificationSignaturePath($parent);
 
         return response()->json([
             'parent_id' => $parent->id,
             'recto' => $this->verificationAssetPayload($draftRecto ?: $parent->cin_recto, $draftRecto ? 'smartphone' : ($parent->cin_recto ? 'stored' : null)),
             'verso' => $this->verificationAssetPayload($draftVerso ?: $parent->cin_verso, $draftVerso ? 'smartphone' : ($parent->cin_verso ? 'stored' : null)),
-            'signature' => $this->verificationAssetPayload($draftSignature ?: $parent->verification_signature, $draftSignature ? 'smartphone' : ($parent->verification_signature ? 'stored' : null)),
-            'verified' => ($parent->verification_status ?? 'pending') === 'verified',
+            'signature' => $this->verificationAssetPayload($draftSignature ?: $storedSignature, $draftSignature ? 'smartphone' : ($storedSignature ? 'stored' : null)),
+            'verified' => $this->isParentVerified($parent),
             'user_created' => (bool) $parent->user_id,
         ]);
     }
@@ -224,9 +233,9 @@ class ParentController extends Controller
             ])->withInput();
         }
 
-        $parent->update([
+        $parent->update($this->filterParentUpdateAttributes([
             'email' => $validated['email'],
-        ]);
+        ]));
 
         $temporaryPassword = null;
         $user = User::query()->where('email', $validated['email'])->first();
@@ -248,7 +257,7 @@ class ParentController extends Controller
 
         $user->assignRole('Parent');
 
-        $parent->update([
+        $parent->update($this->filterParentUpdateAttributes([
             'cin_recto' => $rectoPath,
             'cin_verso' => $versoPath,
             'verification_status' => 'verified',
@@ -257,7 +266,7 @@ class ParentController extends Controller
             'verification_signature' => $signaturePath,
             'verification_terms_accepted_at' => now(),
             'user_id' => $user->id,
-        ]);
+        ]));
 
         $this->cleanupVerificationDraftDirectory($parent);
 
@@ -538,7 +547,7 @@ class ParentController extends Controller
         $draftPath = $this->verificationDraftSignaturePath($parent);
 
         if (! $draftPath) {
-            return $parent->verification_signature;
+            return $this->storedVerificationSignaturePath($parent);
         }
 
         $finalPath = 'parents/signatures/'.$parent->id.'-signature.png';
@@ -554,6 +563,44 @@ class ParentController extends Controller
         Storage::disk('public')->move($draftPath, $finalPath);
 
         return $finalPath;
+    }
+
+    private function storedVerificationSignaturePath(ParentModel $parent): ?string
+    {
+        if ($this->parentColumnExists('verification_signature') && ! empty($parent->verification_signature)) {
+            return $parent->verification_signature;
+        }
+
+        $fallbackPath = 'parents/signatures/'.$parent->id.'-signature.png';
+
+        return Storage::disk('public')->exists($fallbackPath) ? $fallbackPath : null;
+    }
+
+    private function filterParentUpdateAttributes(array $attributes): array
+    {
+        return collect($attributes)
+            ->filter(fn ($value, $key) => $this->parentColumnExists((string) $key))
+            ->all();
+    }
+
+    private function parentColumnExists(string $column): bool
+    {
+        static $knownColumns = null;
+
+        if ($knownColumns === null) {
+            $knownColumns = array_flip(Schema::getColumnListing('parents'));
+        }
+
+        return isset($knownColumns[$column]);
+    }
+
+    private function isParentVerified(ParentModel $parent): bool
+    {
+        if ($this->parentColumnExists('verification_status') && ($parent->verification_status ?? null) === 'verified') {
+            return true;
+        }
+
+        return (bool) ($parent->user_id && $parent->cin_recto && $parent->cin_verso && $this->storedVerificationSignaturePath($parent));
     }
 
     private function cleanupVerificationDraftDirectory(ParentModel $parent): void

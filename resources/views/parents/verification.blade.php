@@ -148,7 +148,7 @@
                     <div class="alert alert-info mb-0">Compte parent cree avec succes. Mot de passe temporaire: <strong>{{ session('temporary_password') }}</strong></div>
                 @endif
 
-                @if(($parent->verification_status ?? 'pending') === 'verified')
+                @if($verificationCompleted)
                     <section class="thanks-panel">
                         <div class="thanks-mark"><i class="fa-solid fa-check"></i></div>
                         <h2 class="h3 fw-bold">Merci, compte cree</h2>
