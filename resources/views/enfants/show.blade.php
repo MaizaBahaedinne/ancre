@@ -69,7 +69,7 @@
                         <a href="{{ route('enfants.edit', $enfant) }}" class="btn btn-warning">Modifier</a>
                         @can('registrations.create')
                             @if(! $isCurrentlyInscribed && $activeAcademicYear)
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickInscriptionModal">Inscrire annee en cours</button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickInscriptionModal">Inscrire annee en cours</button>
                             @endif
                         @endcan
                         <a href="{{ route('enfants.index') }}" class="btn btn-secondary">Retour</a>
@@ -93,7 +93,7 @@
                             </div>
                         </div>
                         @if($activeAcademicYear)
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#quickInscriptionModal">Inscrire maintenant</button>
+                            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#quickInscriptionModal">Inscrire maintenant</button>
                         @endif
                     </div>
                 </div>
@@ -298,7 +298,9 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="quickInscriptionModalLabel">Inscrire {{ $displayName }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
                         <form method="POST" action="{{ route('enfants.inscriptions.store', $enfant) }}">
                             @csrf
@@ -349,7 +351,7 @@
                                 @endif
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
                                 <button type="submit" class="btn btn-primary" @disabled($availablePackages->isEmpty() || ! $activeAcademicYear)>Creer l'inscription</button>
                             </div>
                         </form>
@@ -364,14 +366,22 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const mustOpenModal = @json((bool) old('quick_inscription_modal'));
+    const modalSelector = '#quickInscriptionModal';
     const modalElement = document.getElementById('quickInscriptionModal');
 
-    if (!mustOpenModal || !modalElement || typeof bootstrap === 'undefined') {
+    if (!mustOpenModal || !modalElement) {
         return;
     }
 
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+    if (window.jQuery && typeof window.jQuery(modalSelector).modal === 'function') {
+        window.jQuery(modalSelector).modal('show');
+        return;
+    }
+
+    if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal === 'function') {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
 });
 </script>
 @stop

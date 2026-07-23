@@ -163,6 +163,10 @@
                                 <div class="fw-semibold text-success">Recu</div>
                             </div>
                             <div class="status-box">
+                                <div class="small text-muted">Photo</div>
+                                <div class="fw-semibold text-success">Recue</div>
+                            </div>
+                            <div class="status-box">
                                 <div class="small text-muted">Signature</div>
                                 <div class="fw-semibold text-success">Signee</div>
                             </div>
@@ -181,6 +185,10 @@
                             <span class="badge badge-secondary" data-mobile-status="verso">En attente</span>
                         </div>
                         <div class="status-box d-flex justify-content-between align-items-center gap-2">
+                            <span>Photo</span>
+                            <span class="badge badge-secondary" data-mobile-status="photo">En attente</span>
+                        </div>
+                        <div class="status-box d-flex justify-content-between align-items-center gap-2">
                             <span>Signature</span>
                             <span class="badge badge-secondary" data-mobile-status="signature">En attente</span>
                         </div>
@@ -190,7 +198,7 @@
                         @csrf
 
                         <div class="alert alert-info mb-0">
-                            1. Envoyez le recto. 2. Envoyez le verso. 3. Signez sur l'ecran. 4. Finalisez la creation du compte.
+                            1. Envoyez le recto. 2. Envoyez le verso. 3. Ajoutez la photo du parent. 4. Signez sur l'ecran. 5. Finalisez la creation du compte.
                         </div>
 
                         <div class="row g-3">
@@ -206,6 +214,13 @@
                                 <input type="file" class="form-control" accept="application/pdf,image/*" data-document-side="cin_verso">
                                 <div class="small text-muted mt-1" data-upload-feedback="cin_verso">Choisissez une photo ou un scan du verso.</div>
                                 <div class="preview-card mt-2" data-mobile-preview="cin_verso"><span class="small text-muted">Aucun verso recu</span></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Photo du parent</label>
+                                <input type="file" class="form-control" accept="image/*" data-document-side="parent_photo">
+                                <div class="small text-muted mt-1" data-upload-feedback="parent_photo">Ajoutez une photo claire du parent pour son avatar.</div>
+                                <div class="preview-card mt-2" data-mobile-preview="parent_photo"><span class="small text-muted">Aucune photo recue</span></div>
                             </div>
                         </div>
 
@@ -254,16 +269,19 @@
             const statusBadges = {
                 recto: document.querySelector('[data-mobile-status="recto"]'),
                 verso: document.querySelector('[data-mobile-status="verso"]'),
+                photo: document.querySelector('[data-mobile-status="photo"]'),
                 signature: document.querySelector('[data-mobile-status="signature"]'),
             };
             const previewNodes = {
                 cin_recto: document.querySelector('[data-mobile-preview="cin_recto"]'),
                 cin_verso: document.querySelector('[data-mobile-preview="cin_verso"]'),
+                parent_photo: document.querySelector('[data-mobile-preview="parent_photo"]'),
                 signature: document.querySelector('[data-mobile-preview="signature"]'),
             };
             const feedbackNodes = {
                 cin_recto: document.querySelector('[data-upload-feedback="cin_recto"]'),
                 cin_verso: document.querySelector('[data-upload-feedback="cin_verso"]'),
+                parent_photo: document.querySelector('[data-upload-feedback="parent_photo"]'),
             };
             const signatureCanvas = document.getElementById('signature-pad');
             const signatureFeedback = document.getElementById('signature-feedback');
@@ -304,7 +322,7 @@
                     return;
                 }
 
-                const ready = Boolean(payload.recto?.ready && payload.verso?.ready && payload.signature?.ready);
+                const ready = Boolean(payload.recto?.ready && payload.verso?.ready && payload.photo?.ready && payload.signature?.ready);
                 verificationSubmitButton.disabled = !ready;
             };
 
@@ -319,9 +337,11 @@
                     const payload = await response.json();
                     setBadgeState(statusBadges.recto, Boolean(payload.recto?.ready));
                     setBadgeState(statusBadges.verso, Boolean(payload.verso?.ready));
+                    setBadgeState(statusBadges.photo, Boolean(payload.photo?.ready));
                     setBadgeState(statusBadges.signature, Boolean(payload.signature?.ready), 'Signee');
                     renderPreview(previewNodes.cin_recto, payload.recto, 'Aucun recto recu');
                     renderPreview(previewNodes.cin_verso, payload.verso, 'Aucun verso recu');
+                    renderPreview(previewNodes.parent_photo, payload.photo, 'Aucune photo recue');
                     renderPreview(previewNodes.signature, payload.signature, 'Aucune signature recue');
                     syncSubmitState(payload);
 

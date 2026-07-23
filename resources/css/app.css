@@ -257,6 +257,13 @@
 		background: linear-gradient(135deg, #0ea5e9, #0f766e);
 		color: #fff;
 		font-weight: 800;
+		overflow: hidden;
+	}
+
+	.modern-user-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.modern-user-meta strong,

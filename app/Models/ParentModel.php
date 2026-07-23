@@ -26,6 +26,7 @@ class ParentModel extends Model
         'profession',
         'contact_urgence',
         'user_id',
+        'photo',
         'cin_recto',
         'cin_verso',
         'verification_token',

@@ -82,6 +82,11 @@ class ParentVerificationTest extends TestCase
             'cin_file' => UploadedFile::fake()->create('verso.pdf', 100, 'application/pdf'),
         ])->assertOk();
 
+        $this->post($documentUrl, [
+            'side' => 'parent_photo',
+            'cin_file' => UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg'),
+        ])->assertOk();
+
         $this->postJson($signatureUrl, [
             'signature_data' => 'data:image/png;base64,'.base64_encode('fake-signature-binary'),
         ])->assertOk();
@@ -103,6 +108,8 @@ class ParentVerificationTest extends TestCase
             'verification_status' => 'verified',
             'user_id' => $createdUser?->id,
         ]);
+
+        $this->assertNotNull($parent->fresh()->photo);
 
         $this->assertSame($createdUser?->id, $parent->fresh()->user_id);
     }

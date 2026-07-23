@@ -156,6 +156,7 @@ class ParentController extends Controller
     {
         $draftRecto = $this->verificationDraftDocumentPath($parent, 'cin_recto');
         $draftVerso = $this->verificationDraftDocumentPath($parent, 'cin_verso');
+        $draftPhoto = $this->verificationDraftPhotoPath($parent);
         $draftSignature = $this->verificationDraftSignaturePath($parent);
         $storedSignature = $this->storedVerificationSignaturePath($parent);
 
@@ -163,6 +164,7 @@ class ParentController extends Controller
             'parent_id' => $parent->id,
             'recto' => $this->verificationAssetPayload($draftRecto ?: $parent->cin_recto, $draftRecto ? 'smartphone' : ($parent->cin_recto ? 'stored' : null)),
             'verso' => $this->verificationAssetPayload($draftVerso ?: $parent->cin_verso, $draftVerso ? 'smartphone' : ($parent->cin_verso ? 'stored' : null)),
+            'photo' => $this->verificationAssetPayload($draftPhoto ?: $this->storedParentPhotoPath($parent), $draftPhoto ? 'smartphone' : ($this->storedParentPhotoPath($parent) ? 'stored' : null)),
             'signature' => $this->verificationAssetPayload($draftSignature ?: $storedSignature, $draftSignature ? 'smartphone' : ($storedSignature ? 'stored' : null)),
             'verified' => $this->isParentVerified($parent),
             'user_created' => (bool) $parent->user_id,
@@ -187,11 +189,20 @@ class ParentController extends Controller
     public function storeVerificationDocument(Request $request, ParentModel $parent): JsonResponse
     {
         $validated = $request->validate([
-            'side' => ['required', 'in:cin_recto,cin_verso'],
+            'side' => ['required', 'in:cin_recto,cin_verso,parent_photo'],
             'cin_file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:8192'],
         ]);
 
-        $path = $this->storeVerificationDraftDocument($parent, $validated['side'], $request->file('cin_file'));
+        if ($validated['side'] === 'parent_photo' && ! Str::startsWith($request->file('cin_file')->getMimeType() ?: '', 'image/')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La photo du parent doit etre une image.',
+            ], 422);
+        }
+
+        $path = $validated['side'] === 'parent_photo'
+            ? $this->storeVerificationDraftPhoto($parent, $request->file('cin_file'))
+            : $this->storeVerificationDraftDocument($parent, $validated['side'], $request->file('cin_file'));
 
         return response()->json([
             'success' => true,
@@ -225,11 +236,12 @@ class ParentController extends Controller
 
         $rectoPath = $this->finalizeVerificationDocument($parent, 'cin_recto');
         $versoPath = $this->finalizeVerificationDocument($parent, 'cin_verso');
+        $photoPath = $this->finalizeVerificationPhoto($parent);
         $signaturePath = $this->finalizeVerificationSignature($parent);
 
-        if (! $rectoPath || ! $versoPath || ! $signaturePath) {
+        if (! $rectoPath || ! $versoPath || ! $photoPath || ! $signaturePath) {
             return back()->withErrors([
-                'verification' => 'Le recto, le verso et la signature manuscrite doivent etre completes depuis le smartphone avant validation.',
+                'verification' => 'Le recto, le verso, la photo du parent et la signature manuscrite doivent etre completes depuis le smartphone avant validation.',
             ])->withInput();
         }
 
@@ -260,6 +272,7 @@ class ParentController extends Controller
         $parent->update($this->filterParentUpdateAttributes([
             'cin_recto' => $rectoPath,
             'cin_verso' => $versoPath,
+            'photo' => $photoPath,
             'verification_status' => 'verified',
             'verification_submitted_at' => now(),
             'verified_at' => now(),
@@ -478,6 +491,11 @@ class ParentController extends Controller
         return Storage::disk('public')->exists($path) ? $path : null;
     }
 
+    private function verificationDraftPhotoPath(ParentModel $parent): ?string
+    {
+        return $this->verificationDraftDocumentPath($parent, 'parent_photo');
+    }
+
     private function storeVerificationDraftDocument(ParentModel $parent, string $side, UploadedFile $file): string
     {
         $directory = $this->verificationDraftDirectory($parent);
@@ -495,6 +513,11 @@ class ParentController extends Controller
         Storage::disk('public')->putFileAs($directory, $file, $filename);
 
         return $directory.'/'.$filename;
+    }
+
+    private function storeVerificationDraftPhoto(ParentModel $parent, UploadedFile $file): string
+    {
+        return $this->storeVerificationDraftDocument($parent, 'parent_photo', $file);
     }
 
     private function storeVerificationDraftSignature(ParentModel $parent, string $signatureData): string
@@ -565,6 +588,47 @@ class ParentController extends Controller
         return $finalPath;
     }
 
+    private function finalizeVerificationPhoto(ParentModel $parent): ?string
+    {
+        $draftPath = $this->verificationDraftPhotoPath($parent);
+
+        if (! $draftPath) {
+            return $this->storedParentPhotoPath($parent);
+        }
+
+        $extension = pathinfo($draftPath, PATHINFO_EXTENSION) ?: 'jpg';
+        $finalPath = 'parents/avatars/'.$parent->id.'-avatar.'.$extension;
+
+        $storedParentPhoto = $this->storedParentPhotoPath($parent);
+
+        if ($storedParentPhoto && Storage::disk('public')->exists($storedParentPhoto) && $storedParentPhoto !== $finalPath) {
+            Storage::disk('public')->delete($storedParentPhoto);
+        }
+
+        if (Storage::disk('public')->exists($finalPath)) {
+            Storage::disk('public')->delete($finalPath);
+        }
+
+        Storage::disk('public')->move($draftPath, $finalPath);
+
+        return $finalPath;
+    }
+
+    private function storedParentPhotoPath(ParentModel $parent): ?string
+    {
+        if ($this->parentColumnExists('photo') && ! empty($parent->photo)) {
+            return $parent->photo;
+        }
+
+        foreach (Storage::disk('public')->files('parents/avatars') as $file) {
+            if (Str::startsWith(basename($file), $parent->id.'-avatar.')) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
     private function storedVerificationSignaturePath(ParentModel $parent): ?string
     {
         if ($this->parentColumnExists('verification_signature') && ! empty($parent->verification_signature)) {
@@ -600,7 +664,7 @@ class ParentController extends Controller
             return true;
         }
 
-        return (bool) ($parent->user_id && $parent->cin_recto && $parent->cin_verso && $this->storedVerificationSignaturePath($parent));
+        return (bool) ($parent->user_id && $parent->cin_recto && $parent->cin_verso && $this->storedParentPhotoPath($parent) && $this->storedVerificationSignaturePath($parent));
     }
 
     private function cleanupVerificationDraftDirectory(ParentModel $parent): void
@@ -632,6 +696,12 @@ class ParentController extends Controller
 
         if ($parent->cin_verso && Storage::disk('public')->exists($parent->cin_verso)) {
             Storage::disk('public')->delete($parent->cin_verso);
+        }
+
+        $parentPhotoPath = $this->storedParentPhotoPath($parent);
+
+        if ($parentPhotoPath && Storage::disk('public')->exists($parentPhotoPath)) {
+            Storage::disk('public')->delete($parentPhotoPath);
         }
 
         $parent->delete();

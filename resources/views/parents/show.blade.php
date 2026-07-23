@@ -43,6 +43,13 @@
             font-size: 2.7rem;
             font-weight: 800;
             box-shadow: 0 16px 36px rgba(12, 122, 191, 0.28);
+            overflow: hidden;
+        }
+
+        .parent-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .parent-profile-kicker {
@@ -279,7 +286,13 @@
         <section class="parent-profile-hero card border-0">
             <div class="parent-profile-hero-body">
                 <div class="parent-profile-hero-grid">
-                    <div class="parent-profile-avatar">{{ strtoupper(substr($parent->prenom ?: $parent->nom, 0, 1)) }}</div>
+                    <div class="parent-profile-avatar">
+                        @if($parent->photo)
+                            <img src="{{ asset('storage/'.$parent->photo) }}" alt="Photo de {{ $parent->prenom }} {{ $parent->nom }}">
+                        @else
+                            {{ strtoupper(substr($parent->prenom ?: $parent->nom, 0, 1)) }}
+                        @endif
+                    </div>
                     <div>
                         <p class="parent-profile-kicker">Profil parent</p>
                         <h2 class="parent-profile-name">{{ $parent->nom }} {{ $parent->prenom }}</h2>

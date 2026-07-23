@@ -231,7 +231,16 @@
 
                     <details class="modern-user-menu">
                         <summary>
-                            <span class="modern-user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                            @php
+                                $userAvatar = auth()->user()->parentProfile?->photo;
+                            @endphp
+                            <span class="modern-user-avatar">
+                                @if($userAvatar)
+                                    <img src="{{ asset('storage/'.$userAvatar) }}" alt="Avatar de {{ auth()->user()->name }}">
+                                @else
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                @endif
+                            </span>
                             <span class="modern-user-meta">
                                 <strong>{{ auth()->user()->name }}</strong>
                                 <small>{{ auth()->user()->email }}</small>
