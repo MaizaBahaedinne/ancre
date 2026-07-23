@@ -27,7 +27,7 @@ class PackageController extends Controller
 
     public function store(StorePackageRequest $request): RedirectResponse
     {
-        Package::create($request->validated());
+        Package::create($request->packageData());
 
         return redirect()
             ->route('packages.index')
@@ -46,7 +46,7 @@ class PackageController extends Controller
 
     public function update(UpdatePackageRequest $request, Package $package): RedirectResponse
     {
-        $package->update($request->validated());
+        $package->update($request->packageData());
 
         return redirect()
             ->route('packages.index')
