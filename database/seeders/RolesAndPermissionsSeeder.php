@@ -21,6 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $permissions = [
             'users.manage',
             'dashboard.view',
+            'developer.tools.view',
             'parents.view',
             'parents.create',
             'parents.update',
@@ -93,6 +94,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $managerRole->syncPermissions([
             'dashboard.view',
+            'developer.tools.view',
             'parents.view',
             'parents.create',
             'parents.update',

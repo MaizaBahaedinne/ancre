@@ -6,6 +6,7 @@ use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\ActivityRegistrationController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\DeveloperToolsController;
 use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ParentIncidentController;
@@ -136,6 +137,11 @@ Route::middleware(['auth', 'permission:users.manage'])->group(function () {
 Route::middleware(['auth', 'permission:users.manage'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('users', UserManagementController::class)->except(['show']);
     Route::resource('roles', RoleManagementController::class)->except(['show']);
+});
+
+Route::middleware(['auth', 'permission:developer.tools.view'])->prefix('admin/developer')->name('admin.developer.')->group(function () {
+    Route::get('/', [DeveloperToolsController::class, 'index'])->name('index');
+    Route::get('/logs', [DeveloperToolsController::class, 'logs'])->name('logs');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {

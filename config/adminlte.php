@@ -370,6 +370,23 @@ return [
             'can' => 'incidents.view',
         ],
         [
+            'text' => 'Developpeur',
+            'icon' => 'fas fa-fw fa-code',
+            'can' => 'developer.tools.view',
+            'submenu' => [
+                [
+                    'text' => 'Deploiement',
+                    'route' => 'admin.developer.index',
+                    'icon' => 'fas fa-fw fa-rocket',
+                ],
+                [
+                    'text' => 'Logs',
+                    'route' => 'admin.developer.logs',
+                    'icon' => 'fas fa-fw fa-file-lines',
+                ],
+            ],
+        ],
+        [
             'text' => 'Demandes/Reclamations',
             'route' => 'demandes.index',
             'icon' => 'fas fa-fw fa-comments',
