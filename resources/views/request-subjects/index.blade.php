@@ -35,14 +35,18 @@
                             <td>{{ $subject->sort_order }}</td>
                             <td><span class="badge bg-{{ $subject->is_active ? 'success' : 'secondary' }}">{{ $subject->is_active ? 'Actif' : 'Inactif' }}</span></td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('demandes-sujets.edit', $subject) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('demandes-sujets.destroy', $subject) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce sujet ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @can('requests.subjects.manage')
+                                    <div class="modern-action-group">
+                                        <a href="{{ route('demandes-sujets.edit', $subject) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        <form method="POST" action="{{ route('demandes-sujets.destroy', $subject) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce sujet ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcan
                             </td>
                         </tr>
                     @empty

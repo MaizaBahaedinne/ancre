@@ -58,15 +58,25 @@
                             <td>{{ $activite->salle?->nom ?: '-' }}</td>
                             <td>{{ $activite->responsable }}</td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('activites.show', $activite) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                    <a href="{{ route('activites.edit', $activite) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('activites.destroy', $activite) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette activite ?')">
-                                    @csrf
-                                    @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @canany(['activities.view', 'activities.update', 'activities.delete'])
+                                    <div class="modern-action-group">
+                                        @can('activities.view')
+                                            <a href="{{ route('activites.show', $activite) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                        @endcan
+                                        @can('activities.update')
+                                            <a href="{{ route('activites.edit', $activite) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        @endcan
+                                        @can('activities.delete')
+                                            <form method="POST" action="{{ route('activites.destroy', $activite) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette activite ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                                <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcanany
                             </td>
                         </tr>
                     @empty

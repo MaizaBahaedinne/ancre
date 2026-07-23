@@ -61,15 +61,25 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="modern-action-group">
-                                        <a href="{{ route('parents.show', $parent) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                        <a href="{{ route('parents.edit', $parent) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                        <form action="{{ route('parents.destroy', $parent) }}" method="POST" class="modern-inline-form" onsubmit="return confirm('Confirmer la suppression ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                        </form>
-                                    </div>
+                                    @canany(['parents.view', 'parents.update', 'parents.delete'])
+                                        <div class="modern-action-group">
+                                            @can('parents.view')
+                                                <a href="{{ route('parents.show', $parent) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                            @endcan
+                                            @can('parents.update')
+                                                <a href="{{ route('parents.edit', $parent) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                            @endcan
+                                            @can('parents.delete')
+                                                <form action="{{ route('parents.destroy', $parent) }}" method="POST" class="modern-inline-form" onsubmit="return confirm('Confirmer la suppression ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                    <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endcanany
                                 </td>
                             </tr>
                         @empty

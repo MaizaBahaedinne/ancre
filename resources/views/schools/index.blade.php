@@ -29,11 +29,21 @@
                         <td>{{ $school->director_contact ?: '-' }}</td>
                         <td>{{ $school->classes_count }}</td>
                         <td>
-                            <div class="modern-action-group">
-                                <a href="{{ route('schools.show', $school) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                <a href="{{ route('schools.edit', $school) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                <form method="POST" action="{{ route('schools.destroy', $school) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette ecole ?')">@csrf @method('DELETE')<button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button></form>
-                            </div>
+                            @canany(['schools.view', 'schools.update', 'schools.delete'])
+                                <div class="modern-action-group">
+                                    @can('schools.view')
+                                        <a href="{{ route('schools.show', $school) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                    @endcan
+                                    @can('schools.update')
+                                        <a href="{{ route('schools.edit', $school) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                    @endcan
+                                    @can('schools.delete')
+                                        <form method="POST" action="{{ route('schools.destroy', $school) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette ecole ?')">@csrf @method('DELETE')<button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button></form>
+                                    @endcan
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endcanany
                         </td>
                     </tr>
                 @empty

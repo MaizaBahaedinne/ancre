@@ -103,15 +103,25 @@
                         <td>{{ $inscription->type_garde }}</td>
                         <td>{{ $inscription->statut }}</td>
                         <td>
-                            <div class="modern-action-group">
-                                <a href="{{ route('inscriptions.show', $inscription) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                <a href="{{ route('inscriptions.edit', $inscription) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                <form method="POST" action="{{ route('inscriptions.destroy', $inscription) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette inscription ?')">
-                                @csrf
-                                @method('DELETE')
-                                    <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                </form>
-                            </div>
+                            @canany(['registrations.view', 'registrations.update', 'registrations.delete'])
+                                <div class="modern-action-group">
+                                    @can('registrations.view')
+                                        <a href="{{ route('inscriptions.show', $inscription) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                    @endcan
+                                    @can('registrations.update')
+                                        <a href="{{ route('inscriptions.edit', $inscription) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                    @endcan
+                                    @can('registrations.delete')
+                                        <form method="POST" action="{{ route('inscriptions.destroy', $inscription) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette inscription ?')">
+                                        @csrf
+                                        @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endcanany
                         </td>
                     </tr>
                 @empty

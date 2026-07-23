@@ -36,14 +36,18 @@
                             <td>{{ $role->permissions_count }}</td>
                             <td>{{ $role->users_count }}</td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('admin.roles.edit', $role) }}" class="modern-action-btn is-edit" title="Modifier"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('admin.roles.destroy', $role) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce role ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit" title="Supprimer"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @can('users.manage')
+                                    <div class="modern-action-group">
+                                        <a href="{{ route('admin.roles.edit', $role) }}" class="modern-action-btn is-edit" title="Modifier"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        <form method="POST" action="{{ route('admin.roles.destroy', $role) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce role ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit" title="Supprimer"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

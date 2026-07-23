@@ -46,15 +46,25 @@
                             </span>
                         </td>
                         <td>
-                            <div class="modern-action-group">
-                                <a href="{{ route('packages.show', $package) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                <a href="{{ route('packages.edit', $package) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                <form method="POST" action="{{ route('packages.destroy', $package) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce package ?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                </form>
-                            </div>
+                            @canany(['packages.view', 'packages.update', 'packages.delete'])
+                                <div class="modern-action-group">
+                                    @can('packages.view')
+                                        <a href="{{ route('packages.show', $package) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                    @endcan
+                                    @can('packages.update')
+                                        <a href="{{ route('packages.edit', $package) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                    @endcan
+                                    @can('packages.delete')
+                                        <form method="POST" action="{{ route('packages.destroy', $package) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce package ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endcanany
                         </td>
                     </tr>
                 @empty

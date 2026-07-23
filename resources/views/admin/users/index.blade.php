@@ -38,14 +38,18 @@
                             <td>{{ $user->getRoleNames()->join(', ') ?: '-' }}</td>
                             <td>{{ optional($user->created_at)->format('d/m/Y H:i') }}</td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('admin.users.edit', $user) }}" class="modern-action-btn is-edit" title="Modifier"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cet utilisateur ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit" title="Supprimer"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @can('users.manage')
+                                    <div class="modern-action-group">
+                                        <a href="{{ route('admin.users.edit', $user) }}" class="modern-action-btn is-edit" title="Modifier"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit" title="Supprimer"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

@@ -41,15 +41,25 @@
                             <td>{{ $academicYear->periods_count }}</td>
                             <td>{{ $academicYear->school_classes_count }}</td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('academic-years.show', $academicYear) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                    <a href="{{ route('academic-years.edit', $academicYear) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('academic-years.destroy', $academicYear) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette annee scolaire ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @canany(['academic-years.view', 'academic-years.update', 'academic-years.delete'])
+                                    <div class="modern-action-group">
+                                        @can('academic-years.view')
+                                            <a href="{{ route('academic-years.show', $academicYear) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                        @endcan
+                                        @can('academic-years.update')
+                                            <a href="{{ route('academic-years.edit', $academicYear) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        @endcan
+                                        @can('academic-years.delete')
+                                            <form method="POST" action="{{ route('academic-years.destroy', $academicYear) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cette annee scolaire ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcanany
                             </td>
                         </tr>
                     @empty

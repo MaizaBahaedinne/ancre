@@ -74,15 +74,25 @@
                                 </td>
                                 <td>{{ optional($enfant->date_naissance)->format('d/m/Y') }}</td>
                                 <td>
-                                    <div class="modern-action-group">
-                                        <a href="{{ route('enfants.show', $enfant) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                        <a href="{{ route('enfants.edit', $enfant) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                        <form action="{{ route('enfants.destroy', $enfant) }}" method="POST" class="modern-inline-form" onsubmit="return confirm('Confirmer la suppression ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                        </form>
-                                    </div>
+                                    @canany(['children.view', 'children.update', 'children.delete'])
+                                        <div class="modern-action-group">
+                                            @can('children.view')
+                                                <a href="{{ route('enfants.show', $enfant) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                            @endcan
+                                            @can('children.update')
+                                                <a href="{{ route('enfants.edit', $enfant) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                            @endcan
+                                            @can('children.delete')
+                                                <form action="{{ route('enfants.destroy', $enfant) }}" method="POST" class="modern-inline-form" onsubmit="return confirm('Confirmer la suppression ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                    <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endcanany
                                 </td>
                             </tr>
                         @empty

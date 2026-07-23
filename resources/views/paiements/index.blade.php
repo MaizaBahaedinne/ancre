@@ -101,16 +101,26 @@
                         <td>{{ $paiement->mode_paiement }}</td>
                         <td><span class="badge badge-{{ $paiement->statut === 'Paye' ? 'success' : ($paiement->statut === 'En retard' ? 'danger' : 'warning') }}">{{ $paiement->statut }}</span></td>
                         <td>
-                            <div class="modern-action-group">
-                                <a href="{{ route('paiements.show', $paiement) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                <a href="{{ route('paiements.receipt', $paiement) }}" class="modern-action-btn is-print"><i class="fa-solid fa-file-pdf"></i><span>Recu</span></a>
-                                <a href="{{ route('paiements.edit', $paiement) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                <form method="POST" action="{{ route('paiements.destroy', $paiement) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce paiement ?')">
-                                @csrf
-                                @method('DELETE')
-                                    <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                </form>
-                            </div>
+                            @canany(['payments.view', 'payments.update', 'payments.delete'])
+                                <div class="modern-action-group">
+                                    @can('payments.view')
+                                        <a href="{{ route('paiements.show', $paiement) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                        <a href="{{ route('paiements.receipt', $paiement) }}" class="modern-action-btn is-print"><i class="fa-solid fa-file-pdf"></i><span>Recu</span></a>
+                                    @endcan
+                                    @can('payments.update')
+                                        <a href="{{ route('paiements.edit', $paiement) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                    @endcan
+                                    @can('payments.delete')
+                                        <form method="POST" action="{{ route('paiements.destroy', $paiement) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer ce paiement ?')">
+                                        @csrf
+                                        @method('DELETE')
+                                            <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endcanany
                         </td>
                     </tr>
                 @empty

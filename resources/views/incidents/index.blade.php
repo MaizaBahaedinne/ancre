@@ -89,15 +89,25 @@
                             </td>
                             <td>{{ \Illuminate\Support\Str::limit(strip_tags($incident->description), 60) }}</td>
                             <td>
-                                <div class="modern-action-group">
-                                    <a href="{{ route('incidents.show', $incident) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
-                                    <a href="{{ route('incidents.edit', $incident) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
-                                    <form method="POST" action="{{ route('incidents.destroy', $incident) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cet incident ?')">
-                                    @csrf
-                                    @method('DELETE')
-                                        <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
-                                    </form>
-                                </div>
+                                @canany(['incidents.view', 'incidents.update', 'incidents.delete'])
+                                    <div class="modern-action-group">
+                                        @can('incidents.view')
+                                            <a href="{{ route('incidents.show', $incident) }}" class="modern-action-btn is-view"><i class="fa-solid fa-eye"></i><span>Voir</span></a>
+                                        @endcan
+                                        @can('incidents.update')
+                                            <a href="{{ route('incidents.edit', $incident) }}" class="modern-action-btn is-edit"><i class="fa-solid fa-pen"></i><span>Modifier</span></a>
+                                        @endcan
+                                        @can('incidents.delete')
+                                            <form method="POST" action="{{ route('incidents.destroy', $incident) }}" class="modern-inline-form" onsubmit="return confirm('Supprimer cet incident ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                                <button class="modern-action-btn is-delete" type="submit"><i class="fa-solid fa-trash"></i><span>Supprimer</span></button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endcanany
                             </td>
                         </tr>
                     @empty
