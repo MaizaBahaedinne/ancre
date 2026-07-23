@@ -149,7 +149,7 @@
                         @can('requests.view')
                             <a href="{{ route('demandes.index') }}" class="modern-nav-link {{ request()->routeIs('demandes.*') ? 'is-active' : '' }}">
                                 <i class="fa-solid fa-comments"></i>
-                                <span>Demandes/Reclamations</span>
+                                <span>Demandes</span>
                             </a>
                         @endcan
                         @can('requests.subjects.manage')
