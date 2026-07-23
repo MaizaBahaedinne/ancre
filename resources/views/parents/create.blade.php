@@ -99,20 +99,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 form-group">
-                        <label>CIN Recto (image ou PDF)</label>
-                        <input type="file" name="cin_recto" id="cin-recto-file" class="form-control-file @error('cin_recto') is-invalid @enderror" accept="image/*,application/pdf">
-                        @error('cin_recto') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label>CIN Verso (image ou PDF)</label>
-                        <input type="file" name="cin_verso" id="cin-verso-file" class="form-control-file @error('cin_verso') is-invalid @enderror" accept="image/*,application/pdf">
-                        @error('cin_verso') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                    </div>
-                </div>
-                <small class="text-muted d-block mb-3">Le profil parent ne peut pas etre valide sans ces documents.</small>
-
                 <button class="btn btn-primary" id="parent-submit-btn">Enregistrer</button>
                 <a href="{{ route('parents.index') }}" class="btn btn-secondary">Annuler</a>
             </form>

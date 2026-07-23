@@ -173,6 +173,7 @@ Route::middleware(['auth', 'permission:children.create'])->group(function () {
 
 Route::middleware(['auth', 'permission:children.update'])->group(function () {
     Route::get('enfants/{enfant}/edit', [EnfantController::class, 'edit'])->name('enfants.edit')->whereNumber('enfant');
+    Route::post('enfants/{enfant}/photo', [EnfantController::class, 'uploadPhoto'])->name('enfants.photo.upload')->whereNumber('enfant');
     Route::put('enfants/{enfant}', [EnfantController::class, 'update'])->name('enfants.update')->whereNumber('enfant');
     Route::patch('enfants/{enfant}', [EnfantController::class, 'update'])->whereNumber('enfant');
 });

@@ -73,25 +73,6 @@ class ParentController extends Controller
     public function store(StoreParentRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $scanToken = $request->string('cin_scan_token')->trim()->toString();
-
-        if ($request->hasFile('cin_recto')) {
-            $data['cin_recto'] = $request->file('cin_recto')->store('parents/cin', 'public');
-        } elseif ($scanToken) {
-            $data['cin_recto'] = $this->resolveScannedDocument($scanToken, 'cin_recto');
-        }
-
-        if ($request->hasFile('cin_verso')) {
-            $data['cin_verso'] = $request->file('cin_verso')->store('parents/cin', 'public');
-        } elseif ($scanToken) {
-            $data['cin_verso'] = $this->resolveScannedDocument($scanToken, 'cin_verso');
-        }
-
-        if (empty($data['cin_recto']) || empty($data['cin_verso'])) {
-            return back()->withErrors([
-                'cin_recto' => 'Veuillez fournir le recto et le verso de la CIN, soit par upload direct, soit via le scan smartphone.',
-            ])->withInput();
-        }
 
         if ($this->parentColumnExists('verification_token')) {
             $data['verification_token'] = Str::random(64);
@@ -102,10 +83,6 @@ class ParentController extends Controller
         }
 
         $parent = ParentModel::create($data);
-
-        if ($scanToken) {
-            $this->cleanupScanDirectory($scanToken);
-        }
 
         return redirect()
             ->route('parents.show', $parent)

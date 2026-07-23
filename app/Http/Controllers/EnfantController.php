@@ -331,6 +331,26 @@ class EnfantController extends Controller
             ->with('success', 'Enfant mis a jour avec succes.');
     }
 
+    public function uploadPhoto(Request $request, Enfant $enfant): RedirectResponse
+    {
+        $this->ensureParentCanAccessChild($enfant);
+
+        $validated = $request->validate([
+            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        if ($enfant->photo && Storage::disk('public')->exists($enfant->photo)) {
+            Storage::disk('public')->delete($enfant->photo);
+        }
+
+        $path = $request->file('photo')->store('enfants', 'public');
+        $enfant->update(['photo' => $path]);
+
+        return redirect()
+            ->route('enfants.show', $enfant)
+            ->with('success', 'Photo de l\'enfant mise a jour avec succes.');
+    }
+
     /**
      * Remove the specified resource from storage.
      */

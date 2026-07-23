@@ -36,6 +36,17 @@
                                 <span>{{ strtoupper(substr($enfant->prenom ?: $enfant->nom, 0, 1)) }}</span>
                             </div>
                         @endif
+
+                        @can('children.update')
+                            <form method="POST" action="{{ route('enfants.photo.upload', $enfant) }}" enctype="multipart/form-data" class="mt-2">
+                                @csrf
+                                <div class="mb-2">
+                                    <input type="file" name="photo" class="form-control form-control-sm @error('photo') is-invalid @enderror" accept="image/*" required>
+                                    @error('photo') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-outline-primary w-100">Upload image</button>
+                            </form>
+                        @endcan
                     </div>
 
                     <div class="child-profile-main">
