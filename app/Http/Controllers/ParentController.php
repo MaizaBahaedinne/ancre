@@ -109,6 +109,8 @@ class ParentController extends Controller
      */
     public function show(ParentModel $parent): View
     {
+        $verificationToken = $this->ensureVerificationToken($parent);
+
         $parent->load(['user.roles'])->loadCount('enfants');
 
         $linkedEnfants = Enfant::query()
@@ -125,7 +127,7 @@ class ParentController extends Controller
         return view('parents.show', [
             'parent' => $parent,
             'linkedEnfants' => $linkedEnfants,
-            'verificationUrl' => route('parents.verification', $parent->verification_token),
+            'verificationUrl' => route('parents.verification', $verificationToken),
         ]);
     }
 
@@ -192,6 +194,19 @@ class ParentController extends Controller
             ->route('parents.verification', $token)
             ->with('success', 'Verification de compte parent enregistree avec succes.')
             ->with('temporary_password', $temporaryPassword);
+    }
+
+    private function ensureVerificationToken(ParentModel $parent): string
+    {
+        if ($parent->verification_token) {
+            return $parent->verification_token;
+        }
+
+        $parent->forceFill([
+            'verification_token' => Str::random(64),
+        ])->save();
+
+        return $parent->verification_token;
     }
 
     public function createUser(ParentModel $parent, Request $request): RedirectResponse

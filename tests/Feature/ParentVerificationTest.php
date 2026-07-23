@@ -4,13 +4,40 @@ namespace Tests\Feature;
 
 use App\Models\ParentModel;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class ParentVerificationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_parent_show_generates_missing_verification_token_and_renders_link(): void
+    {
+        Permission::findOrCreate('parents.view');
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('parents.view');
+
+        $parent = ParentModel::create([
+            'nom' => 'Test',
+            'prenom' => 'Parent',
+            'telephone' => '12345678',
+            'email' => 'parent@example.com',
+            'verification_status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('parents.show', $parent));
+
+        $response->assertOk();
+        $response->assertSee('Verification du compte parent', false);
+
+        $parent->refresh();
+
+        $this->assertNotNull($parent->verification_token);
+        $response->assertSee(route('parents.verification', $parent->verification_token), false);
+    }
 
     public function test_verification_page_is_public_and_renders_form(): void
     {
