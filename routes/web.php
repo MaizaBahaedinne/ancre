@@ -98,6 +98,18 @@ Route::middleware(['auth', 'permission:parents.create'])->group(function () {
     Route::post('parents', [ParentController::class, 'store'])->name('parents.store');
 });
 
+Route::get('parents/create/scanner/{token}', [ParentController::class, 'cinScanner'])
+    ->name('parents.cin-scanner')
+    ->where('token', '[A-Za-z0-9]+');
+
+Route::post('parents/create/scanner/{token}', [ParentController::class, 'storeCinScan'])
+    ->name('parents.cin-scanner.store')
+    ->where('token', '[A-Za-z0-9]+');
+
+Route::get('parents/create/scanner/{token}/status', [ParentController::class, 'cinScanStatus'])
+    ->name('parents.cin-scanner.status')
+    ->where('token', '[A-Za-z0-9]+');
+
 Route::middleware(['auth', 'permission:parents.update'])->group(function () {
     Route::get('parents/{parent}/edit', [ParentController::class, 'edit'])->name('parents.edit')->whereNumber('parent');
     Route::put('parents/{parent}', [ParentController::class, 'update'])->name('parents.update')->whereNumber('parent');

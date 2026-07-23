@@ -7,7 +7,9 @@ use App\Http\Requests\UpdateParentRequest;
 use App\Models\Enfant;
 use App\Models\ParentModel;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +19,8 @@ use Spatie\Permission\Models\Role;
 
 class ParentController extends Controller
 {
+    private const CIN_SCAN_PREFIX = 'parents/cin-scans';
+
     /**
      * Display a listing of the resource.
      */
@@ -55,7 +59,9 @@ class ParentController extends Controller
      */
     public function create(): View
     {
-        return view('parents.create');
+        $scanToken = Str::random(40);
+
+        return view('parents.create', compact('scanToken'));
     }
 
     /**
@@ -64,16 +70,31 @@ class ParentController extends Controller
     public function store(StoreParentRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $scanToken = $request->string('cin_scan_token')->trim()->toString();
 
         if ($request->hasFile('cin_recto')) {
             $data['cin_recto'] = $request->file('cin_recto')->store('parents/cin', 'public');
+        } elseif ($scanToken) {
+            $data['cin_recto'] = $this->resolveScannedDocument($scanToken, 'cin_recto');
         }
 
         if ($request->hasFile('cin_verso')) {
             $data['cin_verso'] = $request->file('cin_verso')->store('parents/cin', 'public');
+        } elseif ($scanToken) {
+            $data['cin_verso'] = $this->resolveScannedDocument($scanToken, 'cin_verso');
+        }
+
+        if (empty($data['cin_recto']) || empty($data['cin_verso'])) {
+            return back()->withErrors([
+                'cin_recto' => 'Veuillez fournir le recto et le verso de la CIN, soit par upload direct, soit via le scan smartphone.',
+            ])->withInput();
         }
 
         ParentModel::create($data);
+
+        if ($scanToken) {
+            $this->cleanupScanDirectory($scanToken);
+        }
 
         return redirect()
             ->route('parents.index')
@@ -149,6 +170,53 @@ class ParentController extends Controller
         return view('parents.edit', compact('parent'));
     }
 
+    public function cinScanner(string $token): View
+    {
+        return view('parents.cin-scanner', [
+            'scanToken' => $token,
+            'uploadUrl' => route('parents.cin-scanner.store', $token),
+            'statusUrl' => route('parents.cin-scanner.status', $token),
+        ]);
+    }
+
+    public function storeCinScan(Request $request, string $token): JsonResponse
+    {
+        $validated = $request->validate([
+            'side' => ['required', 'in:cin_recto,cin_verso'],
+            'cin_file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+        ]);
+
+        $path = $this->storeScannedDocument($token, $validated['side'], $request->file('cin_file'));
+
+        return response()->json([
+            'success' => true,
+            'side' => $validated['side'],
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
+        ]);
+    }
+
+    public function cinScanStatus(string $token): JsonResponse
+    {
+        $rectoPath = $this->scannedDocumentPath($token, 'cin_recto');
+        $versoPath = $this->scannedDocumentPath($token, 'cin_verso');
+
+        return response()->json([
+            'token' => $token,
+            'recto' => $rectoPath ? [
+                'ready' => true,
+                'path' => $rectoPath,
+                'url' => Storage::disk('public')->url($rectoPath),
+            ] : null,
+            'verso' => $versoPath ? [
+                'ready' => true,
+                'path' => $versoPath,
+                'url' => Storage::disk('public')->url($versoPath),
+            ] : null,
+            'completed' => $rectoPath && $versoPath,
+        ]);
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -177,6 +245,67 @@ class ParentController extends Controller
         return redirect()
             ->route('parents.index')
             ->with('success', 'Parent mis a jour avec succes.');
+    }
+
+    private function scannedDocumentPath(string $token, string $side): ?string
+    {
+        $directory = $this->scanDirectory($token);
+        $files = Storage::disk('public')->files($directory);
+
+        foreach ($files as $file) {
+            if (Str::startsWith(basename($file), $side)) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveScannedDocument(string $token, string $side): ?string
+    {
+        $path = $this->scannedDocumentPath($token, $side);
+
+        if (! $path) {
+            return null;
+        }
+
+        $finalPath = 'parents/cin/'.basename($path);
+
+        if (Storage::disk('public')->exists($finalPath)) {
+            Storage::disk('public')->delete($finalPath);
+        }
+
+        Storage::disk('public')->move($path, $finalPath);
+
+        return $finalPath;
+    }
+
+    private function storeScannedDocument(string $token, string $side, UploadedFile $file): string
+    {
+        $directory = $this->scanDirectory($token);
+        Storage::disk('public')->makeDirectory($directory);
+
+        $extension = $file->extension() ?: $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = $side.'.'.strtolower($extension);
+        $path = $directory.'/'.$filename;
+
+        Storage::disk('public')->putFileAs($directory, $file, $filename);
+
+        return $path;
+    }
+
+    private function scanDirectory(string $token): string
+    {
+        return self::CIN_SCAN_PREFIX.'/'.$token;
+    }
+
+    private function cleanupScanDirectory(string $token): void
+    {
+        $directory = $this->scanDirectory($token);
+
+        if (Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->deleteDirectory($directory);
+        }
     }
 
     /**

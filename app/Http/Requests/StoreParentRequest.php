@@ -33,8 +33,9 @@ class StoreParentRequest extends FormRequest
             'adresse' => ['nullable', 'string', 'max:255'],
             'profession' => ['nullable', 'string', 'max:255'],
             'contact_urgence' => ['nullable', 'string', 'max:30'],
-            'cin_recto' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
-            'cin_verso' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+            'cin_scan_token' => ['nullable', 'string', 'max:80'],
+            'cin_recto' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+            'cin_verso' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
         ];
     }
 }
