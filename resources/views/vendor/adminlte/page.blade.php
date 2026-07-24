@@ -224,11 +224,6 @@
                 </div>
 
                 <div class="modern-topbar-right">
-                    <div class="modern-role-pill">
-                        <i class="fa-solid fa-shield-heart"></i>
-                        <span>{{ auth()->user()->getRoleNames()->join(', ') ?: 'Aucun role' }}</span>
-                    </div>
-
                     <details class="modern-user-menu">
                         <summary>
                             @php
@@ -249,6 +244,11 @@
                         </summary>
 
                         <div class="modern-user-dropdown">
+                            <div class="modern-user-role">
+                                <i class="fa-solid fa-shield-heart"></i>
+                                <span>{{ auth()->user()->getRoleNames()->join(', ') ?: 'Aucun role' }}</span>
+                            </div>
+
                             <a href="{{ route('profile.edit') }}" class="modern-user-dropdown-link">
                                 <i class="fa-solid fa-user-gear"></i>
                                 <span>Mon profil</span>

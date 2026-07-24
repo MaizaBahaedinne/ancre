@@ -45,7 +45,7 @@
 		bottom: 1rem;
 		width: 280px;
 		padding: 1.25rem;
-		overflow-y: auto;
+		overflow: hidden;
 		border: 1px solid rgba(var(--brand-navy-rgb), 0.2);
 		border-radius: 28px;
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.93), rgba(249, 250, 253, 0.88));
@@ -54,7 +54,13 @@
 	}
 
 	.modern-brand {
-		margin-bottom: 1.5rem;
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		margin: -0.15rem -0.15rem 0.95rem;
+		padding: 0.35rem 0.35rem 0.8rem;
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0));
+		backdrop-filter: blur(8px);
 	}
 
 	.modern-brand-link {
@@ -109,6 +115,14 @@
 	.modern-nav {
 		display: grid;
 		gap: 0.9rem;
+		max-height: calc(100vh - 11.25rem);
+		overflow-y: auto;
+		padding-right: 0.2rem;
+		scrollbar-width: none;
+	}
+
+	.modern-nav::-webkit-scrollbar {
+		display: none;
 	}
 
 	.modern-nav-section {
@@ -173,8 +187,9 @@
 	}
 
 	.modern-topbar {
-		position: relative;
-		z-index: 50;
+		position: sticky;
+		top: 1rem;
+		z-index: 1030;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -232,6 +247,21 @@
 		color: var(--brand-navy);
 		font-size: 0.9rem;
 		font-weight: 700;
+	}
+
+	.modern-user-role {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
+		margin-bottom: 0.45rem;
+		padding: 0.65rem 0.9rem;
+		border: 1px solid rgba(var(--brand-gold-rgb), 0.3);
+		border-radius: 12px;
+		background: rgba(var(--brand-gold-rgb), 0.14);
+		color: var(--brand-navy);
+		font-size: 0.8rem;
+		font-weight: 800;
 	}
 
 	.modern-user-menu {
@@ -1153,6 +1183,10 @@
 			transform: translateX(-102%);
 			transition: transform 0.22s ease;
 			z-index: 1045;
+		}
+
+		.modern-nav {
+			max-height: calc(100vh - 10.75rem);
 		}
 
 		.modern-main {
