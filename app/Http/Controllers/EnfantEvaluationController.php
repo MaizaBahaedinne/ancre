@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSubject;
+use App\Models\AcademicYear;
 use App\Models\Enfant;
 use App\Models\EnfantEvaluation;
+use App\Models\Inscription;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class EnfantEvaluationController extends Controller
 {
@@ -25,12 +28,60 @@ class EnfantEvaluationController extends Controller
             'grades.*' => ['nullable', 'numeric', 'min:0', 'max:20'],
         ]);
 
+        $this->upsertEvaluation($enfant, $validated);
+
+        return redirect()
+            ->route('enfants.show', $enfant)
+            ->with('success', 'Bulletin trimestriel enregistre avec succes.');
+    }
+
+    public function upsertByInscription(Request $request, Inscription $inscription): RedirectResponse
+    {
+        $inscription->load('enfant.schoolClass');
+
+        if (! $inscription->enfant) {
+            return back()->withErrors([
+                'evaluations' => 'Aucun enfant n\'est rattache a cette inscription.',
+            ])->withInput();
+        }
+
+        $academicYear = AcademicYear::query()
+            ->where('label', $inscription->annee_scolaire)
+            ->first();
+
+        if (! $academicYear) {
+            return back()->withErrors([
+                'evaluations' => 'L\'annee scolaire de cette inscription n\'existe pas dans la table des annees scolaires.',
+            ])->withInput();
+        }
+
+        $validated = $request->validate([
+            'trimester' => ['required', 'in:'.implode(',', EnfantEvaluation::TRIMESTER_OPTIONS)],
+            'general_average' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'class_rank' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'bulletin_received_at' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:3000'],
+            'grades' => ['nullable', 'array'],
+            'grades.*' => ['nullable', 'numeric', 'min:0', 'max:20'],
+        ]);
+
+        $validated['academic_year_id'] = $academicYear->id;
+
+        $this->upsertEvaluation($inscription->enfant, $validated);
+
+        return redirect()
+            ->route('inscriptions.show', $inscription)
+            ->with('success', 'Bulletin trimestriel enregistre avec succes.');
+    }
+
+    private function upsertEvaluation(Enfant $enfant, array $validated): void
+    {
         $level = $enfant->schoolClass?->level ?: $enfant->classe;
 
         if (! $level) {
-            return back()->withErrors([
+            throw ValidationException::withMessages([
                 'evaluations' => 'Le niveau de l\'enfant est introuvable. Assignez une classe ou un niveau avant la saisie du bulletin.',
-            ])->withInput();
+            ]);
         }
 
         $subjects = AcademicSubject::query()
@@ -54,9 +105,9 @@ class EnfantEvaluationController extends Controller
         $subjectIds = $subjectsForLevel->pluck('id')->all();
 
         if (empty($subjectIds)) {
-            return back()->withErrors([
+            throw ValidationException::withMessages([
                 'evaluations' => 'Aucune matiere active n\'est configuree pour ce niveau.',
-            ])->withInput();
+            ]);
         }
 
         $gradesInput = collect($validated['grades'] ?? [])
@@ -114,10 +165,6 @@ class EnfantEvaluationController extends Controller
                 ]);
             }
         });
-
-        return redirect()
-            ->route('enfants.show', $enfant)
-            ->with('success', 'Bulletin trimestriel enregistre avec succes.');
     }
 
     private function normalizeLevelLabel(?string $level): string

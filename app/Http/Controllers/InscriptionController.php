@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInscriptionRequest;
 use App\Http\Requests\UpdateInscriptionRequest;
 use App\Models\AcademicYear;
+use App\Models\AcademicSubject;
 use App\Models\Enfant;
+use App\Models\EnfantEvaluation;
 use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Models\Package;
@@ -15,6 +17,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class InscriptionController extends Controller
 {
@@ -146,6 +149,8 @@ class InscriptionController extends Controller
 
         $inscription->load([
             'enfant.parent',
+            'enfant.schoolClass',
+            'enfant.evaluations.grades.subject',
             'enfant.paiements' => fn ($query) => $query
                 ->orderByDesc('annee')
                 ->orderByDesc('mois')
@@ -162,6 +167,44 @@ class InscriptionController extends Controller
         $paidAmountTotal = (float) $monthlyPaymentHistory->sum('paid_amount');
         $expectedAmountTotal = (float) $monthlyPaymentHistory->sum('expected_total');
 
+        $evaluationAcademicYear = AcademicYear::query()
+            ->where('label', $inscription->annee_scolaire)
+            ->first();
+
+        $currentLevel = $inscription->enfant?->schoolClass?->level ?: $inscription->enfant?->classe;
+        $subjectCatalog = AcademicSubject::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        if ($currentLevel) {
+            $normalizedCurrentLevel = $this->normalizeLevelLabel($currentLevel);
+
+            $filteredByLevel = $subjectCatalog->filter(
+                fn (AcademicSubject $subject) => $this->normalizeLevelLabel($subject->level) === $normalizedCurrentLevel
+            )->values();
+
+            if ($filteredByLevel->isEmpty() && preg_match('/\d+/', $normalizedCurrentLevel, $matches)) {
+                $targetYear = $matches[0];
+
+                $filteredByLevel = $subjectCatalog->filter(
+                    fn (AcademicSubject $subject) => preg_match('/\d+/', $this->normalizeLevelLabel($subject->level), $m) && ($m[0] ?? null) === $targetYear
+                )->values();
+            }
+
+            $subjectCatalog = $filteredByLevel;
+        }
+
+        $activeYearEvaluations = collect();
+        if ($evaluationAcademicYear && $inscription->enfant) {
+            $activeYearEvaluations = $inscription->enfant->evaluations
+                ->where('academic_year_id', $evaluationAcademicYear->id)
+                ->keyBy('trimester');
+        }
+
+        $trimesterStatuses = collect(EnfantEvaluation::TRIMESTER_OPTIONS)
+            ->mapWithKeys(fn ($trimester) => [$trimester => $activeYearEvaluations->has($trimester)]);
+
         return view('inscriptions.show', compact(
             'inscription',
             'monthlyPaymentHistory',
@@ -170,7 +213,12 @@ class InscriptionController extends Controller
             'lateMonthsCount',
             'trackedMonthsCount',
             'paidAmountTotal',
-            'expectedAmountTotal'
+            'expectedAmountTotal',
+            'evaluationAcademicYear',
+            'currentLevel',
+            'subjectCatalog',
+            'activeYearEvaluations',
+            'trimesterStatuses'
         ));
     }
 
@@ -461,5 +509,13 @@ class InscriptionController extends Controller
             ->exists();
 
         abort_unless($canAccess, 403);
+    }
+
+    private function normalizeLevelLabel(?string $level): string
+    {
+        $value = Str::ascii((string) $level);
+        $value = mb_strtolower($value, 'UTF-8');
+
+        return preg_replace('/\s+/', ' ', trim($value)) ?: '';
     }
 }

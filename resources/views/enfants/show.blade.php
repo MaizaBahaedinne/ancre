@@ -301,167 +301,16 @@
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h3 class="card-title mb-0">Suivi scolaire et evolution</h3>
-                <div class="d-flex gap-2 flex-wrap">
-                    @foreach($trimesterStatuses as $trimesterLabel => $isFilled)
-                        <span class="badge badge-{{ $isFilled ? 'success' : 'secondary' }}">
-                            {{ $trimesterLabel }}: {{ $isFilled ? 'Renseigne' : 'En attente' }}
-                        </span>
-                    @endforeach
+        <div class="card mt-3 border-0 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <strong>Suivi scolaire et evolution</strong>
+                    <div class="text-muted small">La saisie trimestrielle des notes se fait desormais dans la fiche inscription.</div>
                 </div>
-            </div>
-            <div class="card-body">
-                @if($errors->has('evaluations'))
-                    <div class="alert alert-danger">{{ $errors->first('evaluations') }}</div>
-                @endif
-
-                <div class="alert alert-light border">
-                    <strong>Niveau actuel:</strong> {{ $currentLevel ?: 'Non defini' }}
-                    <br>
-                    <strong>Annee scolaire active:</strong> {{ $activeAcademicYear?->label ?: '-' }}
-                    <br>
-                    <strong>Matieres trouvees:</strong> {{ $subjectCatalog->count() }}
-                </div>
-
-                @if($subjectCatalog->isEmpty())
-                    <div class="alert alert-warning mb-0">
-                        Aucune matiere active n'est configuree pour ce niveau. Configurez d'abord les matieres dans le module Matieres.
-                    </div>
+                @if($currentYearInscription)
+                    <a href="{{ route('inscriptions.show', $currentYearInscription) }}" class="btn btn-outline-primary">Ouvrir la fiche inscription</a>
                 @else
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered table-sm mb-0">
-                            <thead>
-                            <tr>
-                                <th>Trimestre</th>
-                                <th>Moyenne generale</th>
-                                <th>Rang</th>
-                                <th>Date bulletin</th>
-                                <th>Etat</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach(\App\Models\EnfantEvaluation::TRIMESTER_OPTIONS as $trimesterLabel)
-                                @php
-                                    $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
-                                @endphp
-                                <tr>
-                                    <td>{{ $trimesterLabel }}</td>
-                                    <td>{{ $trimesterEvaluation?->general_average !== null ? number_format((float) $trimesterEvaluation->general_average, 2, ',', ' ') : '-' }}</td>
-                                    <td>{{ $trimesterEvaluation?->class_rank ?: '-' }}</td>
-                                    <td>{{ optional($trimesterEvaluation?->bulletin_received_at)->format('d/m/Y') ?: '-' }}</td>
-                                    <td>
-                                        <span class="badge badge-{{ $trimesterEvaluation ? 'success' : 'secondary' }}">
-                                            {{ $trimesterEvaluation ? 'Renseigne' : 'En attente' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @can('children.update')
-                        @if($activeAcademicYear)
-                            <div class="accordion" id="accordionSchoolTracking">
-                                @foreach(\App\Models\EnfantEvaluation::TRIMESTER_OPTIONS as $trimesterLabel)
-                                    @php
-                                        $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
-                                        $gradeMap = $trimesterEvaluation
-                                            ? $trimesterEvaluation->grades->pluck('grade', 'academic_subject_id')
-                                            : collect();
-                                        $collapseId = 'trimesterForm'.\Illuminate\Support\Str::slug($trimesterLabel);
-                                        $headingId = 'heading'.\Illuminate\Support\Str::slug($trimesterLabel);
-                                    @endphp
-                                    <div class="card">
-                                        <div class="card-header" id="{{ $headingId }}">
-                                            <h2 class="mb-0">
-                                                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#{{ $collapseId }}" aria-expanded="false" aria-controls="{{ $collapseId }}">
-                                                    {{ $trimesterLabel }}
-                                                    @if($trimesterEvaluation)
-                                                        <span class="badge badge-success ml-2">Mise a jour</span>
-                                                    @endif
-                                                </button>
-                                            </h2>
-                                        </div>
-
-                                        <div id="{{ $collapseId }}" class="collapse" aria-labelledby="{{ $headingId }}" data-parent="#accordionSchoolTracking">
-                                            <div class="card-body">
-                                                <form method="POST" action="{{ route('enfants.evaluations.upsert', $enfant) }}">
-                                                    @csrf
-                                                    <input type="hidden" name="academic_year_id" value="{{ $activeAcademicYear->id }}">
-                                                    <input type="hidden" name="trimester" value="{{ $trimesterLabel }}">
-
-                                                    <div class="row g-3">
-                                                        <div class="col-md-4 form-group">
-                                                            <label>Moyenne generale</label>
-                                                            <input type="number" step="0.01" min="0" max="20" name="general_average" class="form-control @error('general_average') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('general_average') : $trimesterEvaluation?->general_average }}" placeholder="Auto si vide">
-                                                            @error('general_average') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                        </div>
-                                                        <div class="col-md-4 form-group">
-                                                            <label>Rang dans la classe</label>
-                                                            <input type="number" min="1" max="200" name="class_rank" class="form-control @error('class_rank') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('class_rank') : $trimesterEvaluation?->class_rank }}">
-                                                            @error('class_rank') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                        </div>
-                                                        <div class="col-md-4 form-group">
-                                                            <label>Date reception bulletin</label>
-                                                            <input type="date" name="bulletin_received_at" class="form-control @error('bulletin_received_at') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('bulletin_received_at') : optional($trimesterEvaluation?->bulletin_received_at)->format('Y-m-d') }}">
-                                                            @error('bulletin_received_at') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="table-responsive mt-2">
-                                                        <table class="table table-striped table-bordered table-sm mb-0">
-                                                            <thead>
-                                                            <tr>
-                                                                <th>Matiere</th>
-                                                                <th>Coefficient</th>
-                                                                <th>Note /20</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            @forelse($subjectCatalog as $subject)
-                                                                @php
-                                                                    $gradeField = 'grades.'.$subject->id;
-                                                                    $gradeValue = old('trimester') === $trimesterLabel
-                                                                        ? old($gradeField)
-                                                                        : $gradeMap->get($subject->id);
-                                                                @endphp
-                                                                <tr>
-                                                                    <td>{{ $subject->name }}</td>
-                                                                    <td>{{ number_format((float) $subject->default_coefficient, 2, ',', ' ') }}</td>
-                                                                    <td>
-                                                                        <input type="number" step="0.01" min="0" max="20" name="grades[{{ $subject->id }}]" class="form-control form-control-sm @error($gradeField) is-invalid @enderror" value="{{ $gradeValue }}">
-                                                                        @error($gradeField) <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                                    </td>
-                                                                </tr>
-                                                            @empty
-                                                                <tr>
-                                                                    <td colspan="3" class="text-center text-muted">Aucune matiere active detectee pour ce niveau.</td>
-                                                                </tr>
-                                                            @endforelse
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <div class="mt-3 form-group">
-                                                        <label>Commentaire</label>
-                                                        <textarea name="notes" rows="3" class="form-control @error('notes') is-invalid @enderror" placeholder="Observations du bulletin">{{ old('trimester') === $trimesterLabel ? old('notes') : $trimesterEvaluation?->notes }}</textarea>
-                                                        @error('notes') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                    </div>
-
-                                                    <button type="submit" class="btn btn-primary">Enregistrer {{ $trimesterLabel }}</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="alert alert-warning mb-0">Aucune annee scolaire active n'est definie.</div>
-                        @endif
-                    @endcan
+                    <span class="badge badge-secondary">Inscription en cours introuvable</span>
                 @endif
             </div>
         </div>
@@ -554,53 +403,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    const accordion = document.getElementById('accordionSchoolTracking');
-
-    if (!accordion) {
-        return;
-    }
-
-    const triggers = Array.from(accordion.querySelectorAll('[data-toggle="collapse"][data-target]'));
-
-    const closeAll = function () {
-        triggers.forEach(function (trigger) {
-            const targetSelector = trigger.getAttribute('data-target');
-            const pane = targetSelector ? accordion.querySelector(targetSelector) : null;
-
-            trigger.setAttribute('aria-expanded', 'false');
-
-            if (pane) {
-                pane.classList.remove('show');
-            }
-        });
-    };
-
-    triggers.forEach(function (trigger) {
-        trigger.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            const targetSelector = trigger.getAttribute('data-target');
-
-            if (!targetSelector || !targetSelector.startsWith('#')) {
-                return;
-            }
-
-            const pane = accordion.querySelector(targetSelector);
-
-            if (!pane) {
-                return;
-            }
-
-            const isOpen = pane.classList.contains('show');
-
-            closeAll();
-
-            if (!isOpen) {
-                pane.classList.add('show');
-                trigger.setAttribute('aria-expanded', 'true');
-            }
-        });
-    });
 });
 </script>
 @stop
