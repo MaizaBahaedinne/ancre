@@ -552,6 +552,54 @@ document.addEventListener('DOMContentLoaded', function () {
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
     }
+
+    const accordion = document.getElementById('accordionSchoolTracking');
+
+    if (!accordion) {
+        return;
+    }
+
+    const triggers = Array.from(accordion.querySelectorAll('[data-toggle="collapse"][data-target]'));
+
+    const closeAll = function () {
+        triggers.forEach(function (trigger) {
+            const targetSelector = trigger.getAttribute('data-target');
+            const pane = targetSelector ? accordion.querySelector(targetSelector) : null;
+
+            trigger.setAttribute('aria-expanded', 'false');
+
+            if (pane) {
+                pane.classList.remove('show');
+            }
+        });
+    };
+
+    triggers.forEach(function (trigger) {
+        trigger.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const targetSelector = trigger.getAttribute('data-target');
+
+            if (!targetSelector || !targetSelector.startsWith('#')) {
+                return;
+            }
+
+            const pane = accordion.querySelector(targetSelector);
+
+            if (!pane) {
+                return;
+            }
+
+            const isOpen = pane.classList.contains('show');
+
+            closeAll();
+
+            if (!isOpen) {
+                pane.classList.add('show');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
 });
 </script>
 @stop
