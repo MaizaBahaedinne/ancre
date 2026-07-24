@@ -45,9 +45,7 @@ class EnfantEvaluationController extends Controller
             ])->withInput();
         }
 
-        $academicYear = AcademicYear::query()
-            ->where('label', $inscription->annee_scolaire)
-            ->first();
+        $academicYear = $this->resolveAcademicYearByLabel($inscription->annee_scolaire);
 
         if (! $academicYear) {
             return back()->withErrors([
@@ -173,5 +171,54 @@ class EnfantEvaluationController extends Controller
         $value = mb_strtolower($value, 'UTF-8');
 
         return preg_replace('/\s+/', ' ', trim($value)) ?: '';
+    }
+
+    private function resolveAcademicYearByLabel(?string $label): ?AcademicYear
+    {
+        $rawLabel = trim((string) $label);
+
+        if ($rawLabel === '') {
+            return null;
+        }
+
+        $exact = AcademicYear::query()->where('label', $rawLabel)->first();
+
+        if ($exact) {
+            return $exact;
+        }
+
+        $normalizedTarget = $this->normalizeLevelLabel($rawLabel);
+        $academicYears = AcademicYear::query()->orderByDesc('start_date')->get();
+
+        $normalizedMatch = $academicYears->first(function (AcademicYear $academicYear) use ($normalizedTarget) {
+            return $this->normalizeLevelLabel($academicYear->label) === $normalizedTarget;
+        });
+
+        if ($normalizedMatch) {
+            return $normalizedMatch;
+        }
+
+        preg_match_all('/\d{4}/', $rawLabel, $matches);
+        $yearTokens = $matches[0] ?? [];
+
+        if (! empty($yearTokens)) {
+            $tokenMatch = $academicYears->first(function (AcademicYear $academicYear) use ($yearTokens) {
+                $normalizedLabel = $this->normalizeLevelLabel($academicYear->label);
+
+                foreach ($yearTokens as $token) {
+                    if (! str_contains($normalizedLabel, $token)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            if ($tokenMatch) {
+                return $tokenMatch;
+            }
+        }
+
+        return null;
     }
 }
