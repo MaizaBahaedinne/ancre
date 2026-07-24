@@ -754,49 +754,47 @@ document.addEventListener('DOMContentLoaded', function () {
     const balanceDisplay = document.getElementById('quick-payment-balance-display');
     const contextLabel = document.getElementById('quick-payment-context');
 
-    if (!monthInput || !yearInput || !amountInput || !balanceDisplay || !contextLabel) {
-        return;
-    }
+    if (monthInput && yearInput && amountInput && balanceDisplay && contextLabel) {
+        const formatMoney = (value) => {
+            const number = Number(value || 0);
+            return number.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
+        };
 
-    const formatMoney = (value) => {
-        const number = Number(value || 0);
-        return number.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
-    };
+        const openQuickPaymentModal = (payload) => {
+            monthInput.value = payload.month || '';
+            yearInput.value = payload.year || '';
+            amountInput.max = payload.balance || '';
 
-    const openQuickPaymentModal = (payload) => {
-        monthInput.value = payload.month || '';
-        yearInput.value = payload.year || '';
-        amountInput.max = payload.balance || '';
+            if (!amountInput.value || Number(amountInput.value) > Number(payload.balance || 0)) {
+                amountInput.value = payload.balance || '';
+            }
 
-        if (!amountInput.value || Number(amountInput.value) > Number(payload.balance || 0)) {
-            amountInput.value = payload.balance || '';
-        }
+            balanceDisplay.value = formatMoney(payload.balance);
+            contextLabel.textContent = 'Paiement pour ' + payload.monthLabel + ' - reste a regler: ' + formatMoney(payload.balance);
 
-        balanceDisplay.value = formatMoney(payload.balance);
-        contextLabel.textContent = 'Paiement pour ' + payload.monthLabel + ' - reste a regler: ' + formatMoney(payload.balance);
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'inscription-quick-payment-modal' }));
+        };
 
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'inscription-quick-payment-modal' }));
-    };
-
-    openButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            openQuickPaymentModal({
-                month: this.dataset.month,
-                year: this.dataset.year,
-                balance: this.dataset.balance,
-                monthLabel: this.dataset.monthLabel,
+        openButtons.forEach((button) => {
+            button.addEventListener('click', function () {
+                openQuickPaymentModal({
+                    month: this.dataset.month,
+                    year: this.dataset.year,
+                    balance: this.dataset.balance,
+                    monthLabel: this.dataset.monthLabel,
+                });
             });
         });
-    });
 
-    @if(old('quick_payment_modal'))
-    openQuickPaymentModal({
-        month: @json(old('mois')),
-        year: @json(old('annee')),
-        balance: @json(old('remaining_balance', old('montant'))),
-        monthLabel: @json($quickPaymentFallbackMonthLabel),
-    });
-    @endif
+        @if(old('quick_payment_modal'))
+        openQuickPaymentModal({
+            month: @json(old('mois')),
+            year: @json(old('annee')),
+            balance: @json(old('remaining_balance', old('montant'))),
+            monthLabel: @json($quickPaymentFallbackMonthLabel),
+        });
+        @endif
+    }
 
     const accordion = document.getElementById('accordionInscriptionTracking');
 
