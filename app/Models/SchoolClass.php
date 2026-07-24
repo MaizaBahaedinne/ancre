@@ -39,4 +39,9 @@ class SchoolClass extends Model
     {
         return $this->hasMany(Enfant::class);
     }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(EnfantEvaluation::class);
+    }
 }

@@ -119,7 +119,7 @@
                     </div>
                 @endcanany
 
-                @canany(['rooms.view', 'schools.view', 'academic-years.view'])
+                @canany(['rooms.view', 'schools.view', 'subjects.view', 'academic-years.view'])
                     <div class="modern-nav-section">
                         <span class="modern-nav-label">Structure</span>
                         @can('rooms.view')
@@ -132,6 +132,12 @@
                             <a href="{{ route('schools.index') }}" class="modern-nav-link {{ request()->routeIs('schools.*') ? 'is-active' : '' }}">
                                 <i class="fa-solid fa-school"></i>
                                 <span>Écoles</span>
+                            </a>
+                        @endcan
+                        @can('subjects.view')
+                            <a href="{{ route('subjects.index') }}" class="modern-nav-link {{ request()->routeIs('subjects.*') ? 'is-active' : '' }}">
+                                <i class="fa-solid fa-book-open-reader"></i>
+                                <span>Matières</span>
                             </a>
                         @endcan
                         @can('academic-years.view')

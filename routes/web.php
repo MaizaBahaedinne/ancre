@@ -23,6 +23,8 @@ use App\Http\Controllers\RequestManagementController;
 use App\Http\Controllers\RequestSubjectController;
 use App\Http\Controllers\SalleController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\EnfantEvaluationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -174,8 +176,28 @@ Route::middleware(['auth', 'permission:children.create'])->group(function () {
 Route::middleware(['auth', 'permission:children.update'])->group(function () {
     Route::get('enfants/{enfant}/edit', [EnfantController::class, 'edit'])->name('enfants.edit')->whereNumber('enfant');
     Route::post('enfants/{enfant}/photo', [EnfantController::class, 'uploadPhoto'])->name('enfants.photo.upload')->whereNumber('enfant');
+    Route::post('enfants/{enfant}/evaluations', [EnfantEvaluationController::class, 'upsert'])->name('enfants.evaluations.upsert')->whereNumber('enfant');
     Route::put('enfants/{enfant}', [EnfantController::class, 'update'])->name('enfants.update')->whereNumber('enfant');
     Route::patch('enfants/{enfant}', [EnfantController::class, 'update'])->whereNumber('enfant');
+});
+
+Route::middleware(['auth', 'permission:subjects.view'])->group(function () {
+    Route::get('subjects', [SubjectController::class, 'index'])->name('subjects.index');
+});
+
+Route::middleware(['auth', 'permission:subjects.create'])->group(function () {
+    Route::get('subjects/create', [SubjectController::class, 'create'])->name('subjects.create');
+    Route::post('subjects', [SubjectController::class, 'store'])->name('subjects.store');
+});
+
+Route::middleware(['auth', 'permission:subjects.update'])->group(function () {
+    Route::get('subjects/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit')->whereNumber('subject');
+    Route::put('subjects/{subject}', [SubjectController::class, 'update'])->name('subjects.update')->whereNumber('subject');
+    Route::patch('subjects/{subject}', [SubjectController::class, 'update'])->whereNumber('subject');
+});
+
+Route::middleware(['auth', 'permission:subjects.delete'])->group(function () {
+    Route::delete('subjects/{subject}', [SubjectController::class, 'destroy'])->name('subjects.destroy')->whereNumber('subject');
 });
 
 Route::middleware(['auth', 'permission:children.delete'])->group(function () {

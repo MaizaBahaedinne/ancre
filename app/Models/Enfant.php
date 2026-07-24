@@ -81,4 +81,9 @@ class Enfant extends Model
     {
         return $this->hasMany(ParentRequest::class);
     }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(EnfantEvaluation::class);
+    }
 }

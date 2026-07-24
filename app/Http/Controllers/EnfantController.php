@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEnfantRequest;
 use App\Http\Requests\UpdateEnfantRequest;
 use App\Models\AcademicYear;
+use App\Models\AcademicSubject;
 use App\Models\Enfant;
+use App\Models\EnfantEvaluation;
 use App\Models\EnfantParentRelation;
 use App\Models\Inscription;
 use App\Models\Package;
@@ -165,6 +167,8 @@ class EnfantController extends Controller
             'familyRelations.parent',
             'activityParticipations.activite',
             'inscriptions',
+            'schoolClass',
+            'evaluations.grades.subject',
         ]);
 
         $today = Carbon::today();
@@ -208,6 +212,23 @@ class EnfantController extends Controller
             ->orderBy('nom')
             ->get();
 
+        $currentLevel = $enfant->schoolClass?->level ?: $enfant->classe;
+        $subjectCatalog = AcademicSubject::query()
+            ->where('is_active', true)
+            ->when($currentLevel, fn ($query) => $query->where('level', $currentLevel))
+            ->orderBy('name')
+            ->get();
+
+        $activeYearEvaluations = collect();
+        if ($activeAcademicYear) {
+            $activeYearEvaluations = $enfant->evaluations
+                ->where('academic_year_id', $activeAcademicYear->id)
+                ->keyBy('trimester');
+        }
+
+        $trimesterStatuses = collect(EnfantEvaluation::TRIMESTER_OPTIONS)
+            ->mapWithKeys(fn ($trimester) => [$trimester => $activeYearEvaluations->has($trimester)]);
+
         return view('enfants.show', compact(
             'enfant',
             'presenceMonth',
@@ -220,7 +241,11 @@ class EnfantController extends Controller
             'recentActivityParticipations',
             'activeAcademicYear',
             'currentYearInscription',
-            'availablePackages'
+            'availablePackages',
+            'currentLevel',
+            'subjectCatalog',
+            'activeYearEvaluations',
+            'trimesterStatuses'
         ));
     }
 
