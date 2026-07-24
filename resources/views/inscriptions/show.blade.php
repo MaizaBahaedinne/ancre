@@ -579,91 +579,111 @@
                 </div>
 
                 @can('registrations.update')
-                    <div class="d-grid gap-3">
-                        @foreach(\App\Models\EnfantEvaluation::TRIMESTER_OPTIONS as $trimesterLabel)
-                            @php
-                                $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
-                                $gradeMap = $trimesterEvaluation
-                                    ? $trimesterEvaluation->grades->pluck('grade', 'academic_subject_id')
-                                    : collect();
-                            @endphp
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h4 class="mb-0">{{ $trimesterLabel }}</h4>
-                                    @if($trimesterEvaluation)
-                                        <span class="badge badge-success">Mise a jour</span>
-                                    @endif
-                                </div>
+                    @php
+                        $trimesterLabels = \App\Models\EnfantEvaluation::TRIMESTER_OPTIONS;
+                        $oldEvaluations = old('evaluations', []);
+                    @endphp
+                    <form method="POST" action="{{ route('inscriptions.evaluations.upsert', $inscription) }}">
+                        @csrf
+                        <div class="alert alert-info">
+                            Cellule vide = Non applicable. Les cellules vides ne sont pas prises en compte dans le calcul de la moyenne.
+                        </div>
 
-                                <div class="card-body">
-                                    <form method="POST" action="{{ route('inscriptions.evaluations.upsert', $inscription) }}">
-                                        @csrf
-                                        <input type="hidden" name="trimester" value="{{ $trimesterLabel }}">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm align-middle mb-0">
+                                <thead>
+                                <tr>
+                                    <th style="min-width: 280px;">Matiere</th>
+                                    @foreach($trimesterLabels as $trimesterLabel)
+                                        <th style="min-width: 220px;">{{ $trimesterLabel }}</th>
+                                    @endforeach
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($subjectCatalog as $subject)
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $subject->name }}</strong>
+                                            <div class="text-muted small">Coeff: {{ number_format((float) $subject->default_coefficient, 2, ',', ' ') }}</div>
+                                        </td>
+                                        @foreach($trimesterLabels as $trimesterLabel)
+                                            @php
+                                                $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
+                                                $existingGrade = $trimesterEvaluation?->grades->firstWhere('academic_subject_id', $subject->id)?->grade;
+                                                $gradeValue = $oldEvaluations[$trimesterLabel]['grades'][$subject->id] ?? $existingGrade;
+                                            @endphp
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    max="20"
+                                                    name="evaluations[{{ $trimesterLabel }}][grades][{{ $subject->id }}]"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ $gradeValue }}"
+                                                    placeholder="N/A"
+                                                >
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
 
-                                        <div class="row g-3">
-                                            <div class="col-md-4 form-group">
-                                                <label>Moyenne generale</label>
-                                                <input type="number" step="0.01" min="0" max="20" name="general_average" class="form-control @error('general_average') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('general_average') : $trimesterEvaluation?->general_average }}" placeholder="Auto si vide">
-                                                @error('general_average') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label>Rang dans la classe</label>
-                                                <input type="number" min="1" max="200" name="class_rank" class="form-control @error('class_rank') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('class_rank') : $trimesterEvaluation?->class_rank }}">
-                                                @error('class_rank') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label>Date reception bulletin</label>
-                                                <input type="date" name="bulletin_received_at" class="form-control @error('bulletin_received_at') is-invalid @enderror" value="{{ old('trimester') === $trimesterLabel ? old('bulletin_received_at') : optional($trimesterEvaluation?->bulletin_received_at)->format('Y-m-d') }}">
-                                                @error('bulletin_received_at') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                            </div>
-                                        </div>
+                                <tr class="table-light">
+                                    <th>Moyenne generale</th>
+                                    @foreach($trimesterLabels as $trimesterLabel)
+                                        @php
+                                            $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
+                                            $value = $oldEvaluations[$trimesterLabel]['general_average'] ?? $trimesterEvaluation?->general_average;
+                                        @endphp
+                                        <td>
+                                            <input type="number" step="0.01" min="0" max="20" name="evaluations[{{ $trimesterLabel }}][general_average]" class="form-control form-control-sm" value="{{ $value }}" placeholder="Auto si vide">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                <tr class="table-light">
+                                    <th>Rang dans la classe</th>
+                                    @foreach($trimesterLabels as $trimesterLabel)
+                                        @php
+                                            $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
+                                            $value = $oldEvaluations[$trimesterLabel]['class_rank'] ?? $trimesterEvaluation?->class_rank;
+                                        @endphp
+                                        <td>
+                                            <input type="number" min="1" max="200" name="evaluations[{{ $trimesterLabel }}][class_rank]" class="form-control form-control-sm" value="{{ $value }}" placeholder="N/A">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                <tr class="table-light">
+                                    <th>Date bulletin</th>
+                                    @foreach($trimesterLabels as $trimesterLabel)
+                                        @php
+                                            $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
+                                            $value = $oldEvaluations[$trimesterLabel]['bulletin_received_at'] ?? optional($trimesterEvaluation?->bulletin_received_at)->format('Y-m-d');
+                                        @endphp
+                                        <td>
+                                            <input type="date" name="evaluations[{{ $trimesterLabel }}][bulletin_received_at]" class="form-control form-control-sm" value="{{ $value }}">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                <tr class="table-light">
+                                    <th>Commentaire</th>
+                                    @foreach($trimesterLabels as $trimesterLabel)
+                                        @php
+                                            $trimesterEvaluation = $activeYearEvaluations->get($trimesterLabel);
+                                            $value = $oldEvaluations[$trimesterLabel]['notes'] ?? $trimesterEvaluation?->notes;
+                                        @endphp
+                                        <td>
+                                            <input type="text" name="evaluations[{{ $trimesterLabel }}][notes]" class="form-control form-control-sm" value="{{ $value }}" placeholder="Optionnel">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-                                        <div class="table-responsive mt-2">
-                                            <table class="table table-striped table-bordered table-sm mb-0">
-                                                <thead>
-                                                <tr>
-                                                    <th>Matiere</th>
-                                                    <th>Coefficient</th>
-                                                    <th>Note /20</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @forelse($subjectCatalog as $subject)
-                                                    @php
-                                                        $gradeField = 'grades.'.$subject->id;
-                                                        $gradeValue = old('trimester') === $trimesterLabel
-                                                            ? old($gradeField)
-                                                            : $gradeMap->get($subject->id);
-                                                    @endphp
-                                                    <tr>
-                                                        <td>{{ $subject->name }}</td>
-                                                        <td>{{ number_format((float) $subject->default_coefficient, 2, ',', ' ') }}</td>
-                                                        <td>
-                                                            <input type="number" step="0.01" min="0" max="20" name="grades[{{ $subject->id }}]" class="form-control form-control-sm @error($gradeField) is-invalid @enderror" value="{{ $gradeValue }}">
-                                                            @error($gradeField) <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="3" class="text-center text-muted">Aucune matiere active detectee pour ce niveau.</td>
-                                                    </tr>
-                                                @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <div class="mt-3 form-group">
-                                            <label>Commentaire</label>
-                                            <textarea name="notes" rows="3" class="form-control @error('notes') is-invalid @enderror" placeholder="Observations du bulletin">{{ old('trimester') === $trimesterLabel ? old('notes') : $trimesterEvaluation?->notes }}</textarea>
-                                            @error('notes') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                        </div>
-
-                                        <button type="submit" class="btn btn-primary">Enregistrer {{ $trimesterLabel }}</button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Enregistrer la matrice</button>
+                        </div>
+                    </form>
                 @endcan
             @endif
         </div>

@@ -54,26 +54,54 @@ class EnfantEvaluationController extends Controller
         }
 
         $validated = $request->validate([
-            'trimester' => ['required', 'in:'.implode(',', EnfantEvaluation::TRIMESTER_OPTIONS)],
-            'general_average' => ['nullable', 'numeric', 'min:0', 'max:20'],
-            'class_rank' => ['nullable', 'integer', 'min:1', 'max:200'],
-            'bulletin_received_at' => ['nullable', 'date'],
-            'notes' => ['nullable', 'string', 'max:3000'],
-            'grades' => ['nullable', 'array'],
-            'grades.*' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'evaluations' => ['required', 'array'],
+            'evaluations.*.general_average' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'evaluations.*.class_rank' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'evaluations.*.bulletin_received_at' => ['nullable', 'date'],
+            'evaluations.*.notes' => ['nullable', 'string', 'max:3000'],
+            'evaluations.*.grades' => ['nullable', 'array'],
+            'evaluations.*.grades.*' => ['nullable', 'numeric', 'min:0', 'max:20'],
         ]);
 
-        $validated['academic_year_id'] = $academicYear->id;
+        $evaluationPayloads = $validated['evaluations'] ?? [];
 
-        $this->upsertEvaluation($inscription->enfant, $validated);
+        foreach (EnfantEvaluation::TRIMESTER_OPTIONS as $trimesterLabel) {
+            $payload = $evaluationPayloads[$trimesterLabel] ?? [];
+            $payload['trimester'] = $trimesterLabel;
+            $payload['academic_year_id'] = $academicYear->id;
+            $payload['grades'] = $payload['grades'] ?? [];
+
+            $this->upsertEvaluation($inscription->enfant, $payload);
+        }
 
         return redirect()
             ->route('inscriptions.show', $inscription)
-            ->with('success', 'Bulletin trimestriel enregistre avec succes.');
+            ->with('success', 'Matrice des notes enregistree avec succes.');
     }
 
     private function upsertEvaluation(Enfant $enfant, array $validated): void
     {
+        $gradesInput = collect($validated['grades'] ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(fn ($value) => (float) $value);
+
+        $hasScalarInput = ($validated['general_average'] ?? null) !== null
+            || ($validated['class_rank'] ?? null) !== null
+            || ! empty($validated['bulletin_received_at'] ?? null)
+            || trim((string) ($validated['notes'] ?? '')) !== '';
+
+        $hasAnyInput = $hasScalarInput || $gradesInput->isNotEmpty();
+
+        if (! $hasAnyInput) {
+            EnfantEvaluation::query()
+                ->where('enfant_id', $enfant->id)
+                ->where('academic_year_id', $validated['academic_year_id'])
+                ->where('trimester', $validated['trimester'])
+                ->delete();
+
+            return;
+        }
+
         $level = $enfant->schoolClass?->level ?: $enfant->classe;
 
         if (! $level) {
@@ -107,10 +135,6 @@ class EnfantEvaluationController extends Controller
                 'evaluations' => 'Aucune matiere active n\'est configuree pour ce niveau.',
             ]);
         }
-
-        $gradesInput = collect($validated['grades'] ?? [])
-            ->filter(fn ($value) => $value !== null && $value !== '')
-            ->map(fn ($value) => (float) $value);
 
         DB::transaction(function () use ($enfant, $validated, $gradesInput, $subjectIds): void {
             $evaluation = EnfantEvaluation::query()->updateOrCreate(
