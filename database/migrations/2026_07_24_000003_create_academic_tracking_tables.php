@@ -38,7 +38,7 @@ return new class extends Migration
                 $table->text('notes')->nullable();
                 $table->timestamps();
 
-                $table->unique(['enfant_id', 'academic_year_id', 'trimester']);
+                $table->unique(['enfant_id', 'academic_year_id', 'trimester'], 'ee_child_year_trim_uq');
                 $table->index(['academic_year_id', 'trimester']);
             });
         }
@@ -52,7 +52,7 @@ return new class extends Migration
                 $table->decimal('coefficient', 4, 2)->default(1);
                 $table->timestamps();
 
-                $table->unique(['enfant_evaluation_id', 'academic_subject_id']);
+                $table->unique(['enfant_evaluation_id', 'academic_subject_id'], 'eeg_eval_subject_uq');
             });
         }
     }
