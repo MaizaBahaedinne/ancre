@@ -6,6 +6,56 @@
     <h1 class="m-0">Matieres par niveau</h1>
 @stop
 
+@section('js')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tabList = document.getElementById('subject-level-tabs');
+    const tabContent = document.getElementById('subject-level-tab-content');
+
+    if (!tabList || !tabContent) {
+        return;
+    }
+
+    const links = Array.from(tabList.querySelectorAll('.nav-link'));
+    const panes = Array.from(tabContent.querySelectorAll('.tab-pane'));
+
+    const activateTab = function (link) {
+        const targetSelector = link.getAttribute('href');
+
+        if (!targetSelector || !targetSelector.startsWith('#')) {
+            return;
+        }
+
+        const targetPane = tabContent.querySelector(targetSelector);
+
+        if (!targetPane) {
+            return;
+        }
+
+        links.forEach(function (item) {
+            item.classList.remove('active');
+            item.setAttribute('aria-selected', 'false');
+        });
+
+        panes.forEach(function (pane) {
+            pane.classList.remove('show', 'active');
+        });
+
+        link.classList.add('active');
+        link.setAttribute('aria-selected', 'true');
+        targetPane.classList.add('show', 'active');
+    };
+
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            activateTab(link);
+        });
+    });
+});
+</script>
+@stop
+
 @section('content')
     @php
         $activeLevel = old('level') ?: session('selected_level') ?: ($levelOptions[0] ?? null);
