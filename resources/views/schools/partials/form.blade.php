@@ -1,4 +1,16 @@
 @php
+    $levelOptions = [
+        '1ère année' => '1ère année',
+        '2ème année' => '2ème année',
+        '3ème année' => '3ème année',
+        '4ème année' => '4ème année',
+        '5ème année' => '5ème année',
+        '6ème année' => '6ème année',
+        '7ème année' => '7ème année',
+        '8ème année' => '8ème année',
+        '9ème année' => '9ème année',
+    ];
+
     $classRows = old('classes', optional($school)->classes?->map(fn ($class) => [
         'academic_year_id' => $class->academic_year_id,
         'name' => $class->name,
@@ -41,7 +53,7 @@
             <div class="row g-3 mb-3 border-bottom pb-3" data-school-class-row>
                 <div class="col-md-3"><label>Annee scolaire</label><select name="classes[{{ $i }}][academic_year_id]" class="form-control" data-enhance-select="true"><option value="">Choisir...</option>@foreach($academicYears as $academicYear)<option value="{{ $academicYear->id }}" @selected((string) ($row['academic_year_id'] ?? null) === (string) $academicYear->id)>{{ $academicYear->label }}</option>@endforeach</select></div>
                 <div class="col-md-3"><label>Classe</label><input type="text" name="classes[{{ $i }}][name]" class="form-control" value="{{ $row['name'] ?? '' }}"></div>
-                <div class="col-md-2"><label>Niveau</label><input type="text" name="classes[{{ $i }}][level]" class="form-control" value="{{ $row['level'] ?? '' }}"></div>
+                <div class="col-md-2"><label>Niveau</label><select name="classes[{{ $i }}][level]" class="form-control"><option value="">Choisir...</option>@foreach($levelOptions as $levelValue => $levelLabel)<option value="{{ $levelValue }}" @selected(($row['level'] ?? '') === $levelValue)>{{ $levelLabel }}</option>@endforeach</select></div>
                 <div class="col-md-2"><label>Capacite</label><input type="number" min="1" name="classes[{{ $i }}][capacity]" class="form-control" value="{{ $row['capacity'] ?? '' }}"></div>
                 <div class="col-md-1 d-flex align-items-end"><div class="form-check mb-3"><input type="hidden" name="classes[{{ $i }}][is_active]" value="0"><input class="form-check-input" type="checkbox" id="class_active_{{ $i }}" name="classes[{{ $i }}][is_active]" value="1" @checked(($row['is_active'] ?? false))><label class="form-check-label" for="class_active_{{ $i }}">Active</label></div></div>
                 <div class="col-md-1 d-flex align-items-end justify-content-end"><button type="button" class="btn btn-outline-danger btn-sm" data-remove-school-class>Retirer</button></div>
@@ -55,7 +67,7 @@
     <div class="row g-3 mb-3 border-bottom pb-3" data-school-class-row>
         <div class="col-md-3"><label>Annee scolaire</label><select class="form-control" data-class-field="academic_year_id" data-enhance-select="true"><option value="">Choisir...</option>@foreach($academicYears as $academicYear)<option value="{{ $academicYear->id }}">{{ $academicYear->label }}</option>@endforeach</select></div>
         <div class="col-md-3"><label>Classe</label><input type="text" class="form-control" data-class-field="name"></div>
-        <div class="col-md-2"><label>Niveau</label><input type="text" class="form-control" data-class-field="level"></div>
+        <div class="col-md-2"><label>Niveau</label><select class="form-control" data-class-field="level"><option value="">Choisir...</option>@foreach($levelOptions as $levelValue => $levelLabel)<option value="{{ $levelValue }}">{{ $levelLabel }}</option>@endforeach</select></div>
         <div class="col-md-2"><label>Capacite</label><input type="number" min="1" class="form-control" data-class-field="capacity"></div>
         <div class="col-md-1 d-flex align-items-end"><div class="form-check mb-3"><input type="hidden" value="0" data-class-hidden="is_active"><input class="form-check-input" type="checkbox" value="1" data-class-field="is_active"><label class="form-check-label">Active</label></div></div>
         <div class="col-md-1 d-flex align-items-end justify-content-end"><button type="button" class="btn btn-outline-danger btn-sm" data-remove-school-class>Retirer</button></div>
