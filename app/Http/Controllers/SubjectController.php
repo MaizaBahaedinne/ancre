@@ -22,8 +22,15 @@ class SubjectController extends Controller
 
     public function create(): View
     {
+        $subjectsByLevel = AcademicSubject::query()
+            ->orderBy('level')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('level');
+
         return view('subjects.create', [
             'levelOptions' => AcademicSubject::LEVEL_OPTIONS,
+            'subjectsByLevel' => $subjectsByLevel,
         ]);
     }
 
@@ -49,7 +56,10 @@ class SubjectController extends Controller
             'is_active' => (bool) ($validated['is_active'] ?? true),
         ]);
 
-        return redirect()->route('subjects.index')->with('success', 'Matiere ajoutee avec succes.');
+        return redirect()
+            ->route('subjects.create')
+            ->with('success', 'Matiere ajoutee avec succes.')
+            ->with('selected_level', $validated['level']);
     }
 
     public function edit(AcademicSubject $subject): View
