@@ -217,6 +217,7 @@ Route::middleware(['auth', 'permission:registrations.create'])->group(function (
 
 Route::middleware(['auth', 'permission:registrations.update'])->group(function () {
     Route::get('inscriptions/{inscription}/edit', [InscriptionController::class, 'edit'])->name('inscriptions.edit')->whereNumber('inscription');
+    Route::post('inscriptions/{inscription}/evaluations', [EnfantEvaluationController::class, 'upsertByInscription'])->name('inscriptions.evaluations.upsert')->whereNumber('inscription');
     Route::put('inscriptions/{inscription}', [InscriptionController::class, 'update'])->name('inscriptions.update')->whereNumber('inscription');
     Route::patch('inscriptions/{inscription}', [InscriptionController::class, 'update'])->whereNumber('inscription');
 });

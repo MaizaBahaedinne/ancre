@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEnfantRequest;
 use App\Http\Requests\UpdateEnfantRequest;
 use App\Models\AcademicYear;
-use App\Models\AcademicSubject;
 use App\Models\Enfant;
-use App\Models\EnfantEvaluation;
 use App\Models\EnfantParentRelation;
 use App\Models\Inscription;
 use App\Models\Package;
@@ -18,7 +16,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class EnfantController extends Controller
 {
@@ -168,8 +165,6 @@ class EnfantController extends Controller
             'familyRelations.parent',
             'activityParticipations.activite',
             'inscriptions',
-            'schoolClass',
-            'evaluations.grades.subject',
         ]);
 
         $today = Carbon::today();
@@ -213,40 +208,6 @@ class EnfantController extends Controller
             ->orderBy('nom')
             ->get();
 
-        $currentLevel = $enfant->schoolClass?->level ?: $enfant->classe;
-        $subjectCatalog = AcademicSubject::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        if ($currentLevel) {
-            $normalizedCurrentLevel = $this->normalizeLevelLabel($currentLevel);
-
-            $filteredByLevel = $subjectCatalog->filter(
-                fn (AcademicSubject $subject) => $this->normalizeLevelLabel($subject->level) === $normalizedCurrentLevel
-            )->values();
-
-            if ($filteredByLevel->isEmpty() && preg_match('/\d+/', $normalizedCurrentLevel, $matches)) {
-                $targetYear = $matches[0];
-
-                $filteredByLevel = $subjectCatalog->filter(
-                    fn (AcademicSubject $subject) => preg_match('/\d+/', $this->normalizeLevelLabel($subject->level), $m) && ($m[0] ?? null) === $targetYear
-                )->values();
-            }
-
-            $subjectCatalog = $filteredByLevel;
-        }
-
-        $activeYearEvaluations = collect();
-        if ($activeAcademicYear) {
-            $activeYearEvaluations = $enfant->evaluations
-                ->where('academic_year_id', $activeAcademicYear->id)
-                ->keyBy('trimester');
-        }
-
-        $trimesterStatuses = collect(EnfantEvaluation::TRIMESTER_OPTIONS)
-            ->mapWithKeys(fn ($trimester) => [$trimester => $activeYearEvaluations->has($trimester)]);
-
         return view('enfants.show', compact(
             'enfant',
             'presenceMonth',
@@ -259,20 +220,8 @@ class EnfantController extends Controller
             'recentActivityParticipations',
             'activeAcademicYear',
             'currentYearInscription',
-            'availablePackages',
-            'currentLevel',
-            'subjectCatalog',
-            'activeYearEvaluations',
-            'trimesterStatuses'
+            'availablePackages'
         ));
-    }
-
-    private function normalizeLevelLabel(?string $level): string
-    {
-        $value = Str::ascii((string) $level);
-        $value = mb_strtolower($value, 'UTF-8');
-
-        return preg_replace('/\s+/', ' ', trim($value)) ?: '';
     }
 
     public function storeCurrentYearInscription(Request $request, Enfant $enfant): RedirectResponse
