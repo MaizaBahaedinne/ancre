@@ -539,18 +539,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalSelector = '#quickInscriptionModal';
     const modalElement = document.getElementById('quickInscriptionModal');
 
-    if (!mustOpenModal || !modalElement) {
-        return;
-    }
-
-    if (window.jQuery && typeof window.jQuery(modalSelector).modal === 'function') {
-        window.jQuery(modalSelector).modal('show');
-        return;
-    }
-
-    if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal === 'function') {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
+    if (mustOpenModal && modalElement) {
+        if (window.jQuery && typeof window.jQuery(modalSelector).modal === 'function') {
+            window.jQuery(modalSelector).modal('show');
+        } else if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal === 'function') {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
     }
 
     const accordion = document.getElementById('accordionSchoolTracking');
