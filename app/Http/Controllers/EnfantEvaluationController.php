@@ -8,6 +8,7 @@ use App\Models\EnfantEvaluation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EnfantEvaluationController extends Controller
 {
@@ -32,11 +33,25 @@ class EnfantEvaluationController extends Controller
             ])->withInput();
         }
 
-        $subjectIds = AcademicSubject::query()
-            ->where('level', $level)
+        $subjects = AcademicSubject::query()
             ->where('is_active', true)
-            ->pluck('id')
-            ->all();
+            ->get();
+
+        $normalizedCurrentLevel = $this->normalizeLevelLabel($level);
+
+        $subjectsForLevel = $subjects->filter(
+            fn (AcademicSubject $subject) => $this->normalizeLevelLabel($subject->level) === $normalizedCurrentLevel
+        )->values();
+
+        if ($subjectsForLevel->isEmpty() && preg_match('/\d+/', $normalizedCurrentLevel, $matches)) {
+            $targetYear = $matches[0];
+
+            $subjectsForLevel = $subjects->filter(
+                fn (AcademicSubject $subject) => preg_match('/\d+/', $this->normalizeLevelLabel($subject->level), $m) && ($m[0] ?? null) === $targetYear
+            )->values();
+        }
+
+        $subjectIds = $subjectsForLevel->pluck('id')->all();
 
         if (empty($subjectIds)) {
             return back()->withErrors([
@@ -103,5 +118,13 @@ class EnfantEvaluationController extends Controller
         return redirect()
             ->route('enfants.show', $enfant)
             ->with('success', 'Bulletin trimestriel enregistre avec succes.');
+    }
+
+    private function normalizeLevelLabel(?string $level): string
+    {
+        $value = Str::ascii((string) $level);
+        $value = mb_strtolower($value, 'UTF-8');
+
+        return preg_replace('/\s+/', ' ', trim($value)) ?: '';
     }
 }

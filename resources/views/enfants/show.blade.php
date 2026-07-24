@@ -321,6 +321,8 @@
                     <strong>Niveau actuel:</strong> {{ $currentLevel ?: 'Non defini' }}
                     <br>
                     <strong>Annee scolaire active:</strong> {{ $activeAcademicYear?->label ?: '-' }}
+                    <br>
+                    <strong>Matieres trouvees:</strong> {{ $subjectCatalog->count() }}
                 </div>
 
                 @if($subjectCatalog->isEmpty())
@@ -419,7 +421,7 @@
                                                             </tr>
                                                             </thead>
                                                             <tbody>
-                                                            @foreach($subjectCatalog as $subject)
+                                                            @forelse($subjectCatalog as $subject)
                                                                 @php
                                                                     $gradeField = 'grades.'.$subject->id;
                                                                     $gradeValue = old('trimester') === $trimesterLabel
@@ -434,7 +436,11 @@
                                                                         @error($gradeField) <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                                     </td>
                                                                 </tr>
-                                                            @endforeach
+                                                            @empty
+                                                                <tr>
+                                                                    <td colspan="3" class="text-center text-muted">Aucune matiere active detectee pour ce niveau.</td>
+                                                                </tr>
+                                                            @endforelse
                                                             </tbody>
                                                         </table>
                                                     </div>

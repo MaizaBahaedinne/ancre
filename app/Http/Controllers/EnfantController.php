@@ -18,6 +18,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EnfantController extends Controller
 {
@@ -215,9 +216,26 @@ class EnfantController extends Controller
         $currentLevel = $enfant->schoolClass?->level ?: $enfant->classe;
         $subjectCatalog = AcademicSubject::query()
             ->where('is_active', true)
-            ->when($currentLevel, fn ($query) => $query->where('level', $currentLevel))
             ->orderBy('name')
             ->get();
+
+        if ($currentLevel) {
+            $normalizedCurrentLevel = $this->normalizeLevelLabel($currentLevel);
+
+            $filteredByLevel = $subjectCatalog->filter(
+                fn (AcademicSubject $subject) => $this->normalizeLevelLabel($subject->level) === $normalizedCurrentLevel
+            )->values();
+
+            if ($filteredByLevel->isEmpty() && preg_match('/\d+/', $normalizedCurrentLevel, $matches)) {
+                $targetYear = $matches[0];
+
+                $filteredByLevel = $subjectCatalog->filter(
+                    fn (AcademicSubject $subject) => preg_match('/\d+/', $this->normalizeLevelLabel($subject->level), $m) && ($m[0] ?? null) === $targetYear
+                )->values();
+            }
+
+            $subjectCatalog = $filteredByLevel;
+        }
 
         $activeYearEvaluations = collect();
         if ($activeAcademicYear) {
@@ -247,6 +265,14 @@ class EnfantController extends Controller
             'activeYearEvaluations',
             'trimesterStatuses'
         ));
+    }
+
+    private function normalizeLevelLabel(?string $level): string
+    {
+        $value = Str::ascii((string) $level);
+        $value = mb_strtolower($value, 'UTF-8');
+
+        return preg_replace('/\s+/', ' ', trim($value)) ?: '';
     }
 
     public function storeCurrentYearInscription(Request $request, Enfant $enfant): RedirectResponse
