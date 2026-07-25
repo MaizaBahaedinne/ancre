@@ -19,14 +19,25 @@
             <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Enfants</div><div class="display-6 fw-semibold">{{ $stats['total'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Compte parent actif</div><div class="display-6 fw-semibold">{{ $stats['with_parent_user'] ?? 0 }}</div></div></div>
+            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Inscrits (annee en cours)</div><div class="display-6 fw-semibold">{{ $stats['inscribed_current_year'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Sans compte parent</div><div class="display-6 fw-semibold">{{ $stats['without_parent_user'] ?? 0 }}</div></div></div>
+            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Non inscrits (annee en cours)</div><div class="display-6 fw-semibold">{{ $stats['not_inscribed_current_year'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Avec allergie</div><div class="display-6 fw-semibold">{{ $stats['with_allergie'] ?? 0 }}</div></div></div>
         </div>
+    </div>
+
+    <div class="alert alert-light border d-flex align-items-center gap-2" role="alert">
+        <i class="fa-solid fa-calendar-check text-primary"></i>
+        <span>
+            @if($activeAcademicYearLabel)
+                Annee scolaire en cours: <strong>{{ $activeAcademicYearLabel }}</strong>
+            @else
+                Aucune annee scolaire active n'est definie.
+            @endif
+        </span>
     </div>
 
     <div class="card">
@@ -40,7 +51,7 @@
                             <th>Classe</th>
                             <th>Ecole</th>
                             <th>Parent</th>
-                            <th>Compte parent</th>
+                            <th>Inscription annee en cours</th>
                             <th>Date naissance</th>
                             <th width="220" class="no-sort">Actions</th>
                         </tr>
@@ -63,14 +74,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @php
-                                        $hasParentAccount = (bool) optional($enfant->parent)->user;
-
-                                        if (! $hasParentAccount) {
-                                            $hasParentAccount = $enfant->familyRelations->contains(fn ($relation) => (bool) optional($relation->parent)->user);
-                                        }
-                                    @endphp
-                                    <span class="badge bg-{{ $hasParentAccount ? 'success' : 'secondary' }}">{{ $hasParentAccount ? 'Oui' : 'Non' }}</span>
+                                    @if($activeAcademicYearLabel && $enfant->is_inscribed_current_year)
+                                        <span class="badge bg-success">Oui</span>
+                                    @elseif($activeAcademicYearLabel)
+                                        <span class="badge bg-secondary">Non</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">N/A</span>
+                                    @endif
                                 </td>
                                 <td>{{ optional($enfant->date_naissance)->format('d/m/Y') }}</td>
                                 <td>

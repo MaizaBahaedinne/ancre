@@ -63,6 +63,8 @@ class EnfantController extends Controller
         $search = request('search');
         $classe = request('classe');
         $parent = $this->currentParent();
+        $activeAcademicYear = AcademicYear::query()->active()->first();
+        $activeAcademicYearLabel = $activeAcademicYear?->label;
 
         $baseQuery = Enfant::query()
             ->with(['parent.user', 'familyRelations.parent.user', 'schoolClass.school', 'schoolClass.academicYear'])
@@ -88,26 +90,32 @@ class EnfantController extends Controller
 
         $statsQuery = clone $baseQuery;
 
-        $stats = [
-            'total' => (clone $statsQuery)->count(),
-            'with_parent_user' => (clone $statsQuery)
-                ->where(function ($query) {
-                    $query->whereHas('parent.user')
-                        ->orWhereHas('familyRelations.parent.user');
-                })
-                ->count(),
-            'without_parent_user' => (clone $statsQuery)
-                ->where(function ($query) {
-                    $query->whereDoesntHave('parent.user')
-                        ->whereDoesntHave('familyRelations.parent.user');
-                })
-                ->count(),
-            'with_allergie' => (clone $statsQuery)->where('has_allergie', true)->count(),
-        ];
-
         $enfants = $baseQuery
             ->latest()
             ->get();
+
+        $currentYearInscribedEnfantIds = collect();
+        if ($activeAcademicYearLabel) {
+            $currentYearInscribedEnfantIds = Inscription::query()
+                ->where('annee_scolaire', $activeAcademicYearLabel)
+                ->pluck('enfant_id')
+                ->unique();
+        }
+
+        $currentYearInscribedMap = $currentYearInscribedEnfantIds->flip();
+
+        $enfants->each(function (Enfant $enfant) use ($currentYearInscribedMap): void {
+            $enfant->setAttribute('is_inscribed_current_year', $currentYearInscribedMap->has($enfant->id));
+        });
+
+        $inscribedCurrentYearCount = $enfants->where('is_inscribed_current_year', true)->count();
+
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'inscribed_current_year' => $inscribedCurrentYearCount,
+            'not_inscribed_current_year' => max($enfants->count() - $inscribedCurrentYearCount, 0),
+            'with_allergie' => (clone $statsQuery)->where('has_allergie', true)->count(),
+        ];
 
         $classes = SchoolClass::query()
             ->with(['school', 'academicYear'])
@@ -115,7 +123,7 @@ class EnfantController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('enfants.index', compact('enfants', 'search', 'classe', 'classes', 'stats'));
+        return view('enfants.index', compact('enfants', 'search', 'classe', 'classes', 'stats', 'activeAcademicYearLabel'));
     }
 
     /**

@@ -32,8 +32,6 @@ class ParentController extends Controller
     public function index(): View
     {
         $search = request('search');
-        $activeAcademicYear = AcademicYear::query()->active()->first();
-        $activeAcademicYearLabel = $activeAcademicYear?->label;
 
         $baseQuery = ParentModel::query()
             ->with('user')
@@ -51,42 +49,20 @@ class ParentController extends Controller
             ->orderBy('prenom')
             ->get();
 
-        $inscribedParentIds = collect();
-
-        if ($activeAcademicYearLabel) {
-            $directParentIds = ParentModel::query()
-                ->whereHas('enfants.inscriptions', fn ($query) => $query->where('annee_scolaire', $activeAcademicYearLabel))
-                ->pluck('id');
-
-            $relatedParentIds = ParentModel::query()
-                ->whereHas('enfantRelations.enfant.inscriptions', fn ($query) => $query->where('annee_scolaire', $activeAcademicYearLabel))
-                ->pluck('id');
-
-            $inscribedParentIds = $directParentIds
-                ->merge($relatedParentIds)
-                ->unique()
-                ->values();
-        }
-
-        $inscribedParentIdMap = $inscribedParentIds->flip();
-
-        $parents->each(function (ParentModel $parent) use ($inscribedParentIdMap): void {
-            $parent->setAttribute('is_inscribed_current_year', $inscribedParentIdMap->has($parent->id));
+        $parents->each(function (ParentModel $parent): void {
             $parent->setAttribute('is_verified_account', $this->isParentVerified($parent));
         });
 
-        $inscribedCount = $parents->where('is_inscribed_current_year', true)->count();
         $verifiedCount = $parents->where('is_verified_account', true)->count();
 
         $stats = [
             'total' => (clone $statsQuery)->count(),
-            'inscribed_current_year' => $inscribedCount,
-            'not_inscribed_current_year' => max($parents->count() - $inscribedCount, 0),
+            'with_email' => (clone $statsQuery)->whereNotNull('email')->where('email', '!=', '')->count(),
             'verified_accounts' => $verifiedCount,
             'not_verified_accounts' => max($parents->count() - $verifiedCount, 0),
         ];
 
-        return view('parents.index', compact('parents', 'search', 'stats', 'activeAcademicYearLabel'));
+        return view('parents.index', compact('parents', 'search', 'stats'));
     }
 
     /**
