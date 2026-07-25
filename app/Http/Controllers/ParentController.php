@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreParentRequest;
 use App\Http\Requests\UpdateParentRequest;
+use App\Models\AcademicYear;
 use App\Models\Enfant;
+use App\Models\Inscription;
 use App\Models\ParentModel;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -30,6 +32,8 @@ class ParentController extends Controller
     public function index(): View
     {
         $search = request('search');
+        $activeAcademicYear = AcademicYear::query()->active()->first();
+        $activeAcademicYearLabel = $activeAcademicYear?->label;
 
         $baseQuery = ParentModel::query()
             ->with('user')
@@ -42,19 +46,47 @@ class ParentController extends Controller
 
         $statsQuery = clone $baseQuery;
 
-        $stats = [
-            'total' => (clone $statsQuery)->count(),
-            'with_user' => (clone $statsQuery)->whereNotNull('user_id')->count(),
-            'without_user' => (clone $statsQuery)->whereNull('user_id')->count(),
-            'with_email' => (clone $statsQuery)->whereNotNull('email')->where('email', '!=', '')->count(),
-        ];
-
         $parents = $baseQuery
             ->orderBy('nom')
             ->orderBy('prenom')
             ->get();
 
-        return view('parents.index', compact('parents', 'search', 'stats'));
+        $inscribedParentIds = collect();
+
+        if ($activeAcademicYearLabel) {
+            $directParentIds = ParentModel::query()
+                ->whereHas('enfants.inscriptions', fn ($query) => $query->where('annee_scolaire', $activeAcademicYearLabel))
+                ->pluck('id');
+
+            $relatedParentIds = ParentModel::query()
+                ->whereHas('enfantRelations.enfant.inscriptions', fn ($query) => $query->where('annee_scolaire', $activeAcademicYearLabel))
+                ->pluck('id');
+
+            $inscribedParentIds = $directParentIds
+                ->merge($relatedParentIds)
+                ->unique()
+                ->values();
+        }
+
+        $inscribedParentIdMap = $inscribedParentIds->flip();
+
+        $parents->each(function (ParentModel $parent) use ($inscribedParentIdMap): void {
+            $parent->setAttribute('is_inscribed_current_year', $inscribedParentIdMap->has($parent->id));
+            $parent->setAttribute('is_verified_account', $this->isParentVerified($parent));
+        });
+
+        $inscribedCount = $parents->where('is_inscribed_current_year', true)->count();
+        $verifiedCount = $parents->where('is_verified_account', true)->count();
+
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'inscribed_current_year' => $inscribedCount,
+            'not_inscribed_current_year' => max($parents->count() - $inscribedCount, 0),
+            'verified_accounts' => $verifiedCount,
+            'not_verified_accounts' => max($parents->count() - $verifiedCount, 0),
+        ];
+
+        return view('parents.index', compact('parents', 'search', 'stats', 'activeAcademicYearLabel'));
     }
 
     /**
@@ -95,6 +127,8 @@ class ParentController extends Controller
     public function show(ParentModel $parent): View
     {
         $parent->load(['user.roles'])->loadCount('enfants');
+        $activeAcademicYear = AcademicYear::query()->active()->first();
+        $activeAcademicYearLabel = $activeAcademicYear?->label;
 
         $linkedEnfants = Enfant::query()
             ->with([
@@ -107,9 +141,21 @@ class ParentController extends Controller
             ->orderBy('prenom')
             ->get();
 
+        $linkedEnfantIds = $linkedEnfants->pluck('id');
+
+        $isInscribedInCurrentYear = false;
+        if ($activeAcademicYearLabel && $linkedEnfantIds->isNotEmpty()) {
+            $isInscribedInCurrentYear = Inscription::query()
+                ->whereIn('enfant_id', $linkedEnfantIds)
+                ->where('annee_scolaire', $activeAcademicYearLabel)
+                ->exists();
+        }
+
         return view('parents.show', [
             'parent' => $parent,
             'linkedEnfants' => $linkedEnfants,
+            'activeAcademicYearLabel' => $activeAcademicYearLabel,
+            'isInscribedInCurrentYear' => $isInscribedInCurrentYear,
             'verificationUrl' => URL::signedRoute('parents.verification', ['parent' => $parent->id]),
             'verificationStatusUrl' => URL::signedRoute('parents.verification.status', ['parent' => $parent->id]),
             'verificationCompleted' => $this->isParentVerified($parent),

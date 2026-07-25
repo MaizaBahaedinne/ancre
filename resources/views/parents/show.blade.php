@@ -309,8 +309,12 @@
                             <span class="parent-profile-chip {{ $verificationStatus === 'verified' ? 'is-safe' : 'is-warn' }}">
                                 {{ $verificationStatus === 'verified' ? 'Compte verifie' : 'Verification en attente' }}
                             </span>
-                            <span class="parent-profile-chip {{ $parent->user ? 'is-safe' : 'is-warn' }}">
-                                {{ $parent->user ? 'Compte utilisateur cree' : 'Aucun compte utilisateur' }}
+                            <span class="parent-profile-chip {{ $isInscribedInCurrentYear ? 'is-safe' : 'is-warn' }}">
+                                @if($activeAcademicYearLabel)
+                                    {{ $isInscribedInCurrentYear ? 'Inscrit en '.$activeAcademicYearLabel : 'Non inscrit en '.$activeAcademicYearLabel }}
+                                @else
+                                    Annee scolaire active non definie
+                                @endif
                             </span>
                         </div>
                     </div>
@@ -348,11 +352,17 @@
             </div>
             <div class="col-xl-3 col-md-6">
                 <div class="parent-stat-card">
-                    <div class="parent-stat-icon bg-info"><i class="fa-solid fa-user-lock"></i></div>
+                    <div class="parent-stat-icon bg-info"><i class="fa-solid fa-calendar-check"></i></div>
                     <div>
-                        <small>Compte parent</small>
-                        <strong>{{ $parent->user ? 'Actif' : 'Non cree' }}</strong>
-                        <span>{{ $parent->user?->email ?: 'aucune liaison utilisateur' }}</span>
+                        <small>Annee en cours</small>
+                        <strong>
+                            @if($activeAcademicYearLabel)
+                                {{ $isInscribedInCurrentYear ? 'Inscrit' : 'Non inscrit' }}
+                            @else
+                                N/A
+                            @endif
+                        </strong>
+                        <span>{{ $activeAcademicYearLabel ?: 'aucune annee active' }}</span>
                     </div>
                 </div>
             </div>
@@ -397,7 +407,16 @@
                                 <p><small>Statut profil</small><strong>{{ $verificationStatus === 'verified' ? 'Verifie' : ($verificationStatus === 'submitted' ? 'En attente de validation' : 'A verifier') }}</strong></p>
                             </div>
                             <div class="col-md-6">
-                                <p><small>Compte utilisateur parent</small><strong>{{ $parent->user ? $parent->user->email : 'Aucun compte utilisateur associe' }}</strong></p>
+                                <p>
+                                    <small>Inscription annee scolaire en cours</small>
+                                    <strong>
+                                        @if($activeAcademicYearLabel)
+                                            {{ $isInscribedInCurrentYear ? 'Inscrit en '.$activeAcademicYearLabel : 'Non inscrit en '.$activeAcademicYearLabel }}
+                                        @else
+                                            Annee scolaire active non definie
+                                        @endif
+                                    </strong>
+                                </p>
                             </div>
                             <div class="col-md-12">
                                 <small class="d-block mb-2 text-muted">Documents CIN</small>
@@ -420,27 +439,6 @@
                         </div>
                     </div>
                 </div>
-
-                @if(! $parent->user)
-                    <div class="card mb-4">
-                        <div class="card-body parent-panel">
-                            <h4 class="mb-3">Compte utilisateur</h4>
-                            @can('users.manage')
-                                @if($parent->email)
-                                    <p class="text-muted">Le compte parent n'est pas encore lie. Vous pouvez le creer manuellement si besoin.</p>
-                                    <form method="POST" action="{{ route('parents.create-user', $parent) }}" class="d-inline" onsubmit="return confirm('Creer et associer un compte utilisateur pour ce parent ?')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary">Creer un user parent</button>
-                                    </form>
-                                @else
-                                    <div class="alert alert-warning mb-0">Ajoutez un email au parent pour pouvoir generer son compte utilisateur.</div>
-                                @endif
-                            @else
-                                <div class="alert alert-light mb-0">Aucun compte utilisateur associe.</div>
-                            @endcan
-                        </div>
-                    </div>
-                @endif
 
                 <div class="card parent-linked-table">
                     <div class="card-header border-0 pt-4 px-4 pb-0 bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">

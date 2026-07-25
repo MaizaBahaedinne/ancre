@@ -19,14 +19,25 @@
             <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Parents</div><div class="display-6 fw-semibold">{{ $stats['total'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Avec compte</div><div class="display-6 fw-semibold">{{ $stats['with_user'] ?? 0 }}</div></div></div>
+            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Inscrits (annee en cours)</div><div class="display-6 fw-semibold">{{ $stats['inscribed_current_year'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Sans compte</div><div class="display-6 fw-semibold">{{ $stats['without_user'] ?? 0 }}</div></div></div>
+            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Non inscrits (annee en cours)</div><div class="display-6 fw-semibold">{{ $stats['not_inscribed_current_year'] ?? 0 }}</div></div></div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Avec email</div><div class="display-6 fw-semibold">{{ $stats['with_email'] ?? 0 }}</div></div></div>
+            <div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Comptes verifies</div><div class="display-6 fw-semibold">{{ $stats['verified_accounts'] ?? 0 }}</div><div class="small text-muted">Non verifies: {{ $stats['not_verified_accounts'] ?? 0 }}</div></div></div>
         </div>
+    </div>
+
+    <div class="alert alert-light border d-flex align-items-center gap-2" role="alert">
+        <i class="fa-solid fa-calendar-check text-primary"></i>
+        <span>
+            @if($activeAcademicYearLabel)
+                Annee scolaire en cours: <strong>{{ $activeAcademicYearLabel }}</strong>
+            @else
+                Aucune annee scolaire active n'est definie.
+            @endif
+        </span>
     </div>
 
     <div class="card">
@@ -40,7 +51,8 @@
                             <th>Telephone</th>
                             <th>Email</th>
                             <th>Urgence</th>
-                            <th>Compte utilisateur</th>
+                            <th>Inscription annee en cours</th>
+                            <th>Compte verifie</th>
                             <th width="200" class="no-sort">Actions</th>
                         </tr>
                     </thead>
@@ -53,9 +65,17 @@
                                 <td>{{ $parent->email }}</td>
                                 <td>{{ $parent->contact_urgence }}</td>
                                 <td>
-                                    @if($parent->user)
+                                    @if($activeAcademicYearLabel && $parent->is_inscribed_current_year)
                                         <span class="badge bg-success">Oui</span>
-                                        <div class="small text-muted mt-1">{{ $parent->user->email }}</div>
+                                    @elseif($activeAcademicYearLabel)
+                                        <span class="badge bg-secondary">Non</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">N/A</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($parent->is_verified_account)
+                                        <span class="badge bg-success">Oui</span>
                                     @else
                                         <span class="badge bg-secondary">Non</span>
                                     @endif
@@ -84,7 +104,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">Aucun parent trouve.</td>
+                                <td colspan="8" class="text-center">Aucun parent trouve.</td>
                             </tr>
                         @endforelse
                     </tbody>
