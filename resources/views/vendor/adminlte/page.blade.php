@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.bootstrap5.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('css')
@@ -293,6 +294,14 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.colVis.min.js"></script>
     <script>
         (() => {
             const layout = document.querySelector('.modern-admin-layout');
@@ -424,8 +433,59 @@
                     }
 
                     const $table = $(this);
+                    const exportEnabled = $table.data('export') !== false;
                     const $singleRow = $table.find('tbody > tr').first();
                     const $singleCell = $singleRow.find('td').first();
+
+                    const exportButtons = exportEnabled
+                        ? [
+                            {
+                                extend: 'copyHtml5',
+                                text: '<i class="fa-solid fa-copy"></i> Copier',
+                                className: 'btn btn-sm btn-outline-secondary',
+                                exportOptions: {
+                                    columns: ':visible:not(.no-export):not(.no-sort)',
+                                },
+                            },
+                            {
+                                extend: 'csvHtml5',
+                                text: '<i class="fa-solid fa-file-csv"></i> CSV',
+                                className: 'btn btn-sm btn-outline-secondary',
+                                exportOptions: {
+                                    columns: ':visible:not(.no-export):not(.no-sort)',
+                                },
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: '<i class="fa-solid fa-file-excel"></i> Excel',
+                                className: 'btn btn-sm btn-outline-secondary',
+                                exportOptions: {
+                                    columns: ':visible:not(.no-export):not(.no-sort)',
+                                },
+                            },
+                            {
+                                extend: 'pdfHtml5',
+                                text: '<i class="fa-solid fa-file-pdf"></i> PDF',
+                                className: 'btn btn-sm btn-outline-secondary',
+                                exportOptions: {
+                                    columns: ':visible:not(.no-export):not(.no-sort)',
+                                },
+                            },
+                            {
+                                extend: 'print',
+                                text: '<i class="fa-solid fa-print"></i> Imprimer',
+                                className: 'btn btn-sm btn-outline-secondary',
+                                exportOptions: {
+                                    columns: ':visible:not(.no-export):not(.no-sort)',
+                                },
+                            },
+                            {
+                                extend: 'colvis',
+                                text: '<i class="fa-solid fa-table-columns"></i> Colonnes',
+                                className: 'btn btn-sm btn-outline-secondary',
+                            },
+                        ]
+                        : [];
 
                     // Remove server-rendered "empty" row with colspan to avoid DataTables column mismatch warnings.
                     if (
@@ -439,6 +499,9 @@
                     $table.DataTable({
                         responsive: true,
                         autoWidth: false,
+                        searching: true,
+                        ordering: true,
+                        info: true,
                         pageLength: -1,
                         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
                         language: {
@@ -455,8 +518,16 @@
                                 previous: 'Precedent',
                             },
                             emptyTable: 'Aucune donnee disponible',
+                            buttons: {
+                                copyTitle: 'Copie dans le presse-papiers',
+                                copySuccess: {
+                                    _: '%d lignes copiees',
+                                    1: '1 ligne copiee',
+                                },
+                            },
                         },
-                        dom: '<"modern-table-toolbar d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-3"lf>rt<"modern-table-footer d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mt-3"ip>',
+                        dom: '<"modern-table-toolbar d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-3"<"modern-table-buttons d-flex flex-wrap gap-2"B>lf>rt<"modern-table-footer d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mt-3"ip>',
+                        buttons: exportButtons,
                         columnDefs: [
                             {
                                 targets: 'no-sort',

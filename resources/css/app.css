@@ -757,6 +757,18 @@
 		min-width: min(320px, 70vw);
 	}
 
+	.modern-table-toolbar .modern-table-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.modern-table-toolbar .dt-buttons .btn {
+		border-radius: 999px;
+		font-weight: 700;
+		padding: 0.42rem 0.9rem;
+	}
+
 	.modern-table-footer .pagination {
 		margin: 0;
 	}
