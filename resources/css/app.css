@@ -773,6 +773,116 @@
 		margin: 0;
 	}
 
+	.package-catalog-card {
+		overflow: hidden;
+		background:
+			radial-gradient(circle at 90% 0%, rgba(var(--brand-gold-rgb), 0.15), transparent 30%),
+			radial-gradient(circle at 0% 100%, rgba(var(--brand-navy-rgb), 0.08), transparent 38%),
+			linear-gradient(180deg, #ffffff, #f8fafc 85%);
+		border: 1px solid rgba(148, 163, 184, 0.25);
+	}
+
+	.package-catalog-toolbar .form-label {
+		color: #475569;
+		font-weight: 700;
+	}
+
+	.package-catalog-toolbar .form-control,
+	.package-catalog-toolbar .form-select {
+		min-height: 2.75rem;
+		border-radius: 14px;
+	}
+
+	.package-card {
+		display: flex;
+		flex-direction: column;
+		padding: 1.1rem;
+		border-radius: 22px;
+		border: 1px solid rgba(203, 213, 225, 0.85);
+		background: linear-gradient(180deg, #ffffff, #f8fafc);
+		box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+	}
+
+	.package-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+		border-color: rgba(var(--brand-navy-rgb), 0.28);
+	}
+
+	.package-card-head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.package-card-title {
+		margin: 0;
+		font-size: 1.08rem;
+		font-weight: 800;
+		line-height: 1.35;
+		color: #0f172a;
+	}
+
+	.package-card-status {
+		font-size: 0.74rem;
+		letter-spacing: 0.03em;
+	}
+
+	.package-card-prices {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.package-card-prices li {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 0.6rem;
+		padding-bottom: 0.45rem;
+		border-bottom: 1px dashed rgba(148, 163, 184, 0.35);
+		color: #334155;
+	}
+
+	.package-card-prices li span {
+		font-size: 0.88rem;
+		color: #64748b;
+	}
+
+	.package-card-prices li strong {
+		font-size: 0.92rem;
+		color: #0f172a;
+		font-weight: 700;
+	}
+
+	.package-card-prices li.is-total {
+		padding-top: 0.1rem;
+		border-bottom: none;
+	}
+
+	.package-card-prices li.is-total strong {
+		font-size: 1.04rem;
+		color: var(--brand-navy);
+	}
+
+	.package-card-actions {
+		padding-top: 0.15rem;
+	}
+
+	@media (max-width: 575.98px) {
+		.package-card {
+			border-radius: 18px;
+		}
+
+		.package-card-prices li {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.2rem;
+		}
+	}
+
 	.modern-action-group {
 		display: flex;
 		flex-wrap: nowrap;
