@@ -196,6 +196,10 @@
             background: rgba(22, 42, 58, 0.74);
         }
 
+        .hero.hero-subpage {
+            min-height: clamp(240px, 42vh, 380px);
+        }
+
         .hero-media {
             position: absolute;
             inset: 0;

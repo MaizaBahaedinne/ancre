@@ -19,6 +19,10 @@
             ? \Illuminate\Support\Str::limit(strip_tags($aboutPage->content), 240)
             : 'Nous accompagnons chaque enfant avec une approche pedagogique moderne, bienveillante et centree sur son rythme.';
 
+        $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
+            ? asset('images/about-child-tunisie.jpg')
+            : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80';
+
         $inscriptionUrl = $settings?->parent_space_url ?: route('login');
     @endphp
     <main>
@@ -120,7 +124,7 @@
                 <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
                     <aside class="media-frame" style="min-height:280px;">
-                        <img src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80" alt="Enfant tunisien" loading="lazy">
+                        <img src="{{ $aboutImage }}" alt="Enfant tunisien" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
