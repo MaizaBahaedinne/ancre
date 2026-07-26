@@ -175,6 +175,11 @@ Route::middleware(['auth', 'permission:developer.tools.view'])->prefix('admin/de
 
 Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine')->name('admin.vitrine.')->group(function () {
     Route::get('/', [VitrineAdminController::class, 'index'])->name('index');
+    Route::get('/settings', [VitrineAdminController::class, 'settingsPage'])->name('settings');
+    Route::get('/pages', [VitrineAdminController::class, 'pagesPage'])->name('pages');
+    Route::get('/services', [VitrineAdminController::class, 'servicesPage'])->name('services');
+    Route::get('/schedules', [VitrineAdminController::class, 'schedulesPage'])->name('schedules');
+    Route::get('/social-posts', [VitrineAdminController::class, 'socialPostsPage'])->name('social-posts');
     Route::put('/settings', [VitrineAdminController::class, 'updateSettings'])->name('settings.update');
     Route::put('/pages/{page}', [VitrineAdminController::class, 'updatePage'])->name('pages.update')->whereNumber('page');
 

@@ -15,7 +15,12 @@ use Illuminate\Support\Facades\Storage;
 
 class VitrineAdminController extends Controller
 {
-    public function index(): View
+    public function index(): RedirectResponse
+    {
+        return redirect()->route('admin.vitrine.settings');
+    }
+
+    public function settingsPage(): View
     {
         $settings = VitrineSetting::query()->firstOrCreate([
             'id' => 1,
@@ -25,11 +30,35 @@ class VitrineAdminController extends Controller
             'parent_space_url' => '/login',
         ]);
 
-        return view('admin.vitrine.index', [
+        return view('admin.vitrine.settings', [
             'settings' => $settings,
+        ]);
+    }
+
+    public function pagesPage(): View
+    {
+        return view('admin.vitrine.pages', [
             'pages' => VitrinePage::query()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function servicesPage(): View
+    {
+        return view('admin.vitrine.services', [
             'services' => VitrineService::query()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function schedulesPage(): View
+    {
+        return view('admin.vitrine.schedules', [
             'schedules' => VitrineSchedule::query()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function socialPostsPage(): View
+    {
+        return view('admin.vitrine.social-posts', [
             'socialPosts' => VitrineSocialPost::query()->orderBy('sort_order')->latest()->get(),
         ]);
     }
