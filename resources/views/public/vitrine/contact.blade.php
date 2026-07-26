@@ -1,6 +1,7 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Contact')
+@section('meta_description', 'Contactez la Garderie Ancre des Elites a Tunis pour demander une visite, obtenir des informations et lancer l inscription de votre enfant.')
 
 @section('content')
     @php
@@ -19,6 +20,7 @@
             <div class="wrap" style="display:grid;gap:1rem;grid-template-columns:1.25fr 1fr;">
                 <article class="panel">
                     <h2 class="section-title" style="margin-top:0;">Formulaire de contact</h2>
+                    <p class="muted">Nous vous repondons en general sous 24h pour organiser une visite ou vous accompagner dans l'inscription.</p>
 
                     @if(session('contact_success'))
                         <div class="alert alert-ok">{{ session('contact_success') }}</div>

@@ -1,6 +1,7 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Activites')
+@section('meta_description', 'Activites educatives et moments forts de la Garderie Ancre des Elites a Tunis: eveil, creativite, motricite et socialisation.')
 
 @section('content')
     @php

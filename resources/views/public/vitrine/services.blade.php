@@ -1,6 +1,7 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Services')
+@section('meta_description', 'Services de garderie a Tunis: accueil, eveil, encadrement bienveillant et environnement securise pour l epanouissement de votre enfant.')
 
 @section('content')
     @php

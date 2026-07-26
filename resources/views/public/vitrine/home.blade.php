@@ -1,35 +1,66 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Accueil')
+@section('meta_description', 'Garderie Ancre des Elites a Tunis: cadre securise, equipe bienveillante, activites educatives et accompagnement des familles. Demandez une visite.')
 
 @section('content')
     @php
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
 
-        $aboutSnippet = $page?->content
-            ? \Illuminate\Support\Str::limit(strip_tags($page->content), 240)
+        $aboutSnippet = $aboutPage?->content
+            ? \Illuminate\Support\Str::limit(strip_tags($aboutPage->content), 240)
             : 'Nous accompagnons chaque enfant avec une approche pedagogique moderne, bienveillante et centree sur son rythme.';
+
+        $inscriptionUrl = $settings?->parent_space_url ?: route('login');
     @endphp
     <main>
         <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
             <div class="hero-content">
-                <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie moderne et bienveillante</span>
-                <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Une enfance epanouie commence ici') }}</h1>
-                <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Un environnement securise, des educateurs passionnes et des activites pensees pour chaque age.') }}</p>
+                <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Tunis</span>
+                <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Ancre des Elites, une garderie ou votre enfant grandit en confiance') }}</h1>
+                <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
                 <div class="hero-actions">
-                    <a href="{{ route('vitrine.services') }}" class="btn-hero"><i class="fa-solid fa-graduation-cap"></i> Voir nos services</a>
-                    <a href="{{ route('vitrine.contact') }}" class="btn-hero-alt"><i class="fa-solid fa-phone-volume"></i> Prendre contact</a>
+                    <a href="{{ route('vitrine.contact') }}" class="btn-hero"><i class="fa-solid fa-calendar-check"></i> Demander une visite</a>
+                    <a href="{{ $inscriptionUrl }}" class="btn-hero-alt"><i class="fa-solid fa-user-plus"></i> Inscrire mon enfant</a>
+                    <a href="{{ route('vitrine.contact') }}" class="btn-hero" style="background:#fff9ef;"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="padding:1.3rem 0 0.8rem;">
+            <div class="wrap">
+                <div class="grid-4 reveal" style="margin-top:0;">
+                    <article class="panel">
+                        <span class="icon-chip"><i class="fa-solid fa-shield-heart"></i></span>
+                        <h3>Securite</h3>
+                        <p class="muted">Environnement controle, propre et adapte aux tout-petits.</p>
+                    </article>
+                    <article class="panel">
+                        <span class="icon-chip"><i class="fa-solid fa-user-group"></i></span>
+                        <h3>Equipe a l'ecoute</h3>
+                        <p class="muted">Professionnels bienveillants formes a la petite enfance.</p>
+                    </article>
+                    <article class="panel">
+                        <span class="icon-chip"><i class="fa-solid fa-palette"></i></span>
+                        <h3>Activites d'eveil</h3>
+                        <p class="muted">Programme pedagogique adapte a chaque tranche d'age.</p>
+                    </article>
+                    <article class="panel">
+                        <span class="icon-chip"><i class="fa-solid fa-comments"></i></span>
+                        <h3>Suivi parent</h3>
+                        <p class="muted">Communication claire et continue avec les familles.</p>
+                    </article>
                 </div>
             </div>
         </section>
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title">About Us</h2>
+                <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2">
                     <article class="panel">
                         <p class="muted">{{ $aboutSnippet }}</p>
-                        <a href="{{ route('vitrine.about') }}" class="btn-parent" style="display:inline-flex;margin-top:0.8rem;">Read More</a>
+                        <a href="{{ route('vitrine.about') }}" class="btn-parent" style="display:inline-flex;margin-top:0.8rem;">Lire plus</a>
                     </article>
                     <aside class="media-frame">
                         <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80" alt="About Ancre Des Elites" loading="lazy">
@@ -52,7 +83,7 @@
                         <article class="panel"><p class="muted">Aucun service disponible.</p></article>
                     @endforelse
                 </div>
-                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
+                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
             </div>
         </section>
 
@@ -77,13 +108,13 @@
                         <article class="panel"><p class="muted">Aucune activite disponible.</p></article>
                     @endforelse
                 </div>
-                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
+                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
             </div>
         </section>
 
         <section class="section">
             <div class="wrap">
-                <h2 class="section-title">Statestique</h2>
+                <h2 class="section-title">Nos chiffres cles</h2>
                 <div class="grid-4 stats-grid reveal">
                     <article class="panel">
                         <div class="stat-value">{{ ($services ?? collect())->count() > 0 ? ($services ?? collect())->count() : '6+' }}</div>
@@ -91,7 +122,7 @@
                     </article>
                     <article class="panel">
                         <div class="stat-value">{{ ($schedules ?? collect())->where('is_closed', false)->count() > 0 ? ($schedules ?? collect())->where('is_closed', false)->count() : '7j/7' }}</div>
-                        <p class="muted">Jours d accueil</p>
+                        <p class="muted">Jours d'accueil organises</p>
                     </article>
                     <article class="panel">
                         <div class="stat-value">{{ ($professionals ?? collect())->count() > 0 ? ($professionals ?? collect())->count() : '12+' }}</div>
@@ -107,7 +138,7 @@
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title">Meet Our Professional</h2>
+                <h2 class="section-title">Notre equipe professionnelle</h2>
                 <div class="grid-4 reveal">
                     @forelse(($professionals ?? collect()) as $member)
                         @php
@@ -132,7 +163,7 @@
 
         <section class="section">
             <div class="wrap">
-                <h2 class="section-title">Blog</h2>
+                <h2 class="section-title">Blog & actualites</h2>
                 <div class="grid-3 reveal">
                     @forelse(($blogPosts ?? collect()) as $post)
                         <article class="panel">
@@ -145,20 +176,20 @@
                                     <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80" alt="Article" style="width:100%;height:100%;object-fit:cover;">
                                 @endif
                             </div>
-                            <h3>{{ ucfirst($post->platform) }} - Article</h3>
+                            <h3>{{ ucfirst($post->platform) }} - Actualite</h3>
                             <p class="muted">{{ \Illuminate\Support\Str::limit($post->caption ?: 'Retrouvez les dernieres informations de la garderie.', 130) }}</p>
                         </article>
                     @empty
                         <article class="panel"><p class="muted">Aucun article disponible.</p></article>
                     @endforelse
                 </div>
-                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
+                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
             </div>
         </section>
 
         <section class="section section-warm">
             <div class="wrap">
-                <h2 class="section-title">Happy Parents Our Testimonials</h2>
+                <h2 class="section-title">Parents heureux - nos temoignages</h2>
                 <div class="grid-3 reveal">
                     <article class="panel">
                         <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
@@ -179,13 +210,37 @@
         <section class="section section-soft">
             <div class="wrap">
                 <article class="panel" style="text-align:center;max-width:860px;margin:0 auto;">
-                    <h2 class="section-title" style="margin-bottom:0.5rem;">News Letter</h2>
-                    <p class="section-subtitle" style="margin:0 auto 1rem;">Recevez nos actualites, activites et conseils pour les parents.</p>
+                    <h2 class="section-title" style="margin-bottom:0.5rem;">Newsletter</h2>
+                    <p class="section-subtitle" style="margin:0 auto 1rem;">Recevez nos actualites, nos conseils parents et les prochaines activites de la garderie.</p>
                     <form action="{{ route('vitrine.contact') }}" method="GET" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
                         <input type="email" name="newsletter_email" placeholder="Votre email" style="min-width:280px;max-width:420px;border:1px solid #d6e1ea;border-radius:999px;padding:0.7rem 1rem;">
                         <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">S'abonner</button>
                     </form>
                 </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title">Questions frequentes</h2>
+                <div class="grid-2 reveal">
+                    <article class="panel">
+                        <h3>Quels ages accueillez-vous ?</h3>
+                        <p class="muted">Nous accueillons les enfants selon les tranches d'age definies par la structure, avec un accompagnement adapte a chaque etape.</p>
+                    </article>
+                    <article class="panel">
+                        <h3>Comment se passe l'inscription ?</h3>
+                        <p class="muted">Vous demandez d'abord une visite, puis nous vous accompagnons pour la preinscription et le dossier final.</p>
+                    </article>
+                    <article class="panel">
+                        <h3>Comment suivez-vous l'evolution de l'enfant ?</h3>
+                        <p class="muted">Notre equipe partage regulierement les observations et l'evolution pedagogique avec les parents.</p>
+                    </article>
+                    <article class="panel">
+                        <h3>Quand recevez-vous une reponse ?</h3>
+                        <p class="muted">Nous faisons notre maximum pour repondre a chaque demande dans un delai de 24h.</p>
+                    </article>
+                </div>
             </div>
         </section>
     </main>

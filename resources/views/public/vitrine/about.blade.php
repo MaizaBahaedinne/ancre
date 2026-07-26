@@ -1,6 +1,7 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | A propos')
+@section('meta_description', 'Decouvrez la mission de la Garderie Ancre des Elites: ecoute, respect du rythme, bienveillance, autonomie et partenariat avec les familles a Tunis.')
 
 @section('content')
     @php
@@ -10,8 +11,8 @@
         <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
             <div class="hero-content">
                 <span class="hero-badge"><i class="fa-solid fa-children"></i> A propos</span>
-                <h1>{{ $page?->hero_title ?: 'Une equipe a l ecoute des enfants' }}</h1>
-                <p class="hero-lead">{{ $page?->hero_subtitle ?: 'Une structure humaine qui combine securite, pedagogie et epanouissement personnel.' }}</p>
+                <h1>{{ $page?->hero_title ?: 'Une equipe a l ecoute de chaque enfant' }}</h1>
+                <p class="hero-lead">{{ $page?->hero_subtitle ?: 'Nous creons un cadre affectif, educatif et securisant ou l enfant evolue avec confiance, joie et autonomie.' }}</p>
             </div>
         </section>
 

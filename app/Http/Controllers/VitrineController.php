@@ -27,6 +27,7 @@ class VitrineController extends Controller
         return view('public.vitrine.home', $this->sharedData([
             'currentSlug' => 'home',
             'page' => $this->pageBySlug('home'),
+            'aboutPage' => $this->pageBySlug('about'),
             'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'servicesFeatured' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->take(4)->get(),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
