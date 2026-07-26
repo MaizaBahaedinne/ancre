@@ -5,8 +5,9 @@
 
 @section('content')
     @php
+        $pageMeta = is_array($page?->meta ?? null) ? $page->meta : [];
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
-        $heroImages = [
+        $heroImagesDefault = [
             $heroImage,
             'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1800&q=80',
             'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=1800&q=80',
@@ -15,13 +16,54 @@
             'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=1800&q=80',
         ];
 
+        $heroImages = [];
+        if (!empty($pageMeta['hero_images']) && is_array($pageMeta['hero_images'])) {
+            foreach ($pageMeta['hero_images'] as $rawImage) {
+                if (!is_string($rawImage) || trim($rawImage) === '') {
+                    continue;
+                }
+
+                $rawImage = trim($rawImage);
+                $heroImages[] = str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'));
+            }
+        }
+        if (empty($heroImages)) {
+            $heroImages = $heroImagesDefault;
+        }
+        $heroImages = array_slice($heroImages, 0, 6);
+
+        $heroBadgeText = $pageMeta['hero_badge_text'] ?? 'Garderie de confiance a Sfax';
+
         $aboutSnippet = $aboutPage?->content
             ? \Illuminate\Support\Str::limit(strip_tags($aboutPage->content), 240)
             : 'Nous accompagnons chaque enfant avec une approche pedagogique moderne, bienveillante et centree sur son rythme.';
 
-        $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
-            ? asset('images/about-child-tunisie.jpg')
-            : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80';
+        $aboutImageUrl = $pageMeta['about_image_url'] ?? null;
+        if (is_string($aboutImageUrl) && trim($aboutImageUrl) !== '') {
+            $aboutImage = str_starts_with(trim($aboutImageUrl), 'http')
+                ? trim($aboutImageUrl)
+                : asset(ltrim(trim($aboutImageUrl), '/'));
+        } else {
+            $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
+                ? asset('images/about-child-tunisie.jpg')
+                : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80';
+        }
+
+        $aboutHighlights = [
+            'Encadrement securise et bienveillant.',
+            'Programme d eveil adapte a chaque enfant.',
+            'Communication continue avec les parents.',
+        ];
+        if (!empty($pageMeta['about_highlights']) && is_array($pageMeta['about_highlights'])) {
+            $aboutHighlights = array_values(array_filter($pageMeta['about_highlights'], fn ($item) => is_string($item) && trim($item) !== ''));
+            if (empty($aboutHighlights)) {
+                $aboutHighlights = [
+                    'Encadrement securise et bienveillant.',
+                    'Programme d eveil adapte a chaque enfant.',
+                    'Communication continue avec les parents.',
+                ];
+            }
+        }
 
         $inscriptionUrl = $settings?->parent_space_url ?: route('login');
     @endphp
@@ -34,7 +76,7 @@
             </div>
             <div class="hero-content hero-grid">
                 <div class="hero-copy">
-                    <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Sfax</span>
+                    <span class="hero-badge"><i class="fa-solid fa-seedling"></i> {{ $heroBadgeText }}</span>
                     <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Ancre des Elites, une garderie ou votre enfant grandit en confiance') }}</h1>
                     <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
                     <div class="hero-actions">
@@ -129,9 +171,9 @@
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
                         <div class="muted" style="display:grid;gap:0.45rem;">
-                            <span><i class="fa-solid fa-circle-check" style="color:#2d6f85;"></i> Encadrement securise et bienveillant.</span>
-                            <span><i class="fa-solid fa-circle-check" style="color:#2d6f85;"></i> Programme d'eveil adapte a chaque enfant.</span>
-                            <span><i class="fa-solid fa-circle-check" style="color:#2d6f85;"></i> Communication continue avec les parents.</span>
+                            @foreach($aboutHighlights as $highlight)
+                                <span><i class="fa-solid fa-circle-check" style="color:#2d6f85;"></i> {{ $highlight }}</span>
+                            @endforeach
                         </div>
                         <a href="{{ route('vitrine.about') }}" class="btn-parent" style="display:inline-flex;width:max-content;margin-top:0.4rem;">Decouvrir notre mission</a>
                     </article>

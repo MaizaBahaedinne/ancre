@@ -136,12 +136,14 @@ class VitrineAdminController extends Controller
         $hasMissionColumn = Schema::hasColumn('vitrine_pages', 'mission');
         $hasVisionColumn = Schema::hasColumn('vitrine_pages', 'vision');
         $hasValeursColumn = Schema::hasColumn('vitrine_pages', 'valeurs');
+        $hasMetaColumn = Schema::hasColumn('vitrine_pages', 'meta');
 
         $rules = [
             'title' => ['required', 'string', 'max:255'],
             'hero_title' => ['nullable', 'string', 'max:255'],
             'hero_subtitle' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
+            'meta_json' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_published' => ['nullable', 'boolean'],
         ];
@@ -161,6 +163,22 @@ class VitrineAdminController extends Controller
         }
 
         $validated = $request->validate($rules);
+
+        $meta = $page->meta ?? [];
+        if ($hasMetaColumn) {
+            if (! empty($validated['meta_json'])) {
+                $decoded = json_decode($validated['meta_json'], true);
+                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+                    return back()
+                        ->withInput()
+                        ->with('error', 'JSON invalide dans les parametres avances de la page.');
+                }
+
+                $meta = $decoded;
+            } elseif (array_key_exists('meta_json', $validated)) {
+                $meta = [];
+            }
+        }
 
         try {
             $heroImagePath = $hasHeroImageColumn ? $page->hero_image : null;
@@ -198,6 +216,9 @@ class VitrineAdminController extends Controller
             }
             if ($hasValeursColumn) {
                 $updates['valeurs'] = $validated['valeurs'] ?? null;
+            }
+            if ($hasMetaColumn) {
+                $updates['meta'] = $meta;
             }
 
             $page->update($updates);

@@ -66,6 +66,17 @@
                                         <textarea name="content" rows="4" class="form-control">{{ old('content', $page->content) }}</textarea>
                                     </div>
 
+                                    @if($page->slug === 'home')
+                                        <div class="col-12">
+                                            <label class="form-label">Parametres avances Accueil (JSON)</label>
+                                            @php
+                                                $metaJson = old('meta_json', json_encode($page->meta ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+                                            @endphp
+                                            <textarea name="meta_json" rows="13" class="form-control" placeholder='{"hero_badge_text":"Garderie de confiance a Sfax","about_image_url":"https://...","hero_images":["https://...","https://..."],"about_highlights":["Encadrement securise","Programme d eveil adapte","Communication continue"]}'>{{ $metaJson }}</textarea>
+                                            <small class="text-muted">Clés supportees: <strong>hero_badge_text</strong>, <strong>about_image_url</strong>, <strong>hero_images</strong> (tableau de 6 URLs max), <strong>about_highlights</strong> (tableau).</small>
+                                        </div>
+                                    @endif
+
                                     @if($page->slug === 'about')
                                         <div class="col-12">
                                             <label class="form-label">Mission</label>

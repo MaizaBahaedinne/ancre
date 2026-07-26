@@ -16,6 +16,7 @@ class VitrinePage extends Model
         'hero_subtitle',
         'hero_image',
         'content',
+        'meta',
         'mission',
         'vision',
         'valeurs',
@@ -25,5 +26,6 @@ class VitrinePage extends Model
 
     protected $casts = [
         'is_published' => 'boolean',
+        'meta' => 'array',
     ];
 }
