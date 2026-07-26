@@ -9,6 +9,12 @@
 @section('content')
     @include('admin.vitrine._alerts')
 
+    @if(empty($blogPostsTableExists))
+        <div class="alert alert-warning">
+            La table des articles vitrine est absente. Lancez les migrations pour activer ce module.
+        </div>
+    @endif
+
     <div class="card mb-4">
         <div class="card-header"><strong>Ajouter un article</strong></div>
         <div class="card-body">

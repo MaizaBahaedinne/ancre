@@ -72,8 +72,21 @@ class VitrineAdminController extends Controller
 
     public function blogPostsPage(): View
     {
+        $blogPosts = collect();
+
+        if (Schema::hasTable('vitrine_blog_posts')) {
+            try {
+                $blogPosts = VitrineBlogPost::query()->orderBy('sort_order')->latest()->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine blog posts in admin page', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return view('admin.vitrine.blog-posts', [
-            'blogPosts' => VitrineBlogPost::query()->orderBy('sort_order')->latest()->get(),
+            'blogPosts' => $blogPosts,
+            'blogPostsTableExists' => Schema::hasTable('vitrine_blog_posts'),
         ]);
     }
 
