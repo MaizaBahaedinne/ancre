@@ -12,16 +12,18 @@
     <div class="card mb-4">
         <div class="card-header"><strong>Pages vitrine (Accueil, A propos, Services, Activites, Contact)</strong></div>
         <div class="card-body">
-            <div class="accordion" id="vitrinePagesAccordion">
+            <div id="vitrinePagesAccordion">
                 @foreach($pages as $page)
-                    <div class="accordion-item mb-3 border rounded">
-                        <h2 class="accordion-header" id="heading-page-{{ $page->id }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-page-{{ $page->id }}" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}">
-                                {{ strtoupper($page->slug) }} - {{ $page->title }}
-                            </button>
-                        </h2>
-                        <div id="collapse-page-{{ $page->id }}" class="accordion-collapse collapse" aria-labelledby="heading-page-{{ $page->id }}" data-bs-parent="#vitrinePagesAccordion">
-                            <div class="accordion-body">
+                    <div class="card mb-3">
+                        <div class="card-header" id="heading-page-{{ $page->id }}">
+                            <h3 class="card-title m-0">
+                                <a href="#collapse-page-{{ $page->id }}" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark">
+                                    {{ strtoupper($page->slug) }} - {{ $page->title }}
+                                </a>
+                            </h3>
+                        </div>
+                        <div id="collapse-page-{{ $page->id }}" class="collapse" aria-labelledby="heading-page-{{ $page->id }}" data-parent="#vitrinePagesAccordion">
+                            <div class="card-body">
                                 <form method="POST" action="{{ route('admin.vitrine.pages.update', $page) }}" class="row g-3" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')

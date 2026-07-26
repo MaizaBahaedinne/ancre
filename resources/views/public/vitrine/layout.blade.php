@@ -22,7 +22,8 @@
             --line: #d9e4ec;
             --brand: #2d6f85;
             --brand-dark: #1e5062;
-            --accent: #d89f54;
+            --accent: #e0a63f;
+            --accent-soft: #f7ebd4;
             --ok: #2f8d62;
             --radius-xl: 28px;
             --radius-lg: 22px;
@@ -50,7 +51,7 @@
         .wrap { width: var(--container); margin-inline: auto; }
 
         .ribbon {
-            background: linear-gradient(90deg, #17384b, #2c6074);
+            background: linear-gradient(90deg, #17384b 0%, #2d6f85 58%, #e0a63f 100%);
             color: #deebf4;
             font-size: 0.86rem;
         }
@@ -73,7 +74,7 @@
             padding: 0.22rem 0.62rem;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(224, 166, 63, 0.45);
         }
 
         .site-header {
@@ -82,7 +83,7 @@
             z-index: 50;
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(22, 42, 58, 0.08);
+            border-bottom: 1px solid rgba(224, 166, 63, 0.3);
         }
 
         .header-inner {
@@ -118,7 +119,7 @@
             font-family: 'Fraunces', serif;
             font-size: 1.1rem;
             line-height: 1.1;
-            color: var(--ink-900);
+            color: var(--brand-dark);
             margin: 0;
         }
 
@@ -166,14 +167,15 @@
         .main-nav a:hover,
         .main-nav a.active {
             color: var(--ink-900);
-            background: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-soft) 100%);
+            border: 1px solid rgba(224, 166, 63, 0.4);
             box-shadow: 0 8px 18px rgba(22, 42, 58, 0.12);
         }
 
         .btn-parent {
             text-decoration: none;
             color: #fff;
-            background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 64%, var(--accent) 100%);
             border-radius: 999px;
             font-weight: 700;
             font-size: 0.9rem;
@@ -228,8 +230,8 @@
             gap: 0.45rem;
             align-items: center;
             border-radius: 999px;
-            background: rgba(216, 159, 84, 0.2);
-            border: 1px solid rgba(216, 159, 84, 0.35);
+            background: rgba(224, 166, 63, 0.24);
+            border: 1px solid rgba(224, 166, 63, 0.45);
             color: #fff7e6;
             font-size: 0.78rem;
             font-weight: 700;
@@ -283,6 +285,10 @@
         .section-title {
             margin: 0 0 0.45rem;
             font-size: clamp(1.7rem, 4vw, 2.75rem);
+            text-decoration: underline;
+            text-decoration-color: rgba(224, 166, 63, 0.6);
+            text-decoration-thickness: 0.12em;
+            text-underline-offset: 0.18em;
         }
 
         .section-subtitle { margin: 0; color: var(--ink-500); max-width: 72ch; }
@@ -294,6 +300,7 @@
         .panel {
             background: var(--surface);
             border: 1px solid var(--line);
+            border-top: 3px solid rgba(224, 166, 63, 0.5);
             border-radius: var(--radius-xl);
             padding: 1.08rem;
             box-shadow: var(--shadow-soft);
@@ -308,7 +315,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #edf4f8;
+            background: linear-gradient(135deg, rgba(45, 111, 133, 0.2), rgba(224, 166, 63, 0.24));
+            border: 1px solid rgba(224, 166, 63, 0.35);
             color: var(--brand-dark);
             margin-bottom: 0.64rem;
         }
@@ -340,7 +348,8 @@
             font-family: 'Fraunces', serif;
             font-size: clamp(1.65rem, 3.4vw, 2.4rem);
             line-height: 1.1;
-            color: var(--ink-900);
+            color: var(--brand-dark);
+            text-shadow: 0 6px 16px rgba(224, 166, 63, 0.22);
         }
 
         .schedule { width: 100%; border-collapse: collapse; }
@@ -362,6 +371,7 @@
         }
 
         .social-card:hover { transform: translateY(-2px); box-shadow: 0 18px 30px rgba(22, 42, 58, 0.14); }
+        .social-card:hover { border-color: rgba(224, 166, 63, 0.55); }
 
         .social-thumb { aspect-ratio: 4 / 3; background: #eaf2f7; }
         .social-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
@@ -391,7 +401,7 @@
             color: #fff;
             font: inherit;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 68%, var(--accent) 100%);
             cursor: pointer;
         }
 
@@ -408,7 +418,7 @@
         .footer {
             margin-top: 1.4rem;
             border-radius: 34px 34px 0 0;
-            background: linear-gradient(145deg, #18384d, #295f74);
+            background: linear-gradient(145deg, #18384d 0%, #295f74 72%, #c99543 100%);
             color: #d9e7f2;
             padding: 2rem 0 2.4rem;
         }
@@ -443,6 +453,10 @@
         }
 
         .social-links a:hover { transform: translateY(-2px); }
+        .social-links a:hover {
+            background: rgba(224, 166, 63, 0.4);
+            border-color: rgba(224, 166, 63, 0.7);
+        }
 
         .footer-bottom {
             width: var(--container);
@@ -576,7 +590,7 @@
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">© {{ date('Y') }} {{ $settings?->site_name ?: 'Ancre Des Elites' }}. Tous droits reserves.</div>
+        <div class="footer-bottom">(c) {{ date('Y') }} {{ $settings?->site_name ?: 'Ancre Des Elites' }}. Tous droits reserves.</div>
     </footer>
 
     <script>
