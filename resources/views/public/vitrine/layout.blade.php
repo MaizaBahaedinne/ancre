@@ -383,6 +383,7 @@
         .grid-2 { margin-top: 1.2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; }
         .grid-3 { margin-top: 1.2rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
         .grid-4 { margin-top: 1.2rem; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+        .contact-grid { display: grid; gap: 1rem; grid-template-columns: 1.25fr 1fr; }
 
         .panel {
             background: var(--surface);

@@ -4,10 +4,24 @@
 @section('meta_description', 'Actualites et conseils de la garderie Ancre des Elites.')
 
 @section('content')
+    @php
+        $heroImage = 'https://images.unsplash.com/photo-1453733190371-0a9bedd82893?auto=format&fit=crop&w=1800&q=80';
+    @endphp
     <main>
+        <section class="hero hero-subpage">
+            <div class="hero-media" aria-hidden="true">
+                <span class="hero-slide" style="background-image:url('{{ $heroImage }}');animation:none;opacity:1;transform:scale(1.04);"></span>
+            </div>
+            <div class="hero-content">
+                <span class="hero-badge"><i class="fa-solid fa-newspaper"></i> Actualites</span>
+                <h1>Blog & actualites</h1>
+                <p class="hero-lead">Suivez nos annonces, conseils pratiques et nouvelles de la garderie.</p>
+            </div>
+        </section>
+
         <section class="section section-soft">
             <div class="wrap">
-                <h1 class="section-title title-center">Blog & actualites</h1>
+                <h2 class="section-title title-center">Blog & actualites</h2>
                 <p class="section-subtitle" style="text-align:center;margin:0 auto;">Retrouvez nos conseils, annonces et informations pour les parents.</p>
                 <div class="grid-3 reveal" style="margin-top:1.4rem;">
                     @forelse($posts as $post)

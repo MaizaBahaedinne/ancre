@@ -20,7 +20,7 @@
         </section>
 
         <section class="section section-soft">
-            <div class="wrap" style="display:grid;gap:1rem;grid-template-columns:1.25fr 1fr;">
+            <div class="wrap contact-grid">
                 <article class="panel">
                     <h2 class="section-title" style="margin-top:0;">Formulaire de contact</h2>
                     <p class="muted">Nous vous repondons en general sous 24h pour organiser une visite ou vous accompagner dans l'inscription.</p>
