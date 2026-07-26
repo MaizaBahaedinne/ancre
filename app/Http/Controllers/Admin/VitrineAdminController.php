@@ -160,6 +160,10 @@ class VitrineAdminController extends Controller
             $rules['home_manual_parents_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
             $rules['home_manual_staff_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
             $rules['home_manual_activities_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_stat_children_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_stat_educators_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_stat_experience_years'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_stat_activities_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
             $rules['home_show_blog_section'] = ['nullable', 'boolean'];
             $rules['home_show_testimonials_section'] = ['nullable', 'boolean'];
             for ($i = 1; $i <= 6; $i++) {
@@ -219,6 +223,10 @@ class VitrineAdminController extends Controller
                 'home_manual_parents_count' => $validated['home_manual_parents_count'] ?? null,
                 'home_manual_staff_count' => $validated['home_manual_staff_count'] ?? null,
                 'home_manual_activities_count' => $validated['home_manual_activities_count'] ?? null,
+                'home_stat_children_count' => $validated['home_stat_children_count'] ?? null,
+                'home_stat_educators_count' => $validated['home_stat_educators_count'] ?? null,
+                'home_stat_experience_years' => $validated['home_stat_experience_years'] ?? null,
+                'home_stat_activities_count' => $validated['home_stat_activities_count'] ?? null,
                 'home_show_blog_section' => $request->boolean('home_show_blog_section'),
                 'home_show_testimonials_section' => $request->boolean('home_show_testimonials_section'),
             ];

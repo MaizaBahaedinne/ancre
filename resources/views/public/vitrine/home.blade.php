@@ -101,6 +101,13 @@
             $statsDisplay['staff'] = (int) ($pageMeta['home_manual_staff_count'] ?? $statsDisplay['staff']);
             $statsDisplay['activities'] = (int) ($pageMeta['home_manual_activities_count'] ?? $statsDisplay['activities']);
         }
+
+        $figures = [
+            'children' => (int) ($pageMeta['home_stat_children_count'] ?? ($pageMeta['home_manual_parents_count'] ?? 100)),
+            'educators' => (int) ($pageMeta['home_stat_educators_count'] ?? ($pageMeta['home_manual_staff_count'] ?? 10)),
+            'experience' => (int) ($pageMeta['home_stat_experience_years'] ?? 5),
+            'activities' => (int) ($pageMeta['home_stat_activities_count'] ?? ($pageMeta['home_manual_activities_count'] ?? 20)),
+        ];
     @endphp
     <main>
         <section class="hero" style="--hero-cycle-duration: {{ $heroCycleDurationSeconds }}s;">
@@ -292,25 +299,25 @@
                 <div class="grid-4 stats-grid reveal">
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-child-reaching"></i></span>
-                        <div class="stat-value">+100</div>
+                        <div class="stat-value">+{{ $figures['children'] }}</div>
                         <p class="muted"><strong>enfants accompagnes</strong></p>
                         <p class="muted">Chaque annee, nous contribuons au bien-etre et a l epanouissement des enfants.</p>
                     </article>
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
-                        <div class="stat-value">+10</div>
+                        <div class="stat-value">+{{ $figures['educators'] }}</div>
                         <p class="muted"><strong>educateurs passionnes</strong></p>
                         <p class="muted">Une equipe qualifiee et attentive pour encadrer les enfants au quotidien.</p>
                     </article>
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-calendar-check"></i></span>
-                        <div class="stat-value">+5</div>
+                        <div class="stat-value">+{{ $figures['experience'] }}</div>
                         <p class="muted"><strong>annees d experience</strong></p>
                         <p class="muted">Un savoir-faire reconnu dans l accompagnement scolaire et educatif.</p>
                     </article>
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-puzzle-piece"></i></span>
-                        <div class="stat-value">+20</div>
+                        <div class="stat-value">+{{ $figures['activities'] }}</div>
                         <p class="muted"><strong>activites proposees</strong></p>
                         <p class="muted">Des activites variees pour apprendre, creer, bouger et grandir.</p>
                     </article>

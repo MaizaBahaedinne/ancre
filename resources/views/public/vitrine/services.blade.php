@@ -39,6 +39,21 @@
         <section class="section section-warm">
             <div class="wrap grid-2">
                 <article class="panel">
+                    <h2 class="section-title" style="margin-top:0;">Nos packages</h2>
+                    <p class="muted">Des formules adaptees aux besoins des familles. Les prix ne sont pas affiches sur cette page.</p>
+                    <div class="grid-3" style="margin-top:1rem;">
+                        @forelse(($packages ?? collect()) as $package)
+                            <article class="panel" style="margin:0;">
+                                <span class="icon-chip"><i class="fa-solid fa-box-open"></i></span>
+                                <h3>{{ $package->nom }}</h3>
+                            </article>
+                        @empty
+                            <article class="panel" style="margin:0;"><p class="muted">Aucun package actif pour le moment.</p></article>
+                        @endforelse
+                    </div>
+                </article>
+
+                <article class="panel">
                     <h2 class="section-title" style="margin-top:0;">Horaires d accueil</h2>
                     <table class="schedule">
                         <tbody>
@@ -53,10 +68,6 @@
                         </tbody>
                     </table>
                 </article>
-
-                <aside class="media-frame">
-                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1400&q=80" alt="Service educatif">
-                </aside>
             </div>
         </section>
     </main>

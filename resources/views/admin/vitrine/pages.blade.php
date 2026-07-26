@@ -147,6 +147,23 @@
                                                 <div class="col-12"><strong>Chiffres manuels (utilises si mode = Manuel)</strong></div>
 
                                                 <div class="col-md-3">
+                                                    <label class="form-label">Enfants accompagnes</label>
+                                                    <input type="number" name="home_stat_children_count" class="form-control" min="0" value="{{ old('home_stat_children_count', $homeMeta['home_stat_children_count'] ?? 100) }}">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Educateurs passionnes</label>
+                                                    <input type="number" name="home_stat_educators_count" class="form-control" min="0" value="{{ old('home_stat_educators_count', $homeMeta['home_stat_educators_count'] ?? 10) }}">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Annees d experience</label>
+                                                    <input type="number" name="home_stat_experience_years" class="form-control" min="0" value="{{ old('home_stat_experience_years', $homeMeta['home_stat_experience_years'] ?? 5) }}">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Activites proposees</label>
+                                                    <input type="number" name="home_stat_activities_count" class="form-control" min="0" value="{{ old('home_stat_activities_count', $homeMeta['home_stat_activities_count'] ?? 20) }}">
+                                                </div>
+
+                                                <div class="col-md-3">
                                                     <label class="form-label">Services</label>
                                                     <input type="number" name="home_manual_services_count" class="form-control" min="0" value="{{ old('home_manual_services_count', $homeMeta['home_manual_services_count'] ?? '') }}">
                                                 </div>

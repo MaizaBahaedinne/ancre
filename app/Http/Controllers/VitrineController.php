@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activite;
 use App\Models\ParentModel;
+use App\Models\Package;
 use App\Models\Personnel;
 use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrineBlogPost;
@@ -149,11 +150,26 @@ class VitrineController extends Controller
 
     public function services(): View
     {
+        $packages = collect();
+        if (Schema::hasTable('packages')) {
+            try {
+                $packages = Package::query()
+                    ->where('is_active', true)
+                    ->orderBy('nom')
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load packages for vitrine services page', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return view('public.vitrine.services', $this->sharedData([
             'currentSlug' => 'services',
             'page' => $this->pageBySlug('services'),
             'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'packages' => $packages,
         ]));
     }
 
