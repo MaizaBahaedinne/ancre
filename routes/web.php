@@ -16,6 +16,7 @@ use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ParentActivityController;
+use App\Http\Controllers\Admin\VitrineAdminController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
@@ -25,11 +26,12 @@ use App\Http\Controllers\SalleController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\EnfantEvaluationController;
+use App\Http\Controllers\VitrineController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (! auth()->check()) {
-        return redirect()->route('login');
+        return redirect()->route('vitrine.home');
     }
 
     $user = auth()->user();
@@ -52,6 +54,14 @@ Route::get('/', function () {
 
     return redirect()->route('dashboard');
 })->name('home');
+
+Route::prefix('vitrine')->name('vitrine.')->group(function () {
+    Route::get('/', [VitrineController::class, 'home'])->name('home');
+    Route::get('/a-propos', [VitrineController::class, 'about'])->name('about');
+    Route::get('/services', [VitrineController::class, 'services'])->name('services');
+    Route::get('/activites', [VitrineController::class, 'activities'])->name('activities');
+    Route::get('/contact', [VitrineController::class, 'contact'])->name('contact');
+});
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -161,6 +171,24 @@ Route::middleware(['auth', 'permission:users.manage'])->prefix('admin')->name('a
 Route::middleware(['auth', 'permission:developer.tools.view'])->prefix('admin/developer')->name('admin.developer.')->group(function () {
     Route::get('/', [DeveloperToolsController::class, 'index'])->name('index');
     Route::get('/logs', [DeveloperToolsController::class, 'logs'])->name('logs');
+});
+
+Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine')->name('admin.vitrine.')->group(function () {
+    Route::get('/', [VitrineAdminController::class, 'index'])->name('index');
+    Route::put('/settings', [VitrineAdminController::class, 'updateSettings'])->name('settings.update');
+    Route::put('/pages/{page}', [VitrineAdminController::class, 'updatePage'])->name('pages.update')->whereNumber('page');
+
+    Route::post('/services', [VitrineAdminController::class, 'storeService'])->name('services.store');
+    Route::put('/services/{service}', [VitrineAdminController::class, 'updateService'])->name('services.update')->whereNumber('service');
+    Route::delete('/services/{service}', [VitrineAdminController::class, 'destroyService'])->name('services.destroy')->whereNumber('service');
+
+    Route::post('/schedules', [VitrineAdminController::class, 'storeSchedule'])->name('schedules.store');
+    Route::put('/schedules/{schedule}', [VitrineAdminController::class, 'updateSchedule'])->name('schedules.update')->whereNumber('schedule');
+    Route::delete('/schedules/{schedule}', [VitrineAdminController::class, 'destroySchedule'])->name('schedules.destroy')->whereNumber('schedule');
+
+    Route::post('/social-posts', [VitrineAdminController::class, 'storeSocialPost'])->name('social-posts.store');
+    Route::put('/social-posts/{socialPost}', [VitrineAdminController::class, 'updateSocialPost'])->name('social-posts.update')->whereNumber('socialPost');
+    Route::delete('/social-posts/{socialPost}', [VitrineAdminController::class, 'destroySocialPost'])->name('social-posts.destroy')->whereNumber('socialPost');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {

@@ -206,6 +206,16 @@
                     </div>
                 @endcan
 
+                @can('vitrine.manage')
+                    <div class="modern-nav-section">
+                        <span class="modern-nav-label">Vitrine</span>
+                        <a href="{{ route('admin.vitrine.index') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.*') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>Site vitrine</span>
+                        </a>
+                    </div>
+                @endcan
+
                 <div class="modern-nav-section">
                     <span class="modern-nav-label">Compte</span>
                     <a href="{{ route('profile.edit') }}" class="modern-nav-link {{ request()->routeIs('profile.*') ? 'is-active' : '' }}">

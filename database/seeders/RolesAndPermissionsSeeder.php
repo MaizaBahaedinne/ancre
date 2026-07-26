@@ -22,6 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.manage',
             'dashboard.view',
             'developer.tools.view',
+            'vitrine.manage',
             'parents.view',
             'parents.create',
             'parents.update',
@@ -99,6 +100,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $managerRole->syncPermissions([
             'dashboard.view',
             'developer.tools.view',
+            'vitrine.manage',
             'parents.view',
             'parents.create',
             'parents.update',
