@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\VitrinePage;
+use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrineSchedule;
 use App\Models\VitrineService;
 use App\Models\VitrineSetting;
 use App\Models\VitrineSocialPost;
+use App\Models\VitrineTestimonial;
+use App\Models\VitrineVisitRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,6 +63,21 @@ class VitrineAdminController extends Controller
     {
         return view('admin.vitrine.social-posts', [
             'socialPosts' => VitrineSocialPost::query()->orderBy('sort_order')->latest()->get(),
+        ]);
+    }
+
+    public function testimonialsPage(): View
+    {
+        return view('admin.vitrine.testimonials', [
+            'testimonials' => VitrineTestimonial::query()->orderBy('sort_order')->latest()->get(),
+        ]);
+    }
+
+    public function leadsPage(): View
+    {
+        return view('admin.vitrine.leads', [
+            'visitRequests' => VitrineVisitRequest::query()->latest()->get(),
+            'newsletterSubscribers' => VitrineNewsletterSubscriber::query()->latest()->get(),
         ]);
     }
 
@@ -303,5 +321,82 @@ class VitrineAdminController extends Controller
         $socialPost->delete();
 
         return back()->with('success', 'Publication sociale supprimee.');
+    }
+
+    public function storeTestimonial(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'parent_name' => ['required', 'string', 'max:255'],
+            'child_name' => ['nullable', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'is_published' => ['nullable', 'boolean'],
+        ]);
+
+        VitrineTestimonial::query()->create([
+            ...$validated,
+            'rating' => $validated['rating'] ?? 5,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_published' => $request->boolean('is_published'),
+        ]);
+
+        return back()->with('success', 'Temoignage ajoute.');
+    }
+
+    public function updateTestimonial(Request $request, VitrineTestimonial $testimonial): RedirectResponse
+    {
+        $validated = $request->validate([
+            'parent_name' => ['required', 'string', 'max:255'],
+            'child_name' => ['nullable', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'is_published' => ['nullable', 'boolean'],
+        ]);
+
+        $testimonial->update([
+            ...$validated,
+            'rating' => $validated['rating'] ?? 5,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_published' => $request->boolean('is_published'),
+        ]);
+
+        return back()->with('success', 'Temoignage mis a jour.');
+    }
+
+    public function destroyTestimonial(VitrineTestimonial $testimonial): RedirectResponse
+    {
+        $testimonial->delete();
+
+        return back()->with('success', 'Temoignage supprime.');
+    }
+
+    public function exportNewsletterCsv()
+    {
+        $fileName = 'newsletter-subscribers-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'Email', 'Actif', 'Source', 'Date inscription']);
+
+            VitrineNewsletterSubscriber::query()
+                ->orderByDesc('id')
+                ->chunk(200, function ($rows) use ($handle) {
+                    foreach ($rows as $row) {
+                        fputcsv($handle, [
+                            $row->id,
+                            $row->email,
+                            $row->is_active ? 'Oui' : 'Non',
+                            $row->source_page,
+                            optional($row->created_at)->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }

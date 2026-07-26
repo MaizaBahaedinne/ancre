@@ -62,6 +62,8 @@ Route::prefix('vitrine')->name('vitrine.')->group(function () {
     Route::get('/activites', [VitrineController::class, 'activities'])->name('activities');
     Route::get('/contact', [VitrineController::class, 'contact'])->name('contact');
     Route::post('/contact', [VitrineController::class, 'submitContact'])->name('contact.submit');
+    Route::post('/newsletter/subscribe', [VitrineController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+    Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest'])->name('visit-request.submit');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -181,6 +183,9 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::get('/services', [VitrineAdminController::class, 'servicesPage'])->name('services');
     Route::get('/schedules', [VitrineAdminController::class, 'schedulesPage'])->name('schedules');
     Route::get('/social-posts', [VitrineAdminController::class, 'socialPostsPage'])->name('social-posts');
+    Route::get('/testimonials', [VitrineAdminController::class, 'testimonialsPage'])->name('testimonials');
+    Route::get('/leads', [VitrineAdminController::class, 'leadsPage'])->name('leads');
+    Route::get('/newsletter/export', [VitrineAdminController::class, 'exportNewsletterCsv'])->name('newsletter.export');
     Route::put('/settings', [VitrineAdminController::class, 'updateSettings'])->name('settings.update');
     Route::put('/pages/{page}', [VitrineAdminController::class, 'updatePage'])->name('pages.update')->whereNumber('page');
 
@@ -195,6 +200,10 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::post('/social-posts', [VitrineAdminController::class, 'storeSocialPost'])->name('social-posts.store');
     Route::put('/social-posts/{socialPost}', [VitrineAdminController::class, 'updateSocialPost'])->name('social-posts.update')->whereNumber('socialPost');
     Route::delete('/social-posts/{socialPost}', [VitrineAdminController::class, 'destroySocialPost'])->name('social-posts.destroy')->whereNumber('socialPost');
+
+    Route::post('/testimonials', [VitrineAdminController::class, 'storeTestimonial'])->name('testimonials.store');
+    Route::put('/testimonials/{testimonial}', [VitrineAdminController::class, 'updateTestimonial'])->name('testimonials.update')->whereNumber('testimonial');
+    Route::delete('/testimonials/{testimonial}', [VitrineAdminController::class, 'destroyTestimonial'])->name('testimonials.destroy')->whereNumber('testimonial');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {

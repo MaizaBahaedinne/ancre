@@ -27,6 +27,60 @@
             </div>
         </section>
 
+        <section class="section" style="padding-top:1rem;">
+            <div class="wrap">
+                <article class="panel" style="max-width:960px;margin:0 auto;">
+                    <h2 class="section-title" style="margin-bottom:0.4rem;">Demander une visite</h2>
+                    <p class="section-subtitle" style="margin-bottom:0.9rem;">Formulaire rapide: notre equipe vous recontacte sous 24h.</p>
+
+                    @if(session('visit_success'))
+                        <div class="alert alert-ok" style="margin-bottom:0.8rem;">{{ session('visit_success') }}</div>
+                    @endif
+
+                    @if($errors->visitRequest->any())
+                        <div class="alert alert-err" style="margin-bottom:0.8rem;">
+                            <ul style="margin:0; padding-left:1.2rem;">
+                                @foreach($errors->visitRequest->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('vitrine.visit-request.submit') }}" class="form-grid">
+                        @csrf
+                        <div class="form-row">
+                            <div>
+                                <label for="visit_full_name">Nom complet</label>
+                                <input id="visit_full_name" type="text" name="full_name" value="{{ old('full_name') }}" required>
+                            </div>
+                            <div>
+                                <label for="visit_phone">Telephone</label>
+                                <input id="visit_phone" type="text" name="phone" value="{{ old('phone') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div>
+                                <label for="visit_email">Email (optionnel)</label>
+                                <input id="visit_email" type="email" name="email" value="{{ old('email') }}">
+                            </div>
+                            <div>
+                                <label for="visit_child_age_group">Age de l'enfant</label>
+                                <input id="visit_child_age_group" type="text" name="child_age_group" value="{{ old('child_age_group') }}" placeholder="Ex: 3 ans">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="visit_message">Message (optionnel)</label>
+                            <textarea id="visit_message" name="message" rows="3">{{ old('message') }}</textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">Envoyer ma demande</button>
+                        </div>
+                    </form>
+                </article>
+            </div>
+        </section>
+
         <section class="section" style="padding:1.3rem 0 0.8rem;">
             <div class="wrap">
                 <div class="grid-4 reveal" style="margin-top:0;">
@@ -191,18 +245,25 @@
             <div class="wrap">
                 <h2 class="section-title">Parents heureux - nos temoignages</h2>
                 <div class="grid-3 reveal">
-                    <article class="panel">
-                        <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
-                        <strong>- Parent de Lina</strong>
-                    </article>
-                    <article class="panel">
-                        <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
-                        <strong>- Parent de Youssef</strong>
-                    </article>
-                    <article class="panel">
-                        <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
-                        <strong>- Parent de Mariem</strong>
-                    </article>
+                    @forelse(($testimonials ?? collect())->take(3) as $testimonial)
+                        <article class="panel">
+                            <p class="muted">"{{ $testimonial->content }}"</p>
+                            <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
+                        </article>
+                    @empty
+                        <article class="panel">
+                            <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
+                            <strong>- Parent de Lina</strong>
+                        </article>
+                        <article class="panel">
+                            <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
+                            <strong>- Parent de Youssef</strong>
+                        </article>
+                        <article class="panel">
+                            <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
+                            <strong>- Parent de Mariem</strong>
+                        </article>
+                    @endforelse
                 </div>
             </div>
         </section>
@@ -212,7 +273,20 @@
                 <article class="panel" style="text-align:center;max-width:860px;margin:0 auto;">
                     <h2 class="section-title" style="margin-bottom:0.5rem;">Newsletter</h2>
                     <p class="section-subtitle" style="margin:0 auto 1rem;">Recevez nos actualites, nos conseils parents et les prochaines activites de la garderie.</p>
-                    <form action="{{ route('vitrine.contact') }}" method="GET" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+                    @if(session('newsletter_success'))
+                        <div class="alert alert-ok" style="max-width:620px;margin:0 auto 1rem;">{{ session('newsletter_success') }}</div>
+                    @endif
+                    @if($errors->newsletter->any())
+                        <div class="alert alert-err" style="max-width:620px;margin:0 auto 1rem;">
+                            <ul style="margin:0; padding-left:1.2rem; text-align:left;">
+                                @foreach($errors->newsletter->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="{{ route('vitrine.newsletter.subscribe') }}" method="POST" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+                        @csrf
                         <input type="email" name="newsletter_email" placeholder="Votre email" style="min-width:280px;max-width:420px;border:1px solid #d6e1ea;border-radius:999px;padding:0.7rem 1rem;">
                         <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">S'abonner</button>
                     </form>

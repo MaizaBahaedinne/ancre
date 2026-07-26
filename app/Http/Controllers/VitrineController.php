@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Personnel;
+use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrinePage;
 use App\Models\VitrineSchedule;
 use App\Models\VitrineService;
 use App\Models\VitrineSetting;
 use App\Models\VitrineSocialPost;
+use App\Models\VitrineTestimonial;
+use App\Models\VitrineVisitRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +38,7 @@ class VitrineController extends Controller
             'activitiesFeatured' => $socialPosts->take(4),
             'blogPosts' => $socialPosts->take(3),
             'professionals' => Personnel::query()->latest('id')->take(4)->get(),
+            'testimonials' => VitrineTestimonial::query()->where('is_published', true)->orderBy('sort_order')->latest()->take(6)->get(),
         ]));
     }
 
@@ -112,6 +116,41 @@ class VitrineController extends Controller
         }
 
         return back()->with('contact_success', 'Merci, votre message a bien ete envoye. Nous vous repondrons rapidement.');
+    }
+
+    public function subscribeNewsletter(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('newsletter', [
+            'newsletter_email' => ['required', 'email', 'max:255'],
+        ]);
+
+        $subscriber = VitrineNewsletterSubscriber::query()->firstOrNew([
+            'email' => $validated['newsletter_email'],
+        ]);
+
+        $subscriber->source_page = 'home';
+        $subscriber->is_active = true;
+        $subscriber->save();
+
+        return back()->with('newsletter_success', 'Merci, vous etes bien inscrit(e) a notre newsletter.');
+    }
+
+    public function submitVisitRequest(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('visitRequest', [
+            'full_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'child_age_group' => ['nullable', 'string', 'max:255'],
+            'message' => ['nullable', 'string', 'max:1200'],
+        ]);
+
+        VitrineVisitRequest::query()->create([
+            ...$validated,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('visit_success', 'Votre demande de visite a bien ete envoyee. Nous vous recontacterons sous 24h.');
     }
 
     private function sharedData(array $data = []): array
