@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class VitrineAdminController extends Controller
 {
@@ -482,7 +483,7 @@ class VitrineAdminController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')],
             'cover_url' => ['nullable', 'string', 'max:2048'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
@@ -491,7 +492,7 @@ class VitrineAdminController extends Controller
             'is_published' => ['nullable', 'boolean'],
         ]);
 
-        $slug = $validated['slug'] ?: str($validated['title'])->slug();
+        $slug = $this->resolveUniqueBlogPostSlug($validated['slug'] ?? null, $validated['title']);
 
         VitrineBlogPost::query()->create([
             ...$validated,
@@ -508,7 +509,7 @@ class VitrineAdminController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')->ignore($blogPost->id)],
             'cover_url' => ['nullable', 'string', 'max:2048'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
@@ -517,7 +518,7 @@ class VitrineAdminController extends Controller
             'is_published' => ['nullable', 'boolean'],
         ]);
 
-        $slug = $validated['slug'] ?: str($validated['title'])->slug();
+        $slug = $this->resolveUniqueBlogPostSlug($validated['slug'] ?? null, $validated['title'], $blogPost->id);
 
         $blogPost->update([
             ...$validated,
@@ -535,6 +536,29 @@ class VitrineAdminController extends Controller
         $blogPost->delete();
 
         return back()->with('success', 'Article supprime.');
+    }
+
+    private function resolveUniqueBlogPostSlug(?string $slugInput, string $title, ?int $ignoreId = null): string
+    {
+        $baseSlug = str(trim((string) ($slugInput ?: $title)))->slug()->toString();
+        if ($baseSlug === '') {
+            $baseSlug = 'article';
+        }
+
+        $slug = $baseSlug;
+        $index = 2;
+
+        while (
+            VitrineBlogPost::query()
+                ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = $baseSlug.'-'.$index;
+            $index++;
+        }
+
+        return $slug;
     }
 
     public function storeTestimonial(Request $request): RedirectResponse
