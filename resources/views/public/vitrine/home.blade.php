@@ -6,6 +6,14 @@
 @section('content')
     @php
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
+        $heroImages = [
+            $heroImage,
+            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1800&q=80',
+            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=1800&q=80',
+            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80',
+            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=1800&q=80',
+            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=1800&q=80',
+        ];
 
         $aboutSnippet = $aboutPage?->content
             ? \Illuminate\Support\Str::limit(strip_tags($aboutPage->content), 240)
@@ -14,7 +22,12 @@
         $inscriptionUrl = $settings?->parent_space_url ?: route('login');
     @endphp
     <main>
-        <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
+        <section class="hero">
+            <div class="hero-media" aria-hidden="true">
+                @foreach($heroImages as $index => $image)
+                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * 6 }}s;"></span>
+                @endforeach
+            </div>
             <div class="hero-content hero-grid">
                 <div class="hero-copy">
                     <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Tunis</span>
@@ -78,22 +91,22 @@
             <div class="wrap">
                 <h2 class="section-title title-center">Pourquoi les parents nous choisissent</h2>
                 <div class="grid-4 reveal" style="margin-top:0;">
-                    <article class="panel">
+                    <article class="panel feature-card">
                         <span class="icon-chip"><i class="fa-solid fa-shield-heart"></i></span>
                         <h3>Securite</h3>
                         <p class="muted">Environnement controle, propre et adapte aux tout-petits.</p>
                     </article>
-                    <article class="panel">
+                    <article class="panel feature-card">
                         <span class="icon-chip"><i class="fa-solid fa-user-group"></i></span>
                         <h3>Equipe a l'ecoute</h3>
                         <p class="muted">Professionnels bienveillants formes a la petite enfance.</p>
                     </article>
-                    <article class="panel">
+                    <article class="panel feature-card">
                         <span class="icon-chip"><i class="fa-solid fa-palette"></i></span>
                         <h3>Activites d'eveil</h3>
                         <p class="muted">Programme pedagogique adapte a chaque tranche d'age.</p>
                     </article>
-                    <article class="panel">
+                    <article class="panel feature-card">
                         <span class="icon-chip"><i class="fa-solid fa-comments"></i></span>
                         <h3>Suivi parent</h3>
                         <p class="muted">Communication claire et continue avec les familles.</p>
@@ -104,10 +117,10 @@
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title title-right">A propos de nous</h2>
+                <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
-                    <aside class="media-frame" style="min-height:360px;">
-                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80" alt="About Ancre Des Elites" loading="lazy">
+                    <aside class="media-frame" style="min-height:280px;">
+                        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=1400&q=80" alt="About Ancre Des Elites" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
@@ -142,7 +155,42 @@
 
         <section class="section section-warm">
             <div class="wrap">
-                <h2 class="section-title title-right">Nos activites</h2>
+                <h2 class="section-title title-center">Parents heureux</h2>
+                <div class="testimonials-strip reveal" data-testimonial-strip>
+                    @forelse(($testimonials ?? collect())->take(10) as $testimonial)
+                        <article class="panel testimonial-item">
+                            <div class="stars">
+                                @for($i = 0; $i < ((int)($testimonial->rating ?? 5)); $i++)
+                                    <i class="fa-solid fa-star"></i>
+                                @endfor
+                            </div>
+                            <p class="muted">"{{ $testimonial->content }}"</p>
+                            <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
+                        </article>
+                    @empty
+                        <article class="panel testimonial-item">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
+                            <strong>- Parent de Lina</strong>
+                        </article>
+                        <article class="panel testimonial-item">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
+                            <strong>- Parent de Youssef</strong>
+                        </article>
+                        <article class="panel testimonial-item">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
+                            <strong>- Parent de Mariem</strong>
+                        </article>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-warm">
+            <div class="wrap">
+                <h2 class="section-title title-center">Nos activites</h2>
                 <div class="social-grid reveal">
                     @forelse(($activitiesFeatured ?? collect()) as $post)
                         <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-card">
@@ -170,18 +218,22 @@
                 <h2 class="section-title title-center">Nos chiffres cles</h2>
                 <div class="grid-4 stats-grid reveal">
                     <article class="panel">
+                        <span class="stat-icon"><i class="fa-solid fa-shapes"></i></span>
                         <div class="stat-value">{{ ($services ?? collect())->count() > 0 ? ($services ?? collect())->count() : '6+' }}</div>
                         <p class="muted">Programmes et ateliers</p>
                     </article>
                     <article class="panel">
+                        <span class="stat-icon"><i class="fa-solid fa-calendar-check"></i></span>
                         <div class="stat-value">{{ ($schedules ?? collect())->where('is_closed', false)->count() > 0 ? ($schedules ?? collect())->where('is_closed', false)->count() : '7j/7' }}</div>
                         <p class="muted">Jours d'accueil organises</p>
                     </article>
                     <article class="panel">
+                        <span class="stat-icon"><i class="fa-solid fa-user-nurse"></i></span>
                         <div class="stat-value">{{ ($professionals ?? collect())->count() > 0 ? ($professionals ?? collect())->count() : '12+' }}</div>
                         <p class="muted">Professionnels</p>
                     </article>
                     <article class="panel">
+                        <span class="stat-icon"><i class="fa-solid fa-face-smile"></i></span>
                         <div class="stat-value">98%</div>
                         <p class="muted">Parents satisfaits</p>
                     </article>
@@ -191,7 +243,7 @@
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title title-right">Notre equipe professionnelle</h2>
+                <h2 class="section-title">Notre equipe professionnelle</h2>
                 <div class="grid-4 reveal">
                     @forelse(($professionals ?? collect()) as $member)
                         @php
@@ -234,41 +286,6 @@
             </div>
         </section>
 
-        <section class="section section-warm">
-            <div class="wrap">
-                <h2 class="section-title title-center">Parents heureux</h2>
-                <div class="testimonials-strip reveal" data-testimonial-strip>
-                    @forelse(($testimonials ?? collect())->take(10) as $testimonial)
-                        <article class="panel testimonial-item">
-                            <div class="stars">
-                                @for($i = 0; $i < ((int)($testimonial->rating ?? 5)); $i++)
-                                    <i class="fa-solid fa-star"></i>
-                                @endfor
-                            </div>
-                            <p class="muted">"{{ $testimonial->content }}"</p>
-                            <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
-                        </article>
-                    @empty
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
-                            <strong>- Parent de Lina</strong>
-                        </article>
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
-                            <strong>- Parent de Youssef</strong>
-                        </article>
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
-                            <strong>- Parent de Mariem</strong>
-                        </article>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
         <section class="section newsletter-band">
             <div class="wrap">
                 <h2 class="section-title title-center" style="margin-bottom:0.5rem;">Newsletter</h2>
@@ -295,7 +312,7 @@
 
         <section class="section">
             <div class="wrap">
-                <h2 class="section-title title-right">Questions frequentes</h2>
+                <h2 class="section-title">Questions frequentes</h2>
                 <div class="grid-2 reveal">
                     @forelse(($faqs ?? collect()) as $faq)
                         <article class="panel">

@@ -196,13 +196,27 @@
             background: rgba(22, 42, 58, 0.74);
         }
 
+        .hero-media {
+            position: absolute;
+            inset: 0;
+            z-index: -3;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transform: scale(1);
+            animation: heroCycle 36s ease-in-out infinite;
+        }
+
         .hero::before {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: var(--hero-image);
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(140deg, rgba(16, 32, 44, 0.7), rgba(16, 32, 44, 0.42));
             z-index: -2;
         }
 
@@ -359,7 +373,6 @@
         }
 
         .title-center { text-align: center; }
-        .title-right { text-align: right; }
 
         .section-subtitle { margin: 0; color: var(--ink-500); max-width: 72ch; }
 
@@ -378,6 +391,12 @@
 
         .panel h3 { margin: 0.2rem 0 0.45rem; font-size: 1.26rem; }
 
+        .feature-card {
+            text-align: center;
+            display: grid;
+            justify-items: center;
+        }
+
         .icon-chip {
             width: 2.5rem;
             height: 2.5rem;
@@ -389,6 +408,18 @@
             border: 1px solid rgba(224, 166, 63, 0.35);
             color: var(--brand-dark);
             margin-bottom: 0.64rem;
+        }
+
+        .stat-icon {
+            width: 2.4rem;
+            height: 2.4rem;
+            margin: 0 auto 0.45rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(224, 166, 63, 0.2);
+            color: var(--brand-dark);
         }
 
         .muted { color: var(--ink-500); }
@@ -580,6 +611,14 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes heroCycle {
+            0% { opacity: 0; transform: scale(1); }
+            4% { opacity: 1; transform: scale(1.02); }
+            16% { opacity: 1; transform: scale(1.1); }
+            20% { opacity: 0; transform: scale(1.12); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
         @media (max-width: 1080px) {
             .hero-grid { grid-template-columns: 1fr; align-items: start; }
             .hero-copy { max-width: none; }
@@ -628,7 +667,7 @@
 
             .grid-3, .social-grid, .grid-4, .form-row, .footer-inner { grid-template-columns: 1fr; }
             .hero-visit-grid { grid-template-columns: 1fr; }
-            .title-right, .title-center { text-align: left; }
+            .title-center { text-align: left; }
         }
     </style>
 </head>
