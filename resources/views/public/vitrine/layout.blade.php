@@ -224,6 +224,17 @@
             animation: rise 0.75s ease both;
         }
 
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .hero-copy {
+            max-width: 62ch;
+        }
+
         .hero-badge {
             display: inline-flex;
             gap: 0.45rem;
@@ -276,6 +287,58 @@
 
         .btn-hero { color: var(--ink-900); background: #fff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18); }
         .btn-hero-alt { color: #1f2f3d; border: 1px solid var(--accent); background: var(--accent); }
+
+        .hero-visit-card {
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(224, 166, 63, 0.56);
+            border-radius: 22px;
+            box-shadow: 0 22px 42px rgba(20, 34, 48, 0.26);
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .hero-visit-title {
+            margin: 0;
+            font-size: 1.28rem;
+            color: var(--ink-900);
+        }
+
+        .hero-visit-sub {
+            margin: 0.18rem 0 0.72rem;
+            color: var(--ink-500);
+            font-size: 0.92rem;
+        }
+
+        .hero-visit-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.58rem;
+        }
+
+        .hero-visit-card input,
+        .hero-visit-card textarea {
+            border-radius: 10px;
+            padding: 0.62rem 0.74rem;
+            font-size: 0.92rem;
+            background: #fff;
+        }
+
+        .hero-visit-card label {
+            font-size: 0.8rem;
+            margin-bottom: 0.16rem;
+        }
+
+        .btn-visit-hero {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 0.7rem 0.82rem;
+            color: #fff;
+            font: inherit;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 65%, var(--accent) 100%);
+            cursor: pointer;
+        }
 
         .section { padding: clamp(2.2rem, 5vw, 4rem) 0; }
         .section-soft { background: #f2f7fb; }
@@ -479,6 +542,8 @@
         }
 
         @media (max-width: 1080px) {
+            .hero-grid { grid-template-columns: 1fr; align-items: start; }
+            .hero-copy { max-width: none; }
             .grid-2, .contact-grid { grid-template-columns: 1fr; }
             .grid-3, .social-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -523,6 +588,7 @@
             }
 
             .grid-3, .social-grid, .grid-4, .form-row, .footer-inner { grid-template-columns: 1fr; }
+            .hero-visit-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>

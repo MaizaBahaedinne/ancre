@@ -15,31 +15,28 @@
     @endphp
     <main>
         <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
-            <div class="hero-content">
-                <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Tunis</span>
-                <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Ancre des Elites, une garderie ou votre enfant grandit en confiance') }}</h1>
-                <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
-                <div class="hero-actions">
-                    <a href="{{ route('vitrine.contact') }}" class="btn-hero"><i class="fa-solid fa-calendar-check"></i> Demander une visite</a>
-                    <a href="{{ $inscriptionUrl }}" class="btn-hero-alt"><i class="fa-solid fa-user-plus"></i> Inscrire mon enfant</a>
-                    <a href="{{ route('vitrine.contact') }}" class="btn-hero" style="background:#fff9ef;"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
+            <div class="hero-content hero-grid">
+                <div class="hero-copy">
+                    <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Tunis</span>
+                    <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Ancre des Elites, une garderie ou votre enfant grandit en confiance') }}</h1>
+                    <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
+                    <div class="hero-actions">
+                        <a href="{{ $inscriptionUrl }}" class="btn-hero-alt"><i class="fa-solid fa-user-plus"></i> Inscrire mon enfant</a>
+                        <a href="{{ route('vitrine.contact') }}" class="btn-hero" style="background:#fff9ef;"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
+                    </div>
                 </div>
-            </div>
-        </section>
 
-        <section class="section" style="padding-top:1rem;">
-            <div class="wrap">
-                <article class="panel" style="max-width:960px;margin:0 auto;">
-                    <h2 class="section-title" style="margin-bottom:0.4rem;">Demander une visite</h2>
-                    <p class="section-subtitle" style="margin-bottom:0.9rem;">Formulaire rapide: notre equipe vous recontacte sous 24h.</p>
+                <aside class="hero-visit-card">
+                    <h2 class="hero-visit-title">Demander une visite</h2>
+                    <p class="hero-visit-sub">Remplissez ce formulaire rapide, notre equipe vous rappelle sous 24h.</p>
 
                     @if(session('visit_success'))
-                        <div class="alert alert-ok" style="margin-bottom:0.8rem;">{{ session('visit_success') }}</div>
+                        <div class="alert alert-ok" style="margin-bottom:0.6rem;">{{ session('visit_success') }}</div>
                     @endif
 
                     @if($errors->visitRequest->any())
-                        <div class="alert alert-err" style="margin-bottom:0.8rem;">
-                            <ul style="margin:0; padding-left:1.2rem;">
+                        <div class="alert alert-err" style="margin-bottom:0.6rem;">
+                            <ul style="margin:0; padding-left:1.1rem;">
                                 @foreach($errors->visitRequest->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -49,7 +46,7 @@
 
                     <form method="POST" action="{{ route('vitrine.visit-request.submit') }}" class="form-grid">
                         @csrf
-                        <div class="form-row">
+                        <div class="hero-visit-grid">
                             <div>
                                 <label for="visit_full_name">Nom complet</label>
                                 <input id="visit_full_name" type="text" name="full_name" value="{{ old('full_name') }}" required>
@@ -58,8 +55,6 @@
                                 <label for="visit_phone">Telephone</label>
                                 <input id="visit_phone" type="text" name="phone" value="{{ old('phone') }}" required>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div>
                                 <label for="visit_email">Email (optionnel)</label>
                                 <input id="visit_email" type="email" name="email" value="{{ old('email') }}">
@@ -71,13 +66,11 @@
                         </div>
                         <div>
                             <label for="visit_message">Message (optionnel)</label>
-                            <textarea id="visit_message" name="message" rows="3">{{ old('message') }}</textarea>
+                            <textarea id="visit_message" name="message" rows="2">{{ old('message') }}</textarea>
                         </div>
-                        <div>
-                            <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">Envoyer ma demande</button>
-                        </div>
+                        <button type="submit" class="btn-visit-hero">Verifier les disponibilites</button>
                     </form>
-                </article>
+                </aside>
             </div>
         </section>
 
