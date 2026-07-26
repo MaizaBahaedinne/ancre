@@ -16,11 +16,28 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class VitrineController extends Controller
 {
     public function home(): View
     {
+        $testimonials = collect();
+        if (Schema::hasTable('vitrine_testimonials')) {
+            try {
+                $testimonials = VitrineTestimonial::query()
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->latest()
+                    ->take(6)
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine testimonials', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         $socialPosts = VitrineSocialPost::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -38,7 +55,7 @@ class VitrineController extends Controller
             'activitiesFeatured' => $socialPosts->take(4),
             'blogPosts' => $socialPosts->take(3),
             'professionals' => Personnel::query()->latest('id')->take(4)->get(),
-            'testimonials' => VitrineTestimonial::query()->where('is_published', true)->orderBy('sort_order')->latest()->take(6)->get(),
+            'testimonials' => $testimonials,
         ]));
     }
 
