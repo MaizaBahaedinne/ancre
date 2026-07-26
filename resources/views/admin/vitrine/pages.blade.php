@@ -17,7 +17,7 @@
                     <div class="card mb-3">
                         <div class="card-header" id="heading-page-{{ $page->id }}">
                             <h3 class="card-title m-0">
-                                <a href="#collapse-page-{{ $page->id }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark">
+                                <a href="#" data-collapse-target="#collapse-page-{{ $page->id }}" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark js-vitrine-collapse-toggle">
                                     {{ strtoupper($page->slug) }} - {{ $page->title }}
                                 </a>
                             </h3>
@@ -82,4 +82,73 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordion = document.getElementById('vitrinePagesAccordion');
+            if (!accordion) {
+                return;
+            }
+
+            const toggles = accordion.querySelectorAll('.js-vitrine-collapse-toggle');
+
+            const setExpanded = (targetId, expanded) => {
+                toggles.forEach((toggle) => {
+                    if (toggle.getAttribute('data-collapse-target') === targetId) {
+                        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                    }
+                });
+            };
+
+            const hideAllExcept = (targetId) => {
+                accordion.querySelectorAll('.collapse.show').forEach((panel) => {
+                    if ('#' + panel.id === targetId) {
+                        return;
+                    }
+
+                    if (window.bootstrap && bootstrap.Collapse) {
+                        bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).hide();
+                    } else if (window.jQuery && window.jQuery(panel).collapse) {
+                        window.jQuery(panel).collapse('hide');
+                    } else {
+                        panel.classList.remove('show');
+                    }
+
+                    setExpanded('#' + panel.id, false);
+                });
+            };
+
+            toggles.forEach((toggle) => {
+                toggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    const targetId = toggle.getAttribute('data-collapse-target');
+                    const target = targetId ? document.querySelector(targetId) : null;
+
+                    if (!target) {
+                        return;
+                    }
+
+                    const isOpen = target.classList.contains('show');
+
+                    if (!isOpen) {
+                        hideAllExcept(targetId);
+                    }
+
+                    if (window.bootstrap && bootstrap.Collapse) {
+                        const instance = bootstrap.Collapse.getOrCreateInstance(target, { toggle: false });
+                        isOpen ? instance.hide() : instance.show();
+                    } else if (window.jQuery && window.jQuery(target).collapse) {
+                        window.jQuery(target).collapse(isOpen ? 'hide' : 'show');
+                    } else {
+                        target.classList.toggle('show', !isOpen);
+                    }
+
+                    setExpanded(targetId, !isOpen);
+                });
+            });
+        });
+    </script>
 @stop
