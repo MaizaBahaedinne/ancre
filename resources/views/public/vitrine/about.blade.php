@@ -3,8 +3,11 @@
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | A propos')
 
 @section('content')
+    @php
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1526634332515-d56c5fd16991?auto=format&fit=crop&w=1800&q=80';
+    @endphp
     <main>
-        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.83), rgba(15, 41, 66, 0.56)), url('https://images.unsplash.com/photo-1526634332515-d56c5fd16991?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;">
+        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.83), rgba(15, 41, 66, 0.56)), url('{{ $heroImage }}') center/cover no-repeat;">
             <div class="hero-content">
                 <span class="hero-kicker"><i class="fa-solid fa-child-reaching"></i> A propos</span>
                 <h1>{{ $page?->hero_title ?: 'Qui sommes-nous ?' }}</h1>

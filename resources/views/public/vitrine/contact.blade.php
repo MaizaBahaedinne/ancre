@@ -3,8 +3,11 @@
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Contact')
 
 @section('content')
+    @php
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1527525443983-6e60c75fff46?auto=format&fit=crop&w=1800&q=80';
+    @endphp
     <main>
-        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.83), rgba(15, 41, 66, 0.56)), url('https://images.unsplash.com/photo-1527525443983-6e60c75fff46?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;">
+        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.83), rgba(15, 41, 66, 0.56)), url('{{ $heroImage }}') center/cover no-repeat;">
             <div class="hero-content">
                 <span class="hero-kicker"><i class="fa-solid fa-map-location-dot"></i> Contact</span>
                 <h1>{{ $page?->hero_title ?: 'Contact et localisation' }}</h1>
