@@ -291,24 +291,28 @@
                 <h2 class="section-title title-center">Nos chiffres cles</h2>
                 <div class="grid-4 stats-grid reveal">
                     <article class="panel">
-                        <span class="stat-icon"><i class="fa-solid fa-shapes"></i></span>
-                        <div class="stat-value">{{ $statsDisplay['services'] }}</div>
-                        <p class="muted">Services</p>
+                        <span class="stat-icon"><i class="fa-solid fa-child-reaching"></i></span>
+                        <div class="stat-value">+100</div>
+                        <p class="muted"><strong>enfants accompagnes</strong></p>
+                        <p class="muted">Chaque annee, nous contribuons au bien-etre et a l epanouissement des enfants.</p>
                     </article>
                     <article class="panel">
-                        <span class="stat-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <div class="stat-value">{{ $statsDisplay['parents'] }}</div>
-                        <p class="muted">Parents</p>
+                        <span class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <div class="stat-value">+10</div>
+                        <p class="muted"><strong>educateurs passionnes</strong></p>
+                        <p class="muted">Une equipe qualifiee et attentive pour encadrer les enfants au quotidien.</p>
                     </article>
                     <article class="panel">
-                        <span class="stat-icon"><i class="fa-solid fa-user-nurse"></i></span>
-                        <div class="stat-value">{{ $statsDisplay['staff'] }}</div>
-                        <p class="muted">Staff</p>
+                        <span class="stat-icon"><i class="fa-solid fa-calendar-check"></i></span>
+                        <div class="stat-value">+5</div>
+                        <p class="muted"><strong>annees d experience</strong></p>
+                        <p class="muted">Un savoir-faire reconnu dans l accompagnement scolaire et educatif.</p>
                     </article>
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-puzzle-piece"></i></span>
-                        <div class="stat-value">{{ $statsDisplay['activities'] }}</div>
-                        <p class="muted">Activites</p>
+                        <div class="stat-value">+20</div>
+                        <p class="muted"><strong>activites proposees</strong></p>
+                        <p class="muted">Des activites variees pour apprendre, creer, bouger et grandir.</p>
                     </article>
                 </div>
             </div>
