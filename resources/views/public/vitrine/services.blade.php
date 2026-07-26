@@ -1,14 +1,17 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Services')
-@section('meta_description', 'Services de garderie a Tunis: accueil, eveil, encadrement bienveillant et environnement securise pour l epanouissement de votre enfant.')
+@section('meta_description', 'Services de garderie a Sfax: accueil, eveil, encadrement bienveillant et environnement securise pour l epanouissement de votre enfant.')
 
 @section('content')
     @php
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1800&q=80';
     @endphp
     <main>
-        <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
+        <section class="hero">
+            <div class="hero-media" aria-hidden="true">
+                <span class="hero-slide" style="background-image:url('{{ $heroImage }}');animation:none;opacity:1;transform:scale(1.04);"></span>
+            </div>
             <div class="hero-content">
                 <span class="hero-badge"><i class="fa-solid fa-shield-heart"></i> Services</span>
                 <h1>{{ $page?->hero_title ?: 'Nos services' }}</h1>

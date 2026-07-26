@@ -1,14 +1,17 @@
 @extends('public.vitrine.layout')
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Activites')
-@section('meta_description', 'Activites educatives et moments forts de la Garderie Ancre des Elites a Tunis: eveil, creativite, motricite et socialisation.')
+@section('meta_description', 'Activites educatives et moments forts de la Garderie Ancre des Elites a Sfax: eveil, creativite, motricite et socialisation.')
 
 @section('content')
     @php
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
     @endphp
     <main>
-        <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
+        <section class="hero">
+            <div class="hero-media" aria-hidden="true">
+                <span class="hero-slide" style="background-image:url('{{ $heroImage }}');animation:none;opacity:1;transform:scale(1.04);"></span>
+            </div>
             <div class="hero-content">
                 <span class="hero-badge"><i class="fa-solid fa-camera-retro"></i> Activites</span>
                 <h1>{{ $page?->hero_title ?: 'Nos activites au quotidien' }}</h1>

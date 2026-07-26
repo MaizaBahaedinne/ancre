@@ -30,7 +30,7 @@
             </div>
             <div class="hero-content hero-grid">
                 <div class="hero-copy">
-                    <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Tunis</span>
+                    <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie de confiance a Sfax</span>
                     <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Ancre des Elites, une garderie ou votre enfant grandit en confiance') }}</h1>
                     <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
                     <div class="hero-actions">
@@ -120,7 +120,7 @@
                 <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
                     <aside class="media-frame" style="min-height:280px;">
-                        <img src="https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1400&q=80" alt="Tunisie - cadre familial" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1400&q=80" alt="Tunisie - cadre familial" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
