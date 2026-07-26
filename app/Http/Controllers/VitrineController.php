@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Personnel;
 use App\Models\VitrinePage;
 use App\Models\VitrineSchedule;
 use App\Models\VitrineService;
@@ -17,12 +18,22 @@ class VitrineController extends Controller
 {
     public function home(): View
     {
+        $socialPosts = VitrineSocialPost::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->latest()
+            ->get();
+
         return view('public.vitrine.home', $this->sharedData([
             'currentSlug' => 'home',
             'page' => $this->pageBySlug('home'),
             'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'servicesFeatured' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->take(4)->get(),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'socialPosts' => VitrineSocialPost::query()->where('is_active', true)->orderBy('sort_order')->latest()->take(6)->get(),
+            'socialPosts' => $socialPosts->take(6),
+            'activitiesFeatured' => $socialPosts->take(4),
+            'blogPosts' => $socialPosts->take(3),
+            'professionals' => Personnel::query()->latest('id')->take(4)->get(),
         ]));
     }
 

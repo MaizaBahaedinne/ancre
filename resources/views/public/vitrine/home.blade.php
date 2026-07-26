@@ -5,6 +5,10 @@
 @section('content')
     @php
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
+
+        $aboutSnippet = $page?->content
+            ? \Illuminate\Support\Str::limit(strip_tags($page->content), 240)
+            : 'Nous accompagnons chaque enfant avec une approche pedagogique moderne, bienveillante et centree sur son rythme.';
     @endphp
     <main>
         <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
@@ -21,79 +25,42 @@
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title">Services phares</h2>
-                <p class="section-subtitle">{{ $page?->content ?: 'Decouvrez nos services d accueil, d apprentissage et d accompagnement au quotidien.' }}</p>
-                <div class="grid-3 reveal">
-                    @forelse($services as $service)
-                        <article class="panel">
-                            <span class="icon-chip"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
-                            <h3>{{ $service->title }}</h3>
-                            <p class="muted">{{ $service->description }}</p>
-                        </article>
-                    @empty
-                        <article class="panel"><p class="muted">Aucun service publie pour le moment.</p></article>
-                    @endforelse
+                <h2 class="section-title">About Us</h2>
+                <div class="grid-2">
+                    <article class="panel">
+                        <p class="muted">{{ $aboutSnippet }}</p>
+                        <a href="{{ route('vitrine.about') }}" class="btn-parent" style="display:inline-flex;margin-top:0.8rem;">Read More</a>
+                    </article>
+                    <aside class="media-frame">
+                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80" alt="About Ancre Des Elites" loading="lazy">
+                    </aside>
                 </div>
             </div>
         </section>
 
         <section class="section">
             <div class="wrap">
-                <h2 class="section-title">Des chiffres qui rassurent les familles</h2>
-                <p class="section-subtitle">Une equipe engagee, des programmes varies et un cadre de confiance pour chaque enfant.</p>
-                <div class="grid-4 stats-grid reveal">
-                    <article class="panel">
-                        <div class="stat-value">{{ $services->count() > 0 ? $services->count() : '6+' }}</div>
-                        <p class="muted">Programmes et ateliers</p>
-                    </article>
-                    <article class="panel">
-                        <div class="stat-value">{{ $schedules->where('is_closed', false)->count() > 0 ? $schedules->where('is_closed', false)->count() : '7j/7' }}</div>
-                        <p class="muted">Jours d accueil organises</p>
-                    </article>
-                    <article class="panel">
-                        <div class="stat-value">12+</div>
-                        <p class="muted">Professionnels petite enfance</p>
-                    </article>
-                    <article class="panel">
-                        <div class="stat-value">98%</div>
-                        <p class="muted">Satisfaction des familles</p>
-                    </article>
+                <h2 class="section-title">Nos services</h2>
+                <div class="grid-4 reveal">
+                    @forelse(($servicesFeatured ?? collect()) as $service)
+                        <article class="panel">
+                            <span class="icon-chip"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
+                            <h3>{{ $service->title }}</h3>
+                            <p class="muted">{{ \Illuminate\Support\Str::limit($service->description, 110) }}</p>
+                        </article>
+                    @empty
+                        <article class="panel"><p class="muted">Aucun service disponible.</p></article>
+                    @endforelse
                 </div>
+                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
             </div>
         </section>
 
         <section class="section section-warm">
-            <div class="wrap grid-2">
-                <article class="panel">
-                    <h2 class="section-title" style="margin-top:0;">Horaires et informations</h2>
-                    <table class="schedule">
-                        <tbody>
-                            @forelse($schedules as $slot)
-                                <tr>
-                                    <td>{{ $slot->day_label }}</td>
-                                    <td>{{ $slot->is_closed ? 'Ferme' : trim(($slot->open_at ?: '-') . ' - ' . ($slot->close_at ?: '-')) }}</td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="2">Horaires non configures.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <p class="muted"><i class="fa-solid fa-location-dot"></i> {{ $settings?->address ?: 'Adresse a definir' }}</p>
-                    <p class="muted"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: 'Telephone a definir' }}</p>
-                </article>
-
-                <aside class="media-frame">
-                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80" alt="Enfants en activite" loading="lazy">
-                </aside>
-            </div>
-        </section>
-
-        <section class="section">
             <div class="wrap">
-                <h2 class="section-title">Dernieres activites</h2>
-                <p class="section-subtitle">Suivez nos publications et la vie de la garderie au quotidien.</p>
+                <h2 class="section-title">Nos activites</h2>
                 <div class="social-grid reveal">
-                    @forelse($socialPosts as $post)
+                    @forelse(($activitiesFeatured ?? collect()) as $post)
                         <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-card">
                             <div class="social-thumb">
                                 @if($post->thumbnail_path)
@@ -107,9 +74,118 @@
                             <div class="social-meta"><strong>{{ ucfirst($post->platform) }}</strong> - {{ $post->caption ?: 'Voir la publication' }}</div>
                         </a>
                     @empty
-                        <article class="panel"><p class="muted">Aucune publication sociale pour le moment.</p></article>
+                        <article class="panel"><p class="muted">Aucune activite disponible.</p></article>
                     @endforelse
                 </div>
+                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title">Statestique</h2>
+                <div class="grid-4 stats-grid reveal">
+                    <article class="panel">
+                        <div class="stat-value">{{ ($services ?? collect())->count() > 0 ? ($services ?? collect())->count() : '6+' }}</div>
+                        <p class="muted">Programmes et ateliers</p>
+                    </article>
+                    <article class="panel">
+                        <div class="stat-value">{{ ($schedules ?? collect())->where('is_closed', false)->count() > 0 ? ($schedules ?? collect())->where('is_closed', false)->count() : '7j/7' }}</div>
+                        <p class="muted">Jours d accueil</p>
+                    </article>
+                    <article class="panel">
+                        <div class="stat-value">{{ ($professionals ?? collect())->count() > 0 ? ($professionals ?? collect())->count() : '12+' }}</div>
+                        <p class="muted">Professionnels</p>
+                    </article>
+                    <article class="panel">
+                        <div class="stat-value">98%</div>
+                        <p class="muted">Parents satisfaits</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-soft">
+            <div class="wrap">
+                <h2 class="section-title">Meet Our Professional</h2>
+                <div class="grid-4 reveal">
+                    @forelse(($professionals ?? collect()) as $member)
+                        @php
+                            $memberPhoto = $member->photo
+                                ? (\Illuminate\Support\Str::startsWith($member->photo, ['http://', 'https://']) ? $member->photo : asset('storage/'.$member->photo))
+                                : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=700&q=80';
+                            $memberName = trim(($member->prenom ?? '').' '.($member->nom ?? '')) ?: 'Professionnel';
+                        @endphp
+                        <article class="panel">
+                            <div style="height:180px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;">
+                                <img src="{{ $memberPhoto }}" alt="{{ $memberName }}" style="width:100%;height:100%;object-fit:cover;">
+                            </div>
+                            <h3>{{ $memberName }}</h3>
+                            <p class="muted">{{ $member->fonction ?: 'Educateur / Educatrice' }}</p>
+                        </article>
+                    @empty
+                        <article class="panel"><p class="muted">Equipe en cours de publication.</p></article>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title">Blog</h2>
+                <div class="grid-3 reveal">
+                    @forelse(($blogPosts ?? collect()) as $post)
+                        <article class="panel">
+                            <div style="height:190px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
+                                @if($post->thumbnail_path)
+                                    <img src="{{ asset('storage/'.$post->thumbnail_path) }}" alt="{{ $post->platform }}" style="width:100%;height:100%;object-fit:cover;">
+                                @elseif($post->thumbnail_url)
+                                    <img src="{{ $post->thumbnail_url }}" alt="{{ $post->platform }}" style="width:100%;height:100%;object-fit:cover;">
+                                @else
+                                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80" alt="Article" style="width:100%;height:100%;object-fit:cover;">
+                                @endif
+                            </div>
+                            <h3>{{ ucfirst($post->platform) }} - Article</h3>
+                            <p class="muted">{{ \Illuminate\Support\Str::limit($post->caption ?: 'Retrouvez les dernieres informations de la garderie.', 130) }}</p>
+                        </article>
+                    @empty
+                        <article class="panel"><p class="muted">Aucun article disponible.</p></article>
+                    @endforelse
+                </div>
+                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Read More</a>
+            </div>
+        </section>
+
+        <section class="section section-warm">
+            <div class="wrap">
+                <h2 class="section-title">Happy Parents Our Testimonials</h2>
+                <div class="grid-3 reveal">
+                    <article class="panel">
+                        <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
+                        <strong>- Parent de Lina</strong>
+                    </article>
+                    <article class="panel">
+                        <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
+                        <strong>- Parent de Youssef</strong>
+                    </article>
+                    <article class="panel">
+                        <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
+                        <strong>- Parent de Mariem</strong>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-soft">
+            <div class="wrap">
+                <article class="panel" style="text-align:center;max-width:860px;margin:0 auto;">
+                    <h2 class="section-title" style="margin-bottom:0.5rem;">News Letter</h2>
+                    <p class="section-subtitle" style="margin:0 auto 1rem;">Recevez nos actualites, activites et conseils pour les parents.</p>
+                    <form action="{{ route('vitrine.contact') }}" method="GET" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+                        <input type="email" name="newsletter_email" placeholder="Votre email" style="min-width:280px;max-width:420px;border:1px solid #d6e1ea;border-radius:999px;padding:0.7rem 1rem;">
+                        <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">S'abonner</button>
+                    </form>
+                </article>
             </div>
         </section>
     </main>

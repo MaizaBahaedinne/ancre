@@ -16,6 +16,9 @@ class VitrinePage extends Model
         'hero_subtitle',
         'hero_image',
         'content',
+        'mission',
+        'vision',
+        'valeurs',
         'sort_order',
         'is_published',
     ];

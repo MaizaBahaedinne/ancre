@@ -66,6 +66,21 @@
                                         <textarea name="content" rows="4" class="form-control">{{ old('content', $page->content) }}</textarea>
                                     </div>
 
+                                    @if($page->slug === 'about')
+                                        <div class="col-12">
+                                            <label class="form-label">Mission</label>
+                                            <textarea name="mission" rows="3" class="form-control">{{ old('mission', $page->mission) }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Vision</label>
+                                            <textarea name="vision" rows="3" class="form-control">{{ old('vision', $page->vision) }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Valeurs</label>
+                                            <textarea name="valeurs" rows="3" class="form-control">{{ old('valeurs', $page->valeurs) }}</textarea>
+                                        </div>
+                                    @endif
+
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary btn-sm">Enregistrer la page</button>
                                     </div>

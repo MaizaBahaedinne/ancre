@@ -33,21 +33,21 @@
                 <h2 class="section-title">Mission, vision et valeurs</h2>
                 <p class="section-subtitle">Nos engagements definissent notre maniere d accueillir, d encadrer et d accompagner chaque enfant.</p>
 
-                <div class="grid-3 reveal">
+                <div class="reveal" style="display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.2rem;">
                     <article class="panel">
                         <span class="icon-chip"><i class="fa-solid fa-bullseye"></i></span>
                         <h3>Mission</h3>
-                        <p class="muted">Accompagner les enfants dans leur developpement social, affectif et cognitif avec une approche pedagogique positive.</p>
+                        <p class="muted">{!! nl2br(e($page?->mission ?: 'Accompagner les enfants dans leur developpement social, affectif et cognitif avec une approche pedagogique positive.')) !!}</p>
                     </article>
                     <article class="panel">
                         <span class="icon-chip"><i class="fa-solid fa-eye"></i></span>
                         <h3>Vision</h3>
-                        <p class="muted">Devenir une reference locale de la petite enfance grace a un cadre moderne, bienveillant et stimulant.</p>
+                        <p class="muted">{!! nl2br(e($page?->vision ?: 'Devenir une reference locale de la petite enfance grace a un cadre moderne, bienveillant et stimulant.')) !!}</p>
                     </article>
                     <article class="panel">
                         <span class="icon-chip"><i class="fa-solid fa-heart"></i></span>
                         <h3>Valeurs</h3>
-                        <p class="muted">Respect, securite, ecoute active, autonomie, cooperation avec les parents et recherche continue de qualite.</p>
+                        <p class="muted">{!! nl2br(e($page?->valeurs ?: 'Respect, securite, ecoute active, autonomie, cooperation avec les parents et recherche continue de qualite.')) !!}</p>
                     </article>
                 </div>
             </div>

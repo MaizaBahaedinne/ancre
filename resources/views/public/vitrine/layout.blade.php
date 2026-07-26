@@ -39,10 +39,7 @@
         body {
             font-family: 'Outfit', sans-serif;
             color: var(--ink-900);
-            background:
-                radial-gradient(1100px 440px at 10% -8%, #f8efe0 0%, rgba(248, 239, 224, 0) 55%),
-                radial-gradient(980px 420px at 92% 0%, #e9f3f8 0%, rgba(233, 243, 248, 0) 50%),
-                #f7fafc;
+            background: #f7fafc;
             line-height: 1.65;
         }
 
@@ -51,9 +48,10 @@
         .wrap { width: var(--container); margin-inline: auto; }
 
         .ribbon {
-            background: linear-gradient(90deg, #17384b 0%, #2d6f85 58%, #e0a63f 100%);
+            background: var(--brand-dark);
             color: #deebf4;
             font-size: 0.86rem;
+            border-bottom: 2px solid var(--accent);
         }
 
         .ribbon-inner {
@@ -81,7 +79,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(224, 166, 63, 0.3);
         }
@@ -175,7 +173,8 @@
         .btn-parent {
             text-decoration: none;
             color: #fff;
-            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 64%, var(--accent) 100%);
+            background: var(--brand);
+            border: 1px solid var(--accent);
             border-radius: 999px;
             font-weight: 700;
             font-size: 0.9rem;
@@ -194,7 +193,7 @@
             min-height: clamp(430px, 74vh, 760px);
             display: grid;
             align-items: end;
-            background: linear-gradient(120deg, rgba(22, 42, 58, 0.84), rgba(45, 111, 133, 0.56));
+            background: rgba(22, 42, 58, 0.74);
         }
 
         .hero::before {
@@ -230,9 +229,9 @@
             gap: 0.45rem;
             align-items: center;
             border-radius: 999px;
-            background: rgba(224, 166, 63, 0.24);
+            background: rgba(224, 166, 63, 0.88);
             border: 1px solid rgba(224, 166, 63, 0.45);
-            color: #fff7e6;
+            color: #1f2f3d;
             font-size: 0.78rem;
             font-weight: 700;
             letter-spacing: 0.04em;
@@ -276,11 +275,11 @@
         }
 
         .btn-hero { color: var(--ink-900); background: #fff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18); }
-        .btn-hero-alt { color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.12); }
+        .btn-hero-alt { color: #1f2f3d; border: 1px solid var(--accent); background: var(--accent); }
 
         .section { padding: clamp(2.2rem, 5vw, 4rem) 0; }
-        .section-soft { background: linear-gradient(180deg, #f3f8fb, #f9fcfe); }
-        .section-warm { background: linear-gradient(140deg, #fff8ef, #fffdf8); }
+        .section-soft { background: #f2f7fb; }
+        .section-warm { background: #fff7e9; }
 
         .section-title {
             margin: 0 0 0.45rem;
@@ -418,7 +417,8 @@
         .footer {
             margin-top: 1.4rem;
             border-radius: 34px 34px 0 0;
-            background: linear-gradient(145deg, #18384d 0%, #295f74 72%, #c99543 100%);
+            background: var(--brand-dark);
+            border-top: 4px solid var(--accent);
             color: #d9e7f2;
             padding: 2rem 0 2.4rem;
         }

@@ -97,6 +97,9 @@ class VitrineAdminController extends Controller
             'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_hero_image' => ['nullable', 'boolean'],
             'content' => ['nullable', 'string'],
+            'mission' => ['nullable', 'string'],
+            'vision' => ['nullable', 'string'],
+            'valeurs' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_published' => ['nullable', 'boolean'],
         ]);
@@ -122,6 +125,9 @@ class VitrineAdminController extends Controller
             'hero_subtitle' => $validated['hero_subtitle'] ?? null,
             'hero_image' => $heroImagePath,
             'content' => $validated['content'] ?? null,
+            'mission' => $validated['mission'] ?? null,
+            'vision' => $validated['vision'] ?? null,
+            'valeurs' => $validated['valeurs'] ?? null,
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_published' => $request->boolean('is_published'),
         ]);
