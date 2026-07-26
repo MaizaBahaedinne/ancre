@@ -60,7 +60,10 @@ Route::prefix('vitrine')->name('vitrine.')->group(function () {
     Route::get('/a-propos', [VitrineController::class, 'about'])->name('about');
     Route::get('/services', [VitrineController::class, 'services'])->name('services');
     Route::get('/activites', [VitrineController::class, 'activities'])->name('activities');
+    Route::get('/actualites', [VitrineController::class, 'blog'])->name('blog');
     Route::get('/contact', [VitrineController::class, 'contact'])->name('contact');
+    Route::get('/privacy-policy-terms', [VitrineController::class, 'privacy'])->name('privacy');
+    Route::get('/conditions', [VitrineController::class, 'conditions'])->name('conditions');
     Route::post('/contact', [VitrineController::class, 'submitContact'])->name('contact.submit');
     Route::post('/newsletter/subscribe', [VitrineController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
     Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest'])->name('visit-request.submit');
@@ -183,7 +186,9 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::get('/services', [VitrineAdminController::class, 'servicesPage'])->name('services');
     Route::get('/schedules', [VitrineAdminController::class, 'schedulesPage'])->name('schedules');
     Route::get('/social-posts', [VitrineAdminController::class, 'socialPostsPage'])->name('social-posts');
+    Route::get('/blog-posts', [VitrineAdminController::class, 'blogPostsPage'])->name('blog-posts');
     Route::get('/testimonials', [VitrineAdminController::class, 'testimonialsPage'])->name('testimonials');
+    Route::get('/faqs', [VitrineAdminController::class, 'faqsPage'])->name('faqs');
     Route::get('/leads', [VitrineAdminController::class, 'leadsPage'])->name('leads');
     Route::get('/newsletters', [VitrineAdminController::class, 'newslettersPage'])->name('newsletters');
     Route::get('/newsletter/export', [VitrineAdminController::class, 'exportNewsletterCsv'])->name('newsletter.export');
@@ -202,9 +207,17 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::put('/social-posts/{socialPost}', [VitrineAdminController::class, 'updateSocialPost'])->name('social-posts.update')->whereNumber('socialPost');
     Route::delete('/social-posts/{socialPost}', [VitrineAdminController::class, 'destroySocialPost'])->name('social-posts.destroy')->whereNumber('socialPost');
 
+    Route::post('/blog-posts', [VitrineAdminController::class, 'storeBlogPost'])->name('blog-posts.store');
+    Route::put('/blog-posts/{blogPost}', [VitrineAdminController::class, 'updateBlogPost'])->name('blog-posts.update')->whereNumber('blogPost');
+    Route::delete('/blog-posts/{blogPost}', [VitrineAdminController::class, 'destroyBlogPost'])->name('blog-posts.destroy')->whereNumber('blogPost');
+
     Route::post('/testimonials', [VitrineAdminController::class, 'storeTestimonial'])->name('testimonials.store');
     Route::put('/testimonials/{testimonial}', [VitrineAdminController::class, 'updateTestimonial'])->name('testimonials.update')->whereNumber('testimonial');
     Route::delete('/testimonials/{testimonial}', [VitrineAdminController::class, 'destroyTestimonial'])->name('testimonials.destroy')->whereNumber('testimonial');
+
+    Route::post('/faqs', [VitrineAdminController::class, 'storeFaq'])->name('faqs.store');
+    Route::put('/faqs/{faq}', [VitrineAdminController::class, 'updateFaq'])->name('faqs.update')->whereNumber('faq');
+    Route::delete('/faqs/{faq}', [VitrineAdminController::class, 'destroyFaq'])->name('faqs.destroy')->whereNumber('faq');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {

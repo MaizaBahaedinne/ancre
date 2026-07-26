@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Personnel;
 use App\Models\VitrineNewsletterSubscriber;
+use App\Models\VitrineBlogPost;
+use App\Models\VitrineFaq;
 use App\Models\VitrinePage;
 use App\Models\VitrineSchedule;
 use App\Models\VitrineService;
@@ -23,16 +25,47 @@ class VitrineController extends Controller
     public function home(): View
     {
         $testimonials = collect();
+        $blogPosts = collect();
+        $faqs = collect();
         if (Schema::hasTable('vitrine_testimonials')) {
             try {
                 $testimonials = VitrineTestimonial::query()
                     ->where('is_published', true)
                     ->orderBy('sort_order')
                     ->latest()
-                    ->take(6)
+                    ->take(10)
                     ->get();
             } catch (\Throwable $exception) {
                 Log::warning('Unable to load vitrine testimonials', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        if (Schema::hasTable('vitrine_blog_posts')) {
+            try {
+                $blogPosts = VitrineBlogPost::query()
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderByDesc('published_at')
+                    ->take(3)
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine blog posts', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        if (Schema::hasTable('vitrine_faqs')) {
+            try {
+                $faqs = VitrineFaq::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->take(8)
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine FAQs', [
                     'error' => $exception->getMessage(),
                 ]);
             }
@@ -53,9 +86,33 @@ class VitrineController extends Controller
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'socialPosts' => $socialPosts->take(6),
             'activitiesFeatured' => $socialPosts->take(4),
-            'blogPosts' => $socialPosts->take(3),
+            'blogPosts' => $blogPosts,
             'professionals' => Personnel::query()->latest('id')->take(4)->get(),
             'testimonials' => $testimonials,
+            'faqs' => $faqs,
+        ]));
+    }
+
+    public function blog(): View
+    {
+        $posts = collect();
+        if (Schema::hasTable('vitrine_blog_posts')) {
+            try {
+                $posts = VitrineBlogPost::query()
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderByDesc('published_at')
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine blog listing', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        return view('public.vitrine.blog', $this->sharedData([
+            'currentSlug' => 'blog',
+            'posts' => $posts,
         ]));
     }
 
@@ -92,6 +149,24 @@ class VitrineController extends Controller
             'currentSlug' => 'contact',
             'page' => $this->pageBySlug('contact'),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
+        ]));
+    }
+
+    public function privacy(): View
+    {
+        return view('public.vitrine.legal', $this->sharedData([
+            'currentSlug' => 'privacy',
+            'title' => 'Privacy Policy Terms',
+            'content' => "Cette page presente les regles de confidentialite et de protection des donnees appliquees par Ancre Des Elites.",
+        ]));
+    }
+
+    public function conditions(): View
+    {
+        return view('public.vitrine.legal', $this->sharedData([
+            'currentSlug' => 'conditions',
+            'title' => 'Conditions',
+            'content' => "Cette page presente les conditions generales d'utilisation et les engagements de service d'Ancre Des Elites.",
         ]));
     }
 

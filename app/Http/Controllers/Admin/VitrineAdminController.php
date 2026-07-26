@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\VitrinePage;
+use App\Models\VitrineBlogPost;
+use App\Models\VitrineFaq;
 use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrineSchedule;
 use App\Models\VitrineService;
@@ -68,10 +70,24 @@ class VitrineAdminController extends Controller
         ]);
     }
 
+    public function blogPostsPage(): View
+    {
+        return view('admin.vitrine.blog-posts', [
+            'blogPosts' => VitrineBlogPost::query()->orderBy('sort_order')->latest()->get(),
+        ]);
+    }
+
     public function testimonialsPage(): View
     {
         return view('admin.vitrine.testimonials', [
             'testimonials' => VitrineTestimonial::query()->orderBy('sort_order')->latest()->get(),
+        ]);
+    }
+
+    public function faqsPage(): View
+    {
+        return view('admin.vitrine.faqs', [
+            'faqs' => VitrineFaq::query()->orderBy('sort_order')->latest()->get(),
         ]);
     }
 
@@ -369,6 +385,65 @@ class VitrineAdminController extends Controller
         return back()->with('success', 'Publication sociale supprimee.');
     }
 
+    public function storeBlogPost(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
+            'cover_url' => ['nullable', 'string', 'max:2048'],
+            'excerpt' => ['nullable', 'string'],
+            'content' => ['nullable', 'string'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'published_at' => ['nullable', 'date'],
+            'is_published' => ['nullable', 'boolean'],
+        ]);
+
+        $slug = $validated['slug'] ?: str($validated['title'])->slug();
+
+        VitrineBlogPost::query()->create([
+            ...$validated,
+            'slug' => $slug,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_published' => $request->boolean('is_published'),
+            'published_at' => $validated['published_at'] ?? now(),
+        ]);
+
+        return back()->with('success', 'Article ajoute.');
+    }
+
+    public function updateBlogPost(Request $request, VitrineBlogPost $blogPost): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
+            'cover_url' => ['nullable', 'string', 'max:2048'],
+            'excerpt' => ['nullable', 'string'],
+            'content' => ['nullable', 'string'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'published_at' => ['nullable', 'date'],
+            'is_published' => ['nullable', 'boolean'],
+        ]);
+
+        $slug = $validated['slug'] ?: str($validated['title'])->slug();
+
+        $blogPost->update([
+            ...$validated,
+            'slug' => $slug,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_published' => $request->boolean('is_published'),
+            'published_at' => $validated['published_at'] ?? $blogPost->published_at,
+        ]);
+
+        return back()->with('success', 'Article mis a jour.');
+    }
+
+    public function destroyBlogPost(VitrineBlogPost $blogPost): RedirectResponse
+    {
+        $blogPost->delete();
+
+        return back()->with('success', 'Article supprime.');
+    }
+
     public function storeTestimonial(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -416,6 +491,49 @@ class VitrineAdminController extends Controller
         $testimonial->delete();
 
         return back()->with('success', 'Temoignage supprime.');
+    }
+
+    public function storeFaq(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'question' => ['required', 'string', 'max:255'],
+            'answer' => ['required', 'string'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        VitrineFaq::query()->create([
+            ...$validated,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return back()->with('success', 'FAQ ajoutee.');
+    }
+
+    public function updateFaq(Request $request, VitrineFaq $faq): RedirectResponse
+    {
+        $validated = $request->validate([
+            'question' => ['required', 'string', 'max:255'],
+            'answer' => ['required', 'string'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $faq->update([
+            ...$validated,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return back()->with('success', 'FAQ mise a jour.');
+    }
+
+    public function destroyFaq(VitrineFaq $faq): RedirectResponse
+    {
+        $faq->delete();
+
+        return back()->with('success', 'FAQ supprimee.');
     }
 
     public function exportNewsletterCsv()

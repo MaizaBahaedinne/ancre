@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
@@ -37,7 +37,7 @@
         html, body { margin: 0; padding: 0; }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--ink-900);
             background: #f7fafc;
             line-height: 1.65;
@@ -114,7 +114,7 @@
         }
 
         .brand-title {
-            font-family: 'Fraunces', serif;
+            font-family: 'Nunito', sans-serif;
             font-size: 1.1rem;
             line-height: 1.1;
             color: var(--brand-dark);
@@ -174,12 +174,12 @@
             text-decoration: none;
             color: #fff;
             background: var(--brand);
-            border: 1px solid var(--accent);
+            border: 1px solid var(--brand);
             border-radius: 999px;
             font-weight: 700;
             font-size: 0.9rem;
             padding: 0.67rem 1rem;
-            box-shadow: 0 12px 22px rgba(30, 80, 98, 0.25);
+            box-shadow: 0 12px 22px rgba(30, 80, 98, 0.2);
             white-space: nowrap;
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
@@ -250,7 +250,7 @@
             padding: 0.34rem 0.72rem;
         }
 
-        h1, h2, h3 { font-family: 'Fraunces', serif; color: var(--ink-900); }
+        h1, h2, h3 { font-family: 'Nunito', sans-serif; color: var(--ink-900); letter-spacing: 0.01em; }
 
         h1 {
             color: #fff;
@@ -285,8 +285,13 @@
             align-items: center;
         }
 
-        .btn-hero { color: var(--ink-900); background: #fff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18); }
-        .btn-hero-alt { color: #1f2f3d; border: 1px solid var(--accent); background: var(--accent); }
+        .btn-hero,
+        .btn-hero-alt {
+            color: #fff;
+            background: var(--brand);
+            border: 1px solid var(--brand);
+            box-shadow: 0 10px 20px rgba(30, 80, 98, 0.18);
+        }
 
         .hero-visit-card {
             background: rgba(255, 255, 255, 0.97);
@@ -352,6 +357,9 @@
             text-decoration-thickness: 0.12em;
             text-underline-offset: 0.18em;
         }
+
+        .title-center { text-align: center; }
+        .title-right { text-align: right; }
 
         .section-subtitle { margin: 0; color: var(--ink-500); max-width: 72ch; }
 
@@ -463,9 +471,39 @@
             color: #fff;
             font: inherit;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 68%, var(--accent) 100%);
+            background: var(--brand);
             cursor: pointer;
         }
+
+        .testimonials-strip {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(270px, 1fr);
+            gap: 0.9rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 0.2rem;
+            scrollbar-width: thin;
+        }
+
+        .testimonial-item { scroll-snap-align: start; }
+
+        .stars {
+            color: var(--accent);
+            letter-spacing: 0.08em;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .newsletter-band {
+            background: var(--brand-dark);
+            color: #fff;
+            border-top: 4px solid var(--accent);
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .newsletter-band .section-title,
+        .newsletter-band .section-subtitle { color: #f3f9ff; }
 
         .alert {
             border-radius: 14px;
@@ -530,11 +568,12 @@
             font-size: 0.88rem;
         }
 
-        .reveal > * { opacity: 0; animation: rise 0.75s ease forwards; }
-        .reveal > *:nth-child(2) { animation-delay: 0.09s; }
-        .reveal > *:nth-child(3) { animation-delay: 0.18s; }
-        .reveal > *:nth-child(4) { animation-delay: 0.27s; }
-        .reveal > *:nth-child(5) { animation-delay: 0.36s; }
+        .reveal > * { opacity: 0; transform: translateY(14px); }
+        .reveal.is-visible > * { animation: rise 0.75s ease forwards; }
+        .reveal.is-visible > *:nth-child(2) { animation-delay: 0.09s; }
+        .reveal.is-visible > *:nth-child(3) { animation-delay: 0.18s; }
+        .reveal.is-visible > *:nth-child(4) { animation-delay: 0.27s; }
+        .reveal.is-visible > *:nth-child(5) { animation-delay: 0.36s; }
 
         @keyframes rise {
             from { opacity: 0; transform: translateY(14px); }
@@ -589,6 +628,7 @@
 
             .grid-3, .social-grid, .grid-4, .form-row, .footer-inner { grid-template-columns: 1fr; }
             .hero-visit-grid { grid-template-columns: 1fr; }
+            .title-right, .title-center { text-align: left; }
         }
     </style>
 </head>
@@ -620,6 +660,7 @@
                     <a href="{{ route('vitrine.about') }}" class="{{ ($currentSlug ?? '') === 'about' ? 'active' : '' }}">A propos</a>
                     <a href="{{ route('vitrine.services') }}" class="{{ ($currentSlug ?? '') === 'services' ? 'active' : '' }}">Services</a>
                     <a href="{{ route('vitrine.activities') }}" class="{{ ($currentSlug ?? '') === 'activities' ? 'active' : '' }}">Activites</a>
+                    <a href="{{ route('vitrine.blog') }}" class="{{ ($currentSlug ?? '') === 'blog' ? 'active' : '' }}">Actualites</a>
                     <a href="{{ route('vitrine.contact') }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
                 </nav>
                 <a href="{{ $settings?->parent_space_url ?: route('login') }}" class="btn-parent">Espace parent</a>
@@ -632,9 +673,19 @@
     <footer class="footer">
         <div class="footer-inner">
             <div>
-                <h3>{{ $settings?->site_name ?: 'Ancre Des Elites' }}</h3>
+                <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem;">
+                    <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:48px;height:48px;border-radius:12px;background:#fff;padding:0.35rem;">
+                    <h3 style="margin:0;">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</h3>
+                </div>
                 <p>{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
                 <p style="margin-top:0.45rem;"><i class="fa-solid fa-location-dot"></i> {{ $settings?->address ?: 'Adresse a configurer depuis la plateforme' }}</p>
+                <p style="margin-top:0.35rem;"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: '+216 XX XXX XXX' }}</p>
+                <div class="social-links" style="margin-top:0.7rem;">
+                    @if(!empty($settings?->facebook_url))<a href="{{ $settings->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>@endif
+                    @if(!empty($settings?->instagram_url))<a href="{{ $settings->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>@endif
+                    @if(!empty($settings?->tiktok_url))<a href="{{ $settings->tiktok_url }}" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>@endif
+                    @if(!empty($settings?->youtube_url))<a href="{{ $settings->youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>@endif
+                </div>
             </div>
             <div>
                 <h4>Navigation</h4>
@@ -643,16 +694,15 @@
                     <a href="{{ route('vitrine.about') }}">A propos</a>
                     <a href="{{ route('vitrine.services') }}">Services</a>
                     <a href="{{ route('vitrine.activities') }}">Activites</a>
+                    <a href="{{ route('vitrine.blog') }}">Actualites</a>
                     <a href="{{ route('vitrine.contact') }}">Contact</a>
                 </div>
             </div>
             <div>
-                <h4>Reseaux sociaux</h4>
-                <div class="social-links">
-                    @if(!empty($settings?->facebook_url))<a href="{{ $settings->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>@endif
-                    @if(!empty($settings?->instagram_url))<a href="{{ $settings->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>@endif
-                    @if(!empty($settings?->tiktok_url))<a href="{{ $settings->tiktok_url }}" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>@endif
-                    @if(!empty($settings?->youtube_url))<a href="{{ $settings->youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>@endif
+                <h4>Informations legales</h4>
+                <div class="footer-nav">
+                    <a href="{{ route('vitrine.privacy') }}">Privacy Policy Terms</a>
+                    <a href="{{ route('vitrine.conditions') }}">Conditions</a>
                 </div>
             </div>
         </div>
@@ -677,6 +727,37 @@
                 }
             });
         }
+
+        const revealBlocks = document.querySelectorAll('.reveal');
+        if (revealBlocks.length) {
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+
+            revealBlocks.forEach((block) => revealObserver.observe(block));
+        }
+
+        const testimonialStrips = document.querySelectorAll('[data-testimonial-strip]');
+        testimonialStrips.forEach((strip) => {
+            let timer = null;
+            const startAuto = () => {
+                stopAuto();
+                timer = setInterval(() => {
+                    const maxLeft = strip.scrollWidth - strip.clientWidth;
+                    const next = strip.scrollLeft + 320;
+                    strip.scrollTo({ left: next > maxLeft ? 0 : next, behavior: 'smooth' });
+                }, 3200);
+            };
+            const stopAuto = () => { if (timer) clearInterval(timer); };
+            strip.addEventListener('mouseenter', stopAuto);
+            strip.addEventListener('mouseleave', startAuto);
+            startAuto();
+        });
     </script>
 </body>
 </html>
