@@ -7,14 +7,14 @@
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
     @endphp
     <main>
-        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.84), rgba(15, 41, 66, 0.54)), url('{{ $heroImage }}') center/cover no-repeat;">
+        <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
             <div class="hero-content">
-                <span class="hero-kicker"><i class="fa-solid fa-star"></i> Garderie professionnelle</span>
-                <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Bienvenue a Ancre Des Elites') }}</h1>
-                <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Une approche educative moderne dans un cadre securise.') }}</p>
+                <span class="hero-badge"><i class="fa-solid fa-seedling"></i> Garderie moderne et bienveillante</span>
+                <h1>{{ $settings?->hero_title ?: ($page?->hero_title ?: 'Une enfance epanouie commence ici') }}</h1>
+                <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Un environnement securise, des educateurs passionnes et des activites pensees pour chaque age.') }}</p>
                 <div class="hero-actions">
-                    <a href="{{ route('vitrine.services') }}" class="btn-hero"><i class="fa-solid fa-graduation-cap"></i> Decouvrir nos services</a>
-                    <a href="{{ route('vitrine.contact') }}" class="btn-hero-alt"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
+                    <a href="{{ route('vitrine.services') }}" class="btn-hero"><i class="fa-solid fa-graduation-cap"></i> Voir nos services</a>
+                    <a href="{{ route('vitrine.contact') }}" class="btn-hero-alt"><i class="fa-solid fa-phone-volume"></i> Prendre contact</a>
                 </div>
             </div>
         </section>
@@ -22,16 +22,16 @@
         <section class="section section-soft">
             <div class="wrap">
                 <h2 class="section-title">Services phares</h2>
-                <p class="section-subtitle">{{ $page?->content }}</p>
-                <div class="grid-3 stagger">
+                <p class="section-subtitle">{{ $page?->content ?: 'Decouvrez nos services d accueil, d apprentissage et d accompagnement au quotidien.' }}</p>
+                <div class="grid-3 reveal">
                     @forelse($services as $service)
-                        <article class="card">
-                            <span class="feature-icon"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
+                        <article class="panel">
+                            <span class="icon-chip"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
                             <h3>{{ $service->title }}</h3>
-                            <p class="text-muted">{{ $service->description }}</p>
+                            <p class="muted">{{ $service->description }}</p>
                         </article>
                     @empty
-                        <article class="card"><p class="text-muted">Aucun service publie pour le moment.</p></article>
+                        <article class="panel"><p class="muted">Aucun service publie pour le moment.</p></article>
                     @endforelse
                 </div>
             </div>
@@ -39,51 +39,51 @@
 
         <section class="section">
             <div class="wrap">
-                <h2 class="section-title">Une garderie qui evolue avec vos enfants</h2>
-                <p class="section-subtitle">Nos chiffres cles illustrent notre engagement quotidien pour un environnement sain, pedagogique et securise.</p>
-                <div class="stats-grid stagger">
-                    <article class="stat-card">
-                        <div class="stat-number">{{ $services->count() > 0 ? $services->count() : '6+' }}</div>
-                        <div class="text-muted">Programmes et services educatifs</div>
+                <h2 class="section-title">Des chiffres qui rassurent les familles</h2>
+                <p class="section-subtitle">Une equipe engagee, des programmes varies et un cadre de confiance pour chaque enfant.</p>
+                <div class="grid-4 stats-grid reveal">
+                    <article class="panel">
+                        <div class="stat-value">{{ $services->count() > 0 ? $services->count() : '6+' }}</div>
+                        <p class="muted">Programmes et ateliers</p>
                     </article>
-                    <article class="stat-card">
-                        <div class="stat-number">{{ $schedules->where('is_closed', false)->count() > 0 ? $schedules->where('is_closed', false)->count() : '7j/7' }}</div>
-                        <div class="text-muted">Jours d'accueil planifies</div>
+                    <article class="panel">
+                        <div class="stat-value">{{ $schedules->where('is_closed', false)->count() > 0 ? $schedules->where('is_closed', false)->count() : '7j/7' }}</div>
+                        <p class="muted">Jours d accueil organises</p>
                     </article>
-                    <article class="stat-card">
-                        <div class="stat-number">12+</div>
-                        <div class="text-muted">Professionnels de la petite enfance</div>
+                    <article class="panel">
+                        <div class="stat-value">12+</div>
+                        <p class="muted">Professionnels petite enfance</p>
                     </article>
-                    <article class="stat-card">
-                        <div class="stat-number">98%</div>
-                        <div class="text-muted">Satisfaction des familles accompagnees</div>
+                    <article class="panel">
+                        <div class="stat-value">98%</div>
+                        <p class="muted">Satisfaction des familles</p>
                     </article>
                 </div>
             </div>
         </section>
 
-        <section class="section section-band">
+        <section class="section section-warm">
             <div class="wrap grid-2">
-                <article class="card">
-                    <h2 class="section-title" style="margin-top:0;">Horaires et infos</h2>
+                <article class="panel">
+                    <h2 class="section-title" style="margin-top:0;">Horaires et informations</h2>
                     <table class="schedule">
                         <tbody>
                             @forelse($schedules as $slot)
                                 <tr>
                                     <td>{{ $slot->day_label }}</td>
-                                    <td>{{ $slot->is_closed ? 'Ferme' : trim(($slot->open_at ?: '-').' - '.($slot->close_at ?: '-')) }}</td>
+                                    <td>{{ $slot->is_closed ? 'Ferme' : trim(($slot->open_at ?: '-') . ' - ' . ($slot->close_at ?: '-')) }}</td>
                                 </tr>
                             @empty
                                 <tr><td colspan="2">Horaires non configures.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
-                    <p class="text-muted"><i class="fa-solid fa-location-dot"></i> {{ $settings?->address ?: 'Adresse a definir' }}</p>
-                    <p class="text-muted"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: 'Telephone a definir' }}</p>
+                    <p class="muted"><i class="fa-solid fa-location-dot"></i> {{ $settings?->address ?: 'Adresse a definir' }}</p>
+                    <p class="muted"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: 'Telephone a definir' }}</p>
                 </article>
 
-                <aside class="image-card">
-                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80" alt="Enfants en activite a la garderie" loading="lazy">
+                <aside class="media-frame">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80" alt="Enfants en activite" loading="lazy">
                 </aside>
             </div>
         </section>
@@ -91,10 +91,10 @@
         <section class="section">
             <div class="wrap">
                 <h2 class="section-title">Dernieres activites</h2>
-                <p class="section-subtitle">Retrouvez nos publications Facebook, Instagram et TikTok.</p>
-                <div class="social-list stagger">
+                <p class="section-subtitle">Suivez nos publications et la vie de la garderie au quotidien.</p>
+                <div class="social-grid reveal">
                     @forelse($socialPosts as $post)
-                        <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-item">
+                        <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-card">
                             <div class="social-thumb">
                                 @if($post->thumbnail_path)
                                     <img src="{{ asset('storage/'.$post->thumbnail_path) }}" alt="{{ $post->platform }}">
@@ -107,7 +107,7 @@
                             <div class="social-meta"><strong>{{ ucfirst($post->platform) }}</strong> - {{ $post->caption ?: 'Voir la publication' }}</div>
                         </a>
                     @empty
-                        <div class="card"><p class="text-muted">Aucune publication sociale pour le moment.</p></div>
+                        <article class="panel"><p class="muted">Aucune publication sociale pour le moment.</p></article>
                     @endforelse
                 </div>
             </div>

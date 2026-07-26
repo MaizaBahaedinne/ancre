@@ -7,20 +7,20 @@
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
     @endphp
     <main>
-        <section class="hero-shell" style="background: linear-gradient(110deg, rgba(15, 41, 66, 0.83), rgba(15, 41, 66, 0.56)), url('{{ $heroImage }}') center/cover no-repeat;">
+        <section class="hero" style="--hero-image: url('{{ $heroImage }}');">
             <div class="hero-content">
-                <span class="hero-kicker"><i class="fa-solid fa-camera-retro"></i> Activites</span>
+                <span class="hero-badge"><i class="fa-solid fa-camera-retro"></i> Activites</span>
                 <h1>{{ $page?->hero_title ?: 'Nos activites au quotidien' }}</h1>
-                <p class="hero-lead">{{ $page?->hero_subtitle ?: 'Publications Facebook, Instagram et TikTok.' }}</p>
+                <p class="hero-lead">{{ $page?->hero_subtitle ?: 'Retrouvez les moments forts partages sur Facebook, Instagram et TikTok.' }}</p>
             </div>
         </section>
 
         <section class="section section-soft">
             <div class="wrap">
                 <p class="section-subtitle">{!! nl2br(e($page?->content ?: '')) !!}</p>
-                <div class="social-list">
+                <div class="social-grid reveal">
                     @forelse($socialPosts as $post)
-                        <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-item">
+                        <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-card">
                             <div class="social-thumb">
                                 @if($post->thumbnail_path)
                                     <img src="{{ asset('storage/'.$post->thumbnail_path) }}" alt="{{ $post->platform }}">
@@ -31,12 +31,12 @@
                                 @endif
                             </div>
                             <div class="social-meta">
-                                <strong>{{ ucfirst($post->platform) }}</strong>
-                                <div>{{ $post->caption ?: 'Voir la publication' }}</div>
+                                <strong>{{ ucfirst($post->platform) }}</strong><br>
+                                {{ $post->caption ?: 'Voir la publication' }}
                             </div>
                         </a>
                     @empty
-                        <article class="card"><p class="text-muted">Aucune publication sociale active.</p></article>
+                        <article class="panel"><p class="muted">Aucune publication sociale active.</p></article>
                     @endforelse
                 </div>
             </div>
