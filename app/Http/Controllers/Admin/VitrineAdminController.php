@@ -14,6 +14,8 @@ use App\Models\VitrineVisitRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class VitrineAdminController extends Controller
@@ -77,6 +79,12 @@ class VitrineAdminController extends Controller
     {
         return view('admin.vitrine.leads', [
             'visitRequests' => VitrineVisitRequest::query()->latest()->get(),
+        ]);
+    }
+
+    public function newslettersPage(): View
+    {
+        return view('admin.vitrine.newsletters', [
             'newsletterSubscribers' => VitrineNewsletterSubscriber::query()->latest()->get(),
         ]);
     }
@@ -108,47 +116,85 @@ class VitrineAdminController extends Controller
 
     public function updatePage(Request $request, VitrinePage $page): RedirectResponse
     {
-        $validated = $request->validate([
+        $hasHeroImageColumn = Schema::hasColumn('vitrine_pages', 'hero_image');
+        $hasMissionColumn = Schema::hasColumn('vitrine_pages', 'mission');
+        $hasVisionColumn = Schema::hasColumn('vitrine_pages', 'vision');
+        $hasValeursColumn = Schema::hasColumn('vitrine_pages', 'valeurs');
+
+        $rules = [
             'title' => ['required', 'string', 'max:255'],
             'hero_title' => ['nullable', 'string', 'max:255'],
             'hero_subtitle' => ['nullable', 'string'],
-            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'remove_hero_image' => ['nullable', 'boolean'],
             'content' => ['nullable', 'string'],
-            'mission' => ['nullable', 'string'],
-            'vision' => ['nullable', 'string'],
-            'valeurs' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_published' => ['nullable', 'boolean'],
-        ]);
+        ];
 
-        $heroImagePath = $page->hero_image;
-        if ($request->boolean('remove_hero_image')) {
-            if ($heroImagePath && Storage::disk('public')->exists($heroImagePath)) {
-                Storage::disk('public')->delete($heroImagePath);
-            }
-            $heroImagePath = null;
+        if ($hasHeroImageColumn) {
+            $rules['hero_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+            $rules['remove_hero_image'] = ['nullable', 'boolean'];
+        }
+        if ($hasMissionColumn) {
+            $rules['mission'] = ['nullable', 'string'];
+        }
+        if ($hasVisionColumn) {
+            $rules['vision'] = ['nullable', 'string'];
+        }
+        if ($hasValeursColumn) {
+            $rules['valeurs'] = ['nullable', 'string'];
         }
 
-        if ($request->hasFile('hero_image')) {
-            if ($heroImagePath && Storage::disk('public')->exists($heroImagePath)) {
-                Storage::disk('public')->delete($heroImagePath);
-            }
-            $heroImagePath = $request->file('hero_image')->store('vitrine/pages', 'public');
-        }
+        $validated = $request->validate($rules);
 
-        $page->update([
-            'title' => $validated['title'],
-            'hero_title' => $validated['hero_title'] ?? null,
-            'hero_subtitle' => $validated['hero_subtitle'] ?? null,
-            'hero_image' => $heroImagePath,
-            'content' => $validated['content'] ?? null,
-            'mission' => $validated['mission'] ?? null,
-            'vision' => $validated['vision'] ?? null,
-            'valeurs' => $validated['valeurs'] ?? null,
-            'sort_order' => $validated['sort_order'] ?? 0,
-            'is_published' => $request->boolean('is_published'),
-        ]);
+        try {
+            $heroImagePath = $hasHeroImageColumn ? $page->hero_image : null;
+            if ($hasHeroImageColumn && $request->boolean('remove_hero_image')) {
+                if (! empty($heroImagePath) && Storage::disk('public')->exists($heroImagePath)) {
+                    Storage::disk('public')->delete($heroImagePath);
+                }
+                $heroImagePath = null;
+            }
+
+            if ($hasHeroImageColumn && $request->hasFile('hero_image')) {
+                if (! empty($heroImagePath) && Storage::disk('public')->exists($heroImagePath)) {
+                    Storage::disk('public')->delete($heroImagePath);
+                }
+                $heroImagePath = $request->file('hero_image')->store('vitrine/pages', 'public');
+            }
+
+            $updates = [
+                'title' => $validated['title'],
+                'hero_title' => $validated['hero_title'] ?? null,
+                'hero_subtitle' => $validated['hero_subtitle'] ?? null,
+                'content' => $validated['content'] ?? null,
+                'sort_order' => $validated['sort_order'] ?? 0,
+                'is_published' => $request->boolean('is_published'),
+            ];
+
+            if ($hasHeroImageColumn) {
+                $updates['hero_image'] = $heroImagePath;
+            }
+            if ($hasMissionColumn) {
+                $updates['mission'] = $validated['mission'] ?? null;
+            }
+            if ($hasVisionColumn) {
+                $updates['vision'] = $validated['vision'] ?? null;
+            }
+            if ($hasValeursColumn) {
+                $updates['valeurs'] = $validated['valeurs'] ?? null;
+            }
+
+            $page->update($updates);
+        } catch (\Throwable $exception) {
+            Log::error('Vitrine page update failed', [
+                'page_id' => $page->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'La mise a jour de la page a echoue. Verifiez les migrations puis reessayez.');
+        }
 
         return back()->with('success', 'Page vitrine mise a jour.');
     }

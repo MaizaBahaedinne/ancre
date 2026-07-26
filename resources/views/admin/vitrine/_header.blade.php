@@ -12,7 +12,8 @@
             <a href="{{ route('admin.vitrine.schedules') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.schedules') ? 'btn-primary' : 'btn-outline-primary' }}">Horaires</a>
             <a href="{{ route('admin.vitrine.social-posts') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.social-posts') ? 'btn-primary' : 'btn-outline-primary' }}">Reseaux sociaux</a>
             <a href="{{ route('admin.vitrine.testimonials') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.testimonials') ? 'btn-primary' : 'btn-outline-primary' }}">Temoignages</a>
-            <a href="{{ route('admin.vitrine.leads') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.leads') ? 'btn-primary' : 'btn-outline-primary' }}">Leads</a>
+            <a href="{{ route('admin.vitrine.leads') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.leads') ? 'btn-primary' : 'btn-outline-primary' }}">Demandes</a>
+            <a href="{{ route('admin.vitrine.newsletters') }}" class="btn btn-sm {{ request()->routeIs('admin.vitrine.newsletters') ? 'btn-primary' : 'btn-outline-primary' }}">Newsletters</a>
         </div>
     </div>
 </div>

@@ -185,6 +185,7 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::get('/social-posts', [VitrineAdminController::class, 'socialPostsPage'])->name('social-posts');
     Route::get('/testimonials', [VitrineAdminController::class, 'testimonialsPage'])->name('testimonials');
     Route::get('/leads', [VitrineAdminController::class, 'leadsPage'])->name('leads');
+    Route::get('/newsletters', [VitrineAdminController::class, 'newslettersPage'])->name('newsletters');
     Route::get('/newsletter/export', [VitrineAdminController::class, 'exportNewsletterCsv'])->name('newsletter.export');
     Route::put('/settings', [VitrineAdminController::class, 'updateSettings'])->name('settings.update');
     Route::put('/pages/{page}', [VitrineAdminController::class, 'updatePage'])->name('pages.update')->whereNumber('page');
