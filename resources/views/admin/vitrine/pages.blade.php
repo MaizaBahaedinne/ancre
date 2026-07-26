@@ -67,13 +67,47 @@
                                     </div>
 
                                     @if($page->slug === 'home')
+                                        @php
+                                            $homeMeta = is_array($page->meta ?? null) ? $page->meta : [];
+                                            $homeHeroImages = $homeMeta['hero_images'] ?? [];
+                                            $homeHighlights = $homeMeta['about_highlights'] ?? [];
+                                        @endphp
                                         <div class="col-12">
-                                            <label class="form-label">Parametres avances Accueil (JSON)</label>
-                                            @php
-                                                $metaJson = old('meta_json', json_encode($page->meta ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-                                            @endphp
-                                            <textarea name="meta_json" rows="13" class="form-control" placeholder='{"hero_badge_text":"Garderie de confiance a Sfax","about_image_url":"https://...","hero_images":["https://...","https://..."],"about_highlights":["Encadrement securise","Programme d eveil adapte","Communication continue"]}'>{{ $metaJson }}</textarea>
-                                            <small class="text-muted">Clés supportees: <strong>hero_badge_text</strong>, <strong>about_image_url</strong>, <strong>hero_images</strong> (tableau de 6 URLs max), <strong>about_highlights</strong> (tableau).</small>
+                                            <div class="card border-0 bg-light">
+                                                <div class="card-body">
+                                                    <h5 class="mb-3">Parametres Accueil faciles</h5>
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Texte badge hero</label>
+                                                            <input type="text" name="home_hero_badge_text" class="form-control" value="{{ old('home_hero_badge_text', $homeMeta['hero_badge_text'] ?? '') }}" placeholder="Ex: Garderie de confiance a Sfax">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Image section A propos (URL ou chemin local)</label>
+                                                            <input type="text" name="home_about_image_url" class="form-control" value="{{ old('home_about_image_url', $homeMeta['about_image_url'] ?? '') }}" placeholder="Ex: images/about-child-tunisie.jpg">
+                                                        </div>
+
+                                                        <div class="col-12"><hr class="my-1"></div>
+                                                        <div class="col-12"><strong>Images hero (max 6)</strong></div>
+
+                                                        @for($i = 0; $i < 6; $i++)
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Image hero {{ $i + 1 }}</label>
+                                                                <input type="text" name="home_hero_image_{{ $i + 1 }}" class="form-control" value="{{ old('home_hero_image_'.($i + 1), $homeHeroImages[$i] ?? '') }}" placeholder="URL ou chemin local">
+                                                            </div>
+                                                        @endfor
+
+                                                        <div class="col-12"><hr class="my-1"></div>
+                                                        <div class="col-12"><strong>Points forts A propos</strong></div>
+
+                                                        @for($i = 0; $i < 4; $i++)
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Point fort {{ $i + 1 }}</label>
+                                                                <input type="text" name="home_about_highlight_{{ $i + 1 }}" class="form-control" value="{{ old('home_about_highlight_'.($i + 1), $homeHighlights[$i] ?? '') }}" placeholder="Texte court">
+                                                            </div>
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     @endif
 

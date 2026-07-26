@@ -143,10 +143,20 @@ class VitrineAdminController extends Controller
             'hero_title' => ['nullable', 'string', 'max:255'],
             'hero_subtitle' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'meta_json' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_published' => ['nullable', 'boolean'],
         ];
+
+        if ($page->slug === 'home') {
+            $rules['home_hero_badge_text'] = ['nullable', 'string', 'max:255'];
+            $rules['home_about_image_url'] = ['nullable', 'string', 'max:2048'];
+            for ($i = 1; $i <= 6; $i++) {
+                $rules['home_hero_image_'.$i] = ['nullable', 'string', 'max:2048'];
+            }
+            for ($i = 1; $i <= 4; $i++) {
+                $rules['home_about_highlight_'.$i] = ['nullable', 'string', 'max:255'];
+            }
+        }
 
         if ($hasHeroImageColumn) {
             $rules['hero_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
@@ -165,18 +175,35 @@ class VitrineAdminController extends Controller
         $validated = $request->validate($rules);
 
         $meta = $page->meta ?? [];
-        if ($hasMetaColumn) {
-            if (! empty($validated['meta_json'])) {
-                $decoded = json_decode($validated['meta_json'], true);
-                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
-                    return back()
-                        ->withInput()
-                        ->with('error', 'JSON invalide dans les parametres avances de la page.');
+        if ($hasMetaColumn && $page->slug === 'home') {
+            $homeHeroImages = [];
+            for ($i = 1; $i <= 6; $i++) {
+                $value = trim((string) ($validated['home_hero_image_'.$i] ?? ''));
+                if ($value !== '') {
+                    $homeHeroImages[] = $value;
                 }
+            }
 
-                $meta = $decoded;
-            } elseif (array_key_exists('meta_json', $validated)) {
-                $meta = [];
+            $homeHighlights = [];
+            for ($i = 1; $i <= 4; $i++) {
+                $value = trim((string) ($validated['home_about_highlight_'.$i] ?? ''));
+                if ($value !== '') {
+                    $homeHighlights[] = $value;
+                }
+            }
+
+            $meta = [
+                'hero_badge_text' => trim((string) ($validated['home_hero_badge_text'] ?? '')),
+                'about_image_url' => trim((string) ($validated['home_about_image_url'] ?? '')),
+                'hero_images' => $homeHeroImages,
+                'about_highlights' => $homeHighlights,
+            ];
+
+            if ($meta['hero_badge_text'] === '') {
+                unset($meta['hero_badge_text']);
+            }
+            if ($meta['about_image_url'] === '') {
+                unset($meta['about_image_url']);
             }
         }
 
