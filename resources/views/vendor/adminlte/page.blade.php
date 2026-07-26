@@ -300,6 +300,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
@@ -313,6 +314,27 @@
     <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.colVis.min.js"></script>
     <script>
+        (() => {
+            // Compatibility bridge for legacy Bootstrap 4 data attributes while running Bootstrap 5 JS.
+            document.querySelectorAll('[data-toggle]').forEach((element) => {
+                if (!element.hasAttribute('data-bs-toggle')) {
+                    element.setAttribute('data-bs-toggle', element.getAttribute('data-toggle'));
+                }
+            });
+
+            document.querySelectorAll('[data-target]').forEach((element) => {
+                if (!element.hasAttribute('data-bs-target')) {
+                    element.setAttribute('data-bs-target', element.getAttribute('data-target'));
+                }
+            });
+
+            document.querySelectorAll('[data-dismiss]').forEach((element) => {
+                if (!element.hasAttribute('data-bs-dismiss')) {
+                    element.setAttribute('data-bs-dismiss', element.getAttribute('data-dismiss'));
+                }
+            });
+        })();
+
         (() => {
             const layout = document.querySelector('.modern-admin-layout');
             const toggle = document.querySelector('[data-sidebar-toggle]');

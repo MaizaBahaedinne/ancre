@@ -17,12 +17,12 @@
                     <div class="card mb-3">
                         <div class="card-header" id="heading-page-{{ $page->id }}">
                             <h3 class="card-title m-0">
-                                <a href="#collapse-page-{{ $page->id }}" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark">
+                                <a href="#collapse-page-{{ $page->id }}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark">
                                     {{ strtoupper($page->slug) }} - {{ $page->title }}
                                 </a>
                             </h3>
                         </div>
-                        <div id="collapse-page-{{ $page->id }}" class="collapse" aria-labelledby="heading-page-{{ $page->id }}" data-parent="#vitrinePagesAccordion">
+                        <div id="collapse-page-{{ $page->id }}" class="collapse" aria-labelledby="heading-page-{{ $page->id }}" data-bs-parent="#vitrinePagesAccordion">
                             <div class="card-body">
                                 <form method="POST" action="{{ route('admin.vitrine.pages.update', $page) }}" class="row g-3" enctype="multipart/form-data">
                                     @csrf
