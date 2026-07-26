@@ -25,7 +25,7 @@
         <section class="hero">
             <div class="hero-media" aria-hidden="true">
                 @foreach($heroImages as $index => $image)
-                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * 6 }}s;"></span>
+                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * 4 }}s;"></span>
                 @endforeach
             </div>
             <div class="hero-content hero-grid">
@@ -120,7 +120,7 @@
                 <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
                     <aside class="media-frame" style="min-height:280px;">
-                        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=1400&q=80" alt="About Ancre Des Elites" loading="lazy">
+                        <img src="https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1400&q=80" alt="Tunisie - cadre familial" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>

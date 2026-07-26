@@ -209,7 +209,7 @@
             background-position: center;
             opacity: 0;
             transform: scale(1);
-            animation: heroCycle 36s ease-in-out infinite;
+            animation: heroCycle 24s ease-in-out infinite;
         }
 
         .hero::before {
@@ -410,16 +410,25 @@
             margin-bottom: 0.64rem;
         }
 
+        .feature-card .icon-chip {
+            width: 3.4rem;
+            height: 3.4rem;
+            border-radius: 16px;
+            font-size: 1.22rem;
+            margin-bottom: 0.78rem;
+        }
+
         .stat-icon {
-            width: 2.4rem;
-            height: 2.4rem;
+            width: 3.15rem;
+            height: 3.15rem;
             margin: 0 auto 0.45rem;
-            border-radius: 12px;
+            border-radius: 14px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             background: rgba(224, 166, 63, 0.2);
             color: var(--brand-dark);
+            font-size: 1.2rem;
         }
 
         .muted { color: var(--ink-500); }
