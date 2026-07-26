@@ -14,6 +14,7 @@ class VitrinePage extends Model
         'title',
         'hero_title',
         'hero_subtitle',
+        'hero_image',
         'content',
         'sort_order',
         'is_published',

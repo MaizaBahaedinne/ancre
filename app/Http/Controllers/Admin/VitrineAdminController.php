@@ -11,6 +11,7 @@ use App\Models\VitrineSocialPost;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VitrineAdminController extends Controller
 {
@@ -64,15 +65,33 @@ class VitrineAdminController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'hero_title' => ['nullable', 'string', 'max:255'],
             'hero_subtitle' => ['nullable', 'string'],
+            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'remove_hero_image' => ['nullable', 'boolean'],
             'content' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_published' => ['nullable', 'boolean'],
         ]);
 
+        $heroImagePath = $page->hero_image;
+        if ($request->boolean('remove_hero_image')) {
+            if ($heroImagePath && Storage::disk('public')->exists($heroImagePath)) {
+                Storage::disk('public')->delete($heroImagePath);
+            }
+            $heroImagePath = null;
+        }
+
+        if ($request->hasFile('hero_image')) {
+            if ($heroImagePath && Storage::disk('public')->exists($heroImagePath)) {
+                Storage::disk('public')->delete($heroImagePath);
+            }
+            $heroImagePath = $request->file('hero_image')->store('vitrine/pages', 'public');
+        }
+
         $page->update([
             'title' => $validated['title'],
             'hero_title' => $validated['hero_title'] ?? null,
             'hero_subtitle' => $validated['hero_subtitle'] ?? null,
+            'hero_image' => $heroImagePath,
             'content' => $validated['content'] ?? null,
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_published' => $request->boolean('is_published'),
@@ -181,13 +200,20 @@ class VitrineAdminController extends Controller
             'platform' => ['required', 'string', 'max:255'],
             'post_url' => ['required', 'string', 'max:2048'],
             'thumbnail_url' => ['nullable', 'string', 'max:2048'],
+            'thumbnail_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'caption' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail_image')) {
+            $thumbnailPath = $request->file('thumbnail_image')->store('vitrine/social', 'public');
+        }
+
         VitrineSocialPost::query()->create([
             ...$validated,
+            'thumbnail_path' => $thumbnailPath,
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
         ]);
@@ -201,13 +227,31 @@ class VitrineAdminController extends Controller
             'platform' => ['required', 'string', 'max:255'],
             'post_url' => ['required', 'string', 'max:2048'],
             'thumbnail_url' => ['nullable', 'string', 'max:2048'],
+            'thumbnail_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'remove_thumbnail_image' => ['nullable', 'boolean'],
             'caption' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $thumbnailPath = $socialPost->thumbnail_path;
+        if ($request->boolean('remove_thumbnail_image')) {
+            if ($thumbnailPath && Storage::disk('public')->exists($thumbnailPath)) {
+                Storage::disk('public')->delete($thumbnailPath);
+            }
+            $thumbnailPath = null;
+        }
+
+        if ($request->hasFile('thumbnail_image')) {
+            if ($thumbnailPath && Storage::disk('public')->exists($thumbnailPath)) {
+                Storage::disk('public')->delete($thumbnailPath);
+            }
+            $thumbnailPath = $request->file('thumbnail_image')->store('vitrine/social', 'public');
+        }
+
         $socialPost->update([
             ...$validated,
+            'thumbnail_path' => $thumbnailPath,
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_active' => $request->boolean('is_active'),
         ]);
@@ -217,6 +261,10 @@ class VitrineAdminController extends Controller
 
     public function destroySocialPost(VitrineSocialPost $socialPost): RedirectResponse
     {
+        if ($socialPost->thumbnail_path && Storage::disk('public')->exists($socialPost->thumbnail_path)) {
+            Storage::disk('public')->delete($socialPost->thumbnail_path);
+        }
+
         $socialPost->delete();
 
         return back()->with('success', 'Publication sociale supprimee.');

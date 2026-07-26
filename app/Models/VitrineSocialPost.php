@@ -13,6 +13,7 @@ class VitrineSocialPost extends Model
         'platform',
         'post_url',
         'thumbnail_url',
+        'thumbnail_path',
         'caption',
         'sort_order',
         'is_active',
