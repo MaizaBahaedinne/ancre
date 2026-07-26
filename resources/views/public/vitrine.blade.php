@@ -319,6 +319,8 @@
         }
 
         @media (max-width: 990px) {
+            .topbar { display: none; }
+
             .hero-grid,
             .contact,
             .cards { grid-template-columns: 1fr; }

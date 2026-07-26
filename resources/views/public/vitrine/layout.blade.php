@@ -643,7 +643,7 @@
         }
 
         @media (max-width: 780px) {
-            .ribbon-inner { justify-content: flex-start; }
+            .ribbon { display: none; }
             .menu-toggle { display: inline-flex; }
 
             .nav-shell {

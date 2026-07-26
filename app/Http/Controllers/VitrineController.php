@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activite;
+use App\Models\ParentModel;
 use App\Models\Personnel;
 use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrineBlogPost;
@@ -24,6 +26,14 @@ class VitrineController extends Controller
 {
     public function home(): View
     {
+        $homePage = $this->pageBySlug('home');
+        $pageMeta = is_array($homePage?->meta ?? null) ? $homePage->meta : [];
+
+        $servicesCount = max(1, (int) ($pageMeta['home_services_count'] ?? 4));
+        $activitiesCount = max(1, (int) ($pageMeta['home_activities_count'] ?? 4));
+        $blogCount = max(1, (int) ($pageMeta['home_blog_count'] ?? 3));
+        $testimonialsCount = max(1, (int) ($pageMeta['home_testimonials_count'] ?? 10));
+
         $testimonials = collect();
         $blogPosts = collect();
         $faqs = collect();
@@ -33,7 +43,7 @@ class VitrineController extends Controller
                     ->where('is_published', true)
                     ->orderBy('sort_order')
                     ->latest()
-                    ->take(10)
+                    ->take($testimonialsCount)
                     ->get();
             } catch (\Throwable $exception) {
                 Log::warning('Unable to load vitrine testimonials', [
@@ -48,7 +58,7 @@ class VitrineController extends Controller
                     ->where('is_published', true)
                     ->orderBy('sort_order')
                     ->orderByDesc('published_at')
-                    ->take(3)
+                    ->take($blogCount)
                     ->get();
             } catch (\Throwable $exception) {
                 Log::warning('Unable to load vitrine blog posts', [
@@ -77,19 +87,32 @@ class VitrineController extends Controller
             ->latest()
             ->get();
 
+        $servicesAuto = VitrineService::query()->where('is_active', true)->count();
+        $parentsAuto = Schema::hasTable('parents') ? ParentModel::query()->count() : 0;
+        $staffAuto = Personnel::query()->count();
+        $activitiesAuto = Schema::hasTable('activites')
+            ? Activite::query()->count()
+            : $socialPosts->count();
+
         return view('public.vitrine.home', $this->sharedData([
             'currentSlug' => 'home',
-            'page' => $this->pageBySlug('home'),
+            'page' => $homePage,
             'aboutPage' => $this->pageBySlug('about'),
             'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'servicesFeatured' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->take(4)->get(),
+            'servicesFeatured' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->take($servicesCount)->get(),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'socialPosts' => $socialPosts->take(6),
-            'activitiesFeatured' => $socialPosts->take(4),
+            'activitiesFeatured' => $socialPosts->take($activitiesCount),
             'blogPosts' => $blogPosts,
             'professionals' => Personnel::query()->latest('id')->take(4)->get(),
             'testimonials' => $testimonials,
             'faqs' => $faqs,
+            'statsAuto' => [
+                'services' => $servicesAuto,
+                'parents' => $parentsAuto,
+                'staff' => $staffAuto,
+                'activities' => $activitiesAuto,
+            ],
         ]));
     }
 

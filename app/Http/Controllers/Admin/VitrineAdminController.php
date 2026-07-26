@@ -150,6 +150,18 @@ class VitrineAdminController extends Controller
         if ($page->slug === 'home') {
             $rules['home_hero_badge_text'] = ['nullable', 'string', 'max:255'];
             $rules['home_about_image_url'] = ['nullable', 'string', 'max:2048'];
+            $rules['home_services_count'] = ['nullable', 'integer', 'min:1', 'max:12'];
+            $rules['home_activities_count'] = ['nullable', 'integer', 'min:1', 'max:12'];
+            $rules['home_blog_count'] = ['nullable', 'integer', 'min:1', 'max:12'];
+            $rules['home_testimonials_count'] = ['nullable', 'integer', 'min:1', 'max:20'];
+            $rules['home_animation_duration_seconds'] = ['nullable', 'integer', 'min:2', 'max:12'];
+            $rules['home_stats_mode'] = ['nullable', 'in:auto,manual'];
+            $rules['home_manual_services_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_manual_parents_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_manual_staff_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_manual_activities_count'] = ['nullable', 'integer', 'min:0', 'max:999999'];
+            $rules['home_show_blog_section'] = ['nullable', 'boolean'];
+            $rules['home_show_testimonials_section'] = ['nullable', 'boolean'];
             for ($i = 1; $i <= 6; $i++) {
                 $rules['home_hero_image_'.$i] = ['nullable', 'string', 'max:2048'];
             }
@@ -197,6 +209,18 @@ class VitrineAdminController extends Controller
                 'about_image_url' => trim((string) ($validated['home_about_image_url'] ?? '')),
                 'hero_images' => $homeHeroImages,
                 'about_highlights' => $homeHighlights,
+                'home_services_count' => (int) ($validated['home_services_count'] ?? 4),
+                'home_activities_count' => (int) ($validated['home_activities_count'] ?? 4),
+                'home_blog_count' => (int) ($validated['home_blog_count'] ?? 3),
+                'home_testimonials_count' => (int) ($validated['home_testimonials_count'] ?? 10),
+                'home_animation_duration_seconds' => (int) ($validated['home_animation_duration_seconds'] ?? 4),
+                'home_stats_mode' => $validated['home_stats_mode'] ?? 'auto',
+                'home_manual_services_count' => $validated['home_manual_services_count'] ?? null,
+                'home_manual_parents_count' => $validated['home_manual_parents_count'] ?? null,
+                'home_manual_staff_count' => $validated['home_manual_staff_count'] ?? null,
+                'home_manual_activities_count' => $validated['home_manual_activities_count'] ?? null,
+                'home_show_blog_section' => $request->boolean('home_show_blog_section'),
+                'home_show_testimonials_section' => $request->boolean('home_show_testimonials_section'),
             ];
 
             if ($meta['hero_badge_text'] === '') {

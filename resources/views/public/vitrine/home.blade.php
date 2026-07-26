@@ -31,6 +31,8 @@
             $heroImages = $heroImagesDefault;
         }
         $heroImages = array_slice($heroImages, 0, 6);
+        $heroImageStepSeconds = max(2, min(12, (int) ($pageMeta['home_animation_duration_seconds'] ?? 4)));
+        $heroCycleDurationSeconds = max(12, count($heroImages) * $heroImageStepSeconds);
 
         $heroBadgeText = $pageMeta['hero_badge_text'] ?? 'Garderie de confiance a Sfax';
 
@@ -74,12 +76,37 @@
         }
 
         $inscriptionUrl = $settings?->parent_space_url ?: route('login');
+
+        $showBlogSection = (bool) ($pageMeta['home_show_blog_section'] ?? true);
+        $showTestimonialsSection = (bool) ($pageMeta['home_show_testimonials_section'] ?? true);
+
+        $statsMode = ($pageMeta['home_stats_mode'] ?? 'auto') === 'manual' ? 'manual' : 'auto';
+        $autoStats = is_array($statsAuto ?? null) ? $statsAuto : [
+            'services' => ($services ?? collect())->count(),
+            'parents' => 0,
+            'staff' => ($professionals ?? collect())->count(),
+            'activities' => ($activitiesFeatured ?? collect())->count(),
+        ];
+
+        $statsDisplay = [
+            'services' => (int) ($autoStats['services'] ?? 0),
+            'parents' => (int) ($autoStats['parents'] ?? 0),
+            'staff' => (int) ($autoStats['staff'] ?? 0),
+            'activities' => (int) ($autoStats['activities'] ?? 0),
+        ];
+
+        if ($statsMode === 'manual') {
+            $statsDisplay['services'] = (int) ($pageMeta['home_manual_services_count'] ?? $statsDisplay['services']);
+            $statsDisplay['parents'] = (int) ($pageMeta['home_manual_parents_count'] ?? $statsDisplay['parents']);
+            $statsDisplay['staff'] = (int) ($pageMeta['home_manual_staff_count'] ?? $statsDisplay['staff']);
+            $statsDisplay['activities'] = (int) ($pageMeta['home_manual_activities_count'] ?? $statsDisplay['activities']);
+        }
     @endphp
     <main>
-        <section class="hero">
+        <section class="hero" style="--hero-cycle-duration: {{ $heroCycleDurationSeconds }}s;">
             <div class="hero-media" aria-hidden="true">
                 @foreach($heroImages as $index => $image)
-                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * 4 }}s;"></span>
+                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * $heroImageStepSeconds }}s;"></span>
                 @endforeach
             </div>
             <div class="hero-content hero-grid">
@@ -207,40 +234,32 @@
             </div>
         </section>
 
-        <section class="section section-warm">
-            <div class="wrap">
-                <h2 class="section-title title-center">Parents heureux</h2>
-                <div class="testimonials-strip reveal" data-testimonial-strip>
-                    @forelse(($testimonials ?? collect())->take(10) as $testimonial)
-                        <article class="panel testimonial-item">
-                            <div class="stars">
-                                @for($i = 0; $i < ((int)($testimonial->rating ?? 5)); $i++)
-                                    <i class="fa-solid fa-star"></i>
-                                @endfor
-                            </div>
-                            <p class="muted">"{{ $testimonial->content }}"</p>
-                            <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
-                        </article>
-                    @empty
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
-                            <strong>- Parent de Lina</strong>
-                        </article>
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Excellente communication avec les parents et progression visible de notre enfant."</p>
-                            <strong>- Parent de Youssef</strong>
-                        </article>
-                        <article class="panel testimonial-item">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <p class="muted">"Cadre propre, activites variees et personnel bienveillant. Je recommande vivement."</p>
-                            <strong>- Parent de Mariem</strong>
-                        </article>
-                    @endforelse
+        @if($showTestimonialsSection)
+            <section class="section section-warm">
+                <div class="wrap">
+                    <h2 class="section-title title-center">Parents heureux</h2>
+                    <div class="testimonials-strip reveal" data-testimonial-strip>
+                        @forelse(($testimonials ?? collect()) as $testimonial)
+                            <article class="panel testimonial-item">
+                                <div class="stars">
+                                    @for($i = 0; $i < ((int)($testimonial->rating ?? 5)); $i++)
+                                        <i class="fa-solid fa-star"></i>
+                                    @endfor
+                                </div>
+                                <p class="muted">"{{ $testimonial->content }}"</p>
+                                <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
+                            </article>
+                        @empty
+                            <article class="panel testimonial-item">
+                                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                                <p class="muted">"Une equipe tres professionnelle, ma fille adore venir tous les matins."</p>
+                                <strong>- Parent de Lina</strong>
+                            </article>
+                        @endforelse
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @endif
 
         <section class="section section-warm">
             <div class="wrap">
@@ -273,23 +292,23 @@
                 <div class="grid-4 stats-grid reveal">
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-shapes"></i></span>
-                        <div class="stat-value">{{ ($services ?? collect())->count() > 0 ? ($services ?? collect())->count() : '6+' }}</div>
-                        <p class="muted">Programmes et ateliers</p>
+                        <div class="stat-value">{{ $statsDisplay['services'] }}</div>
+                        <p class="muted">Services</p>
                     </article>
                     <article class="panel">
-                        <span class="stat-icon"><i class="fa-solid fa-calendar-check"></i></span>
-                        <div class="stat-value">{{ ($schedules ?? collect())->where('is_closed', false)->count() > 0 ? ($schedules ?? collect())->where('is_closed', false)->count() : '7j/7' }}</div>
-                        <p class="muted">Jours d'accueil organises</p>
+                        <span class="stat-icon"><i class="fa-solid fa-people-group"></i></span>
+                        <div class="stat-value">{{ $statsDisplay['parents'] }}</div>
+                        <p class="muted">Parents</p>
                     </article>
                     <article class="panel">
                         <span class="stat-icon"><i class="fa-solid fa-user-nurse"></i></span>
-                        <div class="stat-value">{{ ($professionals ?? collect())->count() > 0 ? ($professionals ?? collect())->count() : '12+' }}</div>
-                        <p class="muted">Professionnels</p>
+                        <div class="stat-value">{{ $statsDisplay['staff'] }}</div>
+                        <p class="muted">Staff</p>
                     </article>
                     <article class="panel">
-                        <span class="stat-icon"><i class="fa-solid fa-face-smile"></i></span>
-                        <div class="stat-value">98%</div>
-                        <p class="muted">Parents satisfaits</p>
+                        <span class="stat-icon"><i class="fa-solid fa-puzzle-piece"></i></span>
+                        <div class="stat-value">{{ $statsDisplay['activities'] }}</div>
+                        <p class="muted">Activites</p>
                     </article>
                 </div>
             </div>
@@ -320,25 +339,27 @@
             </div>
         </section>
 
-        <section class="section">
-            <div class="wrap">
-                <h2 class="section-title title-center">Blog & actualites</h2>
-                <div class="grid-3 reveal">
-                    @forelse(($blogPosts ?? collect()) as $post)
-                        <article class="panel">
-                            <div style="height:190px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
-                                <img src="{{ $post->cover_url ?: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80' }}" alt="{{ $post->title }}" style="width:100%;height:100%;object-fit:cover;">
-                            </div>
-                            <h3>{{ $post->title }}</h3>
-                            <p class="muted">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content ?: ''), 130) }}</p>
-                        </article>
-                    @empty
-                        <article class="panel"><p class="muted">Aucun article disponible.</p></article>
-                    @endforelse
+        @if($showBlogSection)
+            <section class="section">
+                <div class="wrap">
+                    <h2 class="section-title title-center">Blog & actualites</h2>
+                    <div class="grid-3 reveal">
+                        @forelse(($blogPosts ?? collect()) as $post)
+                            <article class="panel">
+                                <div style="height:190px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
+                                    <img src="{{ $post->cover_url ?: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80' }}" alt="{{ $post->title }}" style="width:100%;height:100%;object-fit:cover;">
+                                </div>
+                                <h3>{{ $post->title }}</h3>
+                                <p class="muted">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content ?: ''), 130) }}</p>
+                            </article>
+                        @empty
+                            <article class="panel"><p class="muted">Aucun article disponible.</p></article>
+                        @endforelse
+                    </div>
+                    <a href="{{ route('vitrine.blog') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Voir toutes les actualites</a>
                 </div>
-                <a href="{{ route('vitrine.blog') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Voir toutes les actualites</a>
-            </div>
-        </section>
+            </section>
+        @endif
 
         <section class="section newsletter-band">
             <div class="wrap">
