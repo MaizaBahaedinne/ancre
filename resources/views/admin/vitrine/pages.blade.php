@@ -12,18 +12,13 @@
     <div class="card mb-4">
         <div class="card-header"><strong>Pages vitrine (Accueil, A propos, Services, Activites, Contact)</strong></div>
         <div class="card-body">
-            <div id="vitrinePagesAccordion">
+            <div class="d-grid gap-3">
                 @foreach($pages as $page)
-                    <div class="card mb-3">
-                        <div class="card-header" id="heading-page-{{ $page->id }}">
-                            <h3 class="card-title m-0">
-                                <a href="#" data-collapse-target="#collapse-page-{{ $page->id }}" aria-expanded="false" aria-controls="collapse-page-{{ $page->id }}" class="d-block text-dark js-vitrine-collapse-toggle">
-                                    {{ strtoupper($page->slug) }} - {{ $page->title }}
-                                </a>
-                            </h3>
-                        </div>
-                        <div id="collapse-page-{{ $page->id }}" class="collapse" aria-labelledby="heading-page-{{ $page->id }}" data-bs-parent="#vitrinePagesAccordion">
-                            <div class="card-body">
+                    <details class="card" {{ $loop->first ? 'open' : '' }}>
+                        <summary class="card-header" style="cursor:pointer;list-style:none;">
+                            <h3 class="card-title m-0">{{ strtoupper($page->slug) }} - {{ $page->title }}</h3>
+                        </summary>
+                        <div class="card-body">
                                 <form method="POST" action="{{ route('admin.vitrine.pages.update', $page) }}" class="row g-3" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -75,80 +70,10 @@
                                         <button type="submit" class="btn btn-primary btn-sm">Enregistrer la page</button>
                                     </div>
                                 </form>
-                            </div>
                         </div>
-                    </div>
+                    </details>
                 @endforeach
             </div>
         </div>
     </div>
-@stop
-
-@section('js')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const accordion = document.getElementById('vitrinePagesAccordion');
-            if (!accordion) {
-                return;
-            }
-
-            const toggles = accordion.querySelectorAll('.js-vitrine-collapse-toggle');
-
-            const setExpanded = (targetId, expanded) => {
-                toggles.forEach((toggle) => {
-                    if (toggle.getAttribute('data-collapse-target') === targetId) {
-                        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-                    }
-                });
-            };
-
-            const hideAllExcept = (targetId) => {
-                accordion.querySelectorAll('.collapse.show').forEach((panel) => {
-                    if ('#' + panel.id === targetId) {
-                        return;
-                    }
-
-                    if (window.bootstrap && bootstrap.Collapse) {
-                        bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).hide();
-                    } else if (window.jQuery && window.jQuery(panel).collapse) {
-                        window.jQuery(panel).collapse('hide');
-                    } else {
-                        panel.classList.remove('show');
-                    }
-
-                    setExpanded('#' + panel.id, false);
-                });
-            };
-
-            toggles.forEach((toggle) => {
-                toggle.addEventListener('click', function (event) {
-                    event.preventDefault();
-
-                    const targetId = toggle.getAttribute('data-collapse-target');
-                    const target = targetId ? document.querySelector(targetId) : null;
-
-                    if (!target) {
-                        return;
-                    }
-
-                    const isOpen = target.classList.contains('show');
-
-                    if (!isOpen) {
-                        hideAllExcept(targetId);
-                    }
-
-                    if (window.bootstrap && bootstrap.Collapse) {
-                        const instance = bootstrap.Collapse.getOrCreateInstance(target, { toggle: false });
-                        isOpen ? instance.hide() : instance.show();
-                    } else if (window.jQuery && window.jQuery(target).collapse) {
-                        window.jQuery(target).collapse(isOpen ? 'hide' : 'show');
-                    } else {
-                        target.classList.toggle('show', !isOpen);
-                    }
-
-                    setExpanded(targetId, !isOpen);
-                });
-            });
-        });
-    </script>
 @stop
