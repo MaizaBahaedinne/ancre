@@ -61,6 +61,7 @@ Route::prefix('vitrine')->name('vitrine.')->group(function () {
     Route::get('/services', [VitrineController::class, 'services'])->name('services');
     Route::get('/activites', [VitrineController::class, 'activities'])->name('activities');
     Route::get('/contact', [VitrineController::class, 'contact'])->name('contact');
+    Route::post('/contact', [VitrineController::class, 'submitContact'])->name('contact.submit');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])

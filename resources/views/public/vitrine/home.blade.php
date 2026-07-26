@@ -23,7 +23,7 @@
             <div class="wrap">
                 <h2 class="section-title">Services phares</h2>
                 <p class="section-subtitle">{{ $page?->content }}</p>
-                <div class="grid-3">
+                <div class="grid-3 stagger">
                     @forelse($services as $service)
                         <article class="card">
                             <span class="feature-icon"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
@@ -33,6 +33,31 @@
                     @empty
                         <article class="card"><p class="text-muted">Aucun service publie pour le moment.</p></article>
                     @endforelse
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title">Une garderie qui evolue avec vos enfants</h2>
+                <p class="section-subtitle">Nos chiffres cles illustrent notre engagement quotidien pour un environnement sain, pedagogique et securise.</p>
+                <div class="stats-grid stagger">
+                    <article class="stat-card">
+                        <div class="stat-number">{{ $services->count() > 0 ? $services->count() : '6+' }}</div>
+                        <div class="text-muted">Programmes et services educatifs</div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-number">{{ $schedules->where('is_closed', false)->count() > 0 ? $schedules->where('is_closed', false)->count() : '7j/7' }}</div>
+                        <div class="text-muted">Jours d'accueil planifies</div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-number">12+</div>
+                        <div class="text-muted">Professionnels de la petite enfance</div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-number">98%</div>
+                        <div class="text-muted">Satisfaction des familles accompagnees</div>
+                    </article>
                 </div>
             </div>
         </section>
@@ -58,7 +83,7 @@
                 </article>
 
                 <aside class="image-card">
-                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80" alt="Enfants en activite a la garderie">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80" alt="Enfants en activite a la garderie" loading="lazy">
                 </aside>
             </div>
         </section>
@@ -67,7 +92,7 @@
             <div class="wrap">
                 <h2 class="section-title">Dernieres activites</h2>
                 <p class="section-subtitle">Retrouvez nos publications Facebook, Instagram et TikTok.</p>
-                <div class="social-list">
+                <div class="social-list stagger">
                     @forelse($socialPosts as $post)
                         <a href="{{ $post->post_url }}" target="_blank" rel="noopener" class="social-item">
                             <div class="social-thumb">

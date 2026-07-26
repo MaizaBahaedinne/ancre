@@ -18,6 +18,54 @@
         <section class="section section-soft">
             <div class="wrap contact-grid">
                 <article class="card">
+                    <h2 class="section-title" style="margin-top:0;">Formulaire de contact</h2>
+
+                    @if(session('contact_success'))
+                        <div class="card" style="border-color:#b9dfc2;background:#f4fff6;margin-bottom:0.8rem;">{{ session('contact_success') }}</div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="card" style="border-color:#f0c8c8;background:#fff6f6;margin-bottom:0.8rem;">
+                            <strong>Merci de corriger les champs suivants:</strong>
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('vitrine.contact.submit') }}" class="contact-form">
+                        @csrf
+                        <div class="contact-form-row">
+                            <div>
+                                <label for="full_name">Nom complet</label>
+                                <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}" required>
+                            </div>
+                            <div>
+                                <label for="phone">Telephone</label>
+                                <input type="text" id="phone" name="phone" value="{{ old('phone') }}">
+                            </div>
+                        </div>
+                        <div class="contact-form-row">
+                            <div>
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+                            </div>
+                            <div>
+                                <label for="subject">Sujet</label>
+                                <input type="text" id="subject" name="subject" value="{{ old('subject') }}" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required>{{ old('message') }}</textarea>
+                        </div>
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Envoyer mon message</button>
+                    </form>
+                </article>
+
+                <article class="card">
                     <h2 class="section-title" style="margin-top:0;">Informations</h2>
                     <p class="text-muted"><i class="fa-solid fa-location-dot"></i> {{ $settings?->address ?: 'Adresse a definir' }}</p>
                     <p class="text-muted"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: 'Telephone a definir' }}</p>

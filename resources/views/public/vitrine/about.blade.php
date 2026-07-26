@@ -27,5 +27,30 @@
                 </aside>
             </div>
         </section>
+
+        <section class="section section-band">
+            <div class="wrap">
+                <h2 class="section-title">Mission, vision et valeurs</h2>
+                <p class="section-subtitle">Nos principes guident chaque decision pedagogique et chaque interaction avec les enfants et les familles.</p>
+
+                <div class="mv-grid stagger">
+                    <article class="card">
+                        <span class="feature-icon"><i class="fa-solid fa-bullseye"></i></span>
+                        <h3>Mission</h3>
+                        <p class="text-muted">Accompagner chaque enfant dans son developpement affectif, social et cognitif avec des activites adaptees a son rythme.</p>
+                    </article>
+                    <article class="card">
+                        <span class="feature-icon"><i class="fa-solid fa-eye"></i></span>
+                        <h3>Vision</h3>
+                        <p class="text-muted">Devenir une reference locale de l'education prescolaire moderne, inclusive et bienveillante.</p>
+                    </article>
+                    <article class="card">
+                        <span class="feature-icon"><i class="fa-solid fa-heart"></i></span>
+                        <h3>Valeurs</h3>
+                        <p class="text-muted">Respect, securite, ecoute active, autonomie, collaboration avec les parents et excellence educative.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
     </main>
 @endsection

@@ -8,6 +8,10 @@ use App\Models\VitrineService;
 use App\Models\VitrineSetting;
 use App\Models\VitrineSocialPost;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class VitrineController extends Controller
 {
@@ -56,6 +60,46 @@ class VitrineController extends Controller
             'page' => $this->pageBySlug('contact'),
             'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
         ]));
+    }
+
+    public function submitContact(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'full_name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'subject' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string', 'max:4000'],
+        ]);
+
+        $settings = VitrineSetting::query()->first();
+        $recipient = $settings?->email ?: config('mail.from.address');
+
+        $mailBody = "Nouveau message via formulaire vitrine\n\n"
+            ."Nom: {$validated['full_name']}\n"
+            ."Telephone: ".($validated['phone'] ?: 'Non renseigne')."\n"
+            ."Email: {$validated['email']}\n"
+            ."Sujet: {$validated['subject']}\n\n"
+            ."Message:\n{$validated['message']}\n";
+
+        try {
+            if (!empty($recipient)) {
+                Mail::raw($mailBody, function ($message) use ($recipient, $validated) {
+                    $message->to($recipient)
+                        ->replyTo($validated['email'], $validated['full_name'])
+                        ->subject('[Vitrine] '.$validated['subject']);
+                });
+            } else {
+                Log::info('Vitrine contact form submission', $validated);
+            }
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to send vitrine contact email', [
+                'error' => $exception->getMessage(),
+                'payload' => $validated,
+            ]);
+        }
+
+        return back()->with('contact_success', 'Merci, votre message a bien ete envoye. Nous vous repondrons rapidement.');
     }
 
     private function sharedData(array $data = []): array
