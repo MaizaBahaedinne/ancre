@@ -216,6 +216,22 @@
 
 	.modern-topbar-right {
 		flex-shrink: 0;
+		order: -1;
+	}
+
+	.modern-user-menu summary {
+		padding: 0.3rem 0.4rem;
+		gap: 0.5rem;
+	}
+
+	.modern-user-avatar {
+		width: 2rem;
+		height: 2rem;
+		font-size: 0.85rem;
+	}
+
+	.modern-user-meta {
+		display: none;
 	}
 
 	.modern-topbar-search {
@@ -302,6 +318,8 @@
 		border-radius: 14px;
 		background: var(--brand-navy);
 		color: #fff;
+		z-index: 1028;
+		position: relative;
 	}
 
 	.modern-topbar-kicker {
