@@ -484,7 +484,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')],
-            'cover_url' => ['nullable', 'string', 'max:255'],
+            'cover_url' => ['nullable', 'string', 'max:2048'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
@@ -518,7 +518,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')->ignore($blogPost->id)],
-            'cover_url' => ['nullable', 'string', 'max:255'],
+            'cover_url' => ['nullable', 'string', 'max:2048'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
