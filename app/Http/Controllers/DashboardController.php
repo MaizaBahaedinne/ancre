@@ -149,9 +149,9 @@ class DashboardController extends Controller
             ->count();
 
         $childrenWithoutClass = (clone $currentYearChildrenQuery)
-            ->when($activeAcademicYearLabel, function ($query) {
-                $query->where(function ($inner) {
-                    $inner->whereDoesntHave('inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $query->getBindings()[-1]));
+            ->when($activeAcademicYearLabel, function ($query) use ($activeAcademicYearLabel) {
+                $query->where(function ($inner) use ($activeAcademicYearLabel) {
+                    $inner->whereDoesntHave('inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $activeAcademicYearLabel));
                 });
             }, function ($query) {
                 $query->whereDoesntHave('inscriptions');

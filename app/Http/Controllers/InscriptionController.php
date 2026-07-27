@@ -154,7 +154,6 @@ class InscriptionController extends Controller
 
         $inscription->load([
             'enfant.parent',
-            'enfant.schoolClass',
             'enfant.evaluations.grades.subject',
             'enfant.paiements' => fn ($query) => $query
                 ->orderByDesc('annee')
@@ -162,6 +161,7 @@ class InscriptionController extends Controller
                 ->orderByDesc('date_paiement')
                 ->orderByDesc('id'),
             'package',
+            'schoolClass',
         ]);
 
         $monthlyPaymentHistory = $this->monthlyPaymentHistory($inscription);
