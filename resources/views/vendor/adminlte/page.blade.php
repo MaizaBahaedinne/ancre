@@ -275,7 +275,6 @@
                         <div class="modern-search-wrapper">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" name="q" placeholder="Rechercher..." class="modern-search-input" autocomplete="off">
-                            <span class="modern-search-hint">Entrez un nom, un numéro...</span>
                         </div>
                     </form>
                 </div>

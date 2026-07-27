@@ -208,65 +208,79 @@
 	}
 
 	.modern-topbar-search {
-		flex: 1;
-		max-width: 420px;
+		flex: 0 1 400px;
 		display: flex;
 		align-items: center;
 	}
 
 	.modern-search-form {
 		width: 100%;
+		position: relative;
 	}
 
 	.modern-search-wrapper {
 		position: relative;
-		display: flex;
-		align-items: center;
+		display: flex !important;
+		align-items: center !important;
 		width: 100%;
-		background: rgba(255, 255, 255, 0.8);
-		border: 1px solid rgba(var(--brand-navy-rgb), 0.15);
-		border-radius: 10px;
-		padding: 0.65rem 1rem;
-		transition: all 0.2s ease;
+		background: #fff !important;
+		border: none !important;
+		border-radius: 28px !important;
+		padding: 0.8rem 1.4rem !important;
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow: 0 2px 12px rgba(var(--brand-navy-rgb), 0.1);
+		outline: 2px solid transparent;
+		outline-offset: 2px;
+	}
+
+	.modern-search-wrapper:hover {
+		box-shadow: 0 4px 20px rgba(var(--brand-navy-rgb), 0.12);
+		transform: translateY(-1px);
 	}
 
 	.modern-search-wrapper:focus-within {
-		background: #fff;
-		border-color: var(--brand-gold);
-		box-shadow: 0 0 0 3px rgba(var(--brand-gold-rgb), 0.1);
+		outline: 2px solid var(--brand-gold);
+		box-shadow: 0 8px 28px rgba(var(--brand-gold-rgb), 0.18), inset 0 0 0 1px rgba(var(--brand-gold-rgb), 0.1);
 	}
 
 	.modern-search-wrapper i {
-		color: #94a3b8;
-		margin-right: 0.75rem;
-		font-size: 0.95rem;
+		color: var(--brand-navy);
+		margin-right: 0.9rem;
+		font-size: 1.05rem;
+		flex-shrink: 0;
+		opacity: 0.8;
+		transition: all 0.2s ease;
+	}
+
+	.modern-search-wrapper:focus-within i {
+		color: var(--brand-gold);
+		opacity: 1;
 	}
 
 	.modern-search-input {
 		flex: 1;
-		border: 0;
+		border: none;
 		background: transparent;
 		font-size: 0.95rem;
 		padding: 0;
+		margin: 0;
 		outline: none;
-		color: #1f2937;
+		color: #0f172a;
+		font-weight: 500;
+		line-height: 1.5;
 	}
 
 	.modern-search-input::placeholder {
 		color: #cbd5e1;
+		font-weight: 400;
+	}
+
+	.modern-search-input:focus {
+		color: #0f172a;
 	}
 
 	.modern-search-hint {
-		color: #94a3b8;
-		font-size: 0.8rem;
-		margin-left: auto;
-		padding-left: 0.75rem;
-		white-space: nowrap;
 		display: none;
-	}
-
-	.modern-search-input:focus ~ .modern-search-hint {
-		display: inline;
 	}
 
 	.modern-sidebar-toggle {
