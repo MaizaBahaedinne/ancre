@@ -84,6 +84,7 @@ class EnfantController extends Controller
                     $searchScope->where('nom', 'like', "%{$searchValue}%")
                         ->orWhere('prenom', 'like', "%{$searchValue}%");
                 });
+            });
 
         $statsQuery = clone $baseQuery;
 
@@ -113,12 +114,6 @@ class EnfantController extends Controller
             'not_inscribed_current_year' => max($enfants->count() - $inscribedCurrentYearCount, 0),
             'with_allergie' => (clone $statsQuery)->where('has_allergie', true)->count(),
         ];
-
-        $classes = SchoolClass::query()
-            ->with(['school', 'academicYear'])
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
 
         return view('enfants.index', compact('enfants', 'search', 'stats', 'activeAcademicYearLabel'));
     }
