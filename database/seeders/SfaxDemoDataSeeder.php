@@ -121,15 +121,32 @@ class SfaxDemoDataSeeder extends Seeder
         $startDate = $now->copy()->startOfMonth();
         $endDate = $now->copy()->endOfMonth();
 
+        // Track which enfant_id + date combinations we've created to avoid duplicates
+        $createdPresences = [];
+        
         for ($i = 0; $i < 50; $i++) {
-            $presenceDate = $faker->dateTimeBetween($startDate, $endDate);
-            if (!empty($enfantIds)) {
+            if (empty($enfantIds)) break;
+            
+            $enfantId = $faker->randomElement($enfantIds);
+            $presenceDate = $faker->dateTimeBetween($startDate, $endDate)->format('Y-m-d');
+            
+            // Skip if we already created a presence for this enfant on this date
+            $key = "$enfantId-$presenceDate";
+            if (isset($createdPresences[$key])) {
+                continue;
+            }
+            
+            try {
                 Presence::create([
-                    'enfant_id' => $faker->randomElement($enfantIds),
+                    'enfant_id' => $enfantId,
                     'date' => $presenceDate,
                     'heure_arrivee' => $faker->time(),
                     'heure_depart' => $faker->time(),
                 ]);
+                $createdPresences[$key] = true;
+            } catch (\Exception $e) {
+                // Skip duplicates silently
+                continue;
             }
         }
 
