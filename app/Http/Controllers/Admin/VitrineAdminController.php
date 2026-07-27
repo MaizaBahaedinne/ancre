@@ -484,7 +484,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')],
-            'cover_url' => ['nullable', 'string', 'max:2048'],
+            'cover_url' => ['nullable', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
@@ -494,13 +494,21 @@ class VitrineAdminController extends Controller
 
         $slug = $this->resolveUniqueBlogPostSlug($validated['slug'] ?? null, $validated['title']);
 
-        VitrineBlogPost::query()->create([
-            ...$validated,
-            'slug' => $slug,
-            'sort_order' => $validated['sort_order'] ?? 0,
-            'is_published' => $request->boolean('is_published'),
-            'published_at' => $validated['published_at'] ?? now(),
-        ]);
+        try {
+            VitrineBlogPost::query()->create([
+                ...$validated,
+                'slug' => $slug,
+                'sort_order' => $validated['sort_order'] ?? 0,
+                'is_published' => $request->boolean('is_published'),
+                'published_at' => $validated['published_at'] ?? now(),
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to create vitrine blog post', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return back()->withInput()->with('error', 'Impossible d\'ajouter l\'article. Verifiez le lien de couverture et reessayez.');
+        }
 
         return back()->with('success', 'Article ajoute.');
     }
@@ -510,7 +518,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('vitrine_blog_posts', 'slug')->ignore($blogPost->id)],
-            'cover_url' => ['nullable', 'string', 'max:2048'],
+            'cover_url' => ['nullable', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
@@ -520,13 +528,22 @@ class VitrineAdminController extends Controller
 
         $slug = $this->resolveUniqueBlogPostSlug($validated['slug'] ?? null, $validated['title'], $blogPost->id);
 
-        $blogPost->update([
-            ...$validated,
-            'slug' => $slug,
-            'sort_order' => $validated['sort_order'] ?? 0,
-            'is_published' => $request->boolean('is_published'),
-            'published_at' => $validated['published_at'] ?? $blogPost->published_at,
-        ]);
+        try {
+            $blogPost->update([
+                ...$validated,
+                'slug' => $slug,
+                'sort_order' => $validated['sort_order'] ?? 0,
+                'is_published' => $request->boolean('is_published'),
+                'published_at' => $validated['published_at'] ?? $blogPost->published_at,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to update vitrine blog post', [
+                'blog_post_id' => $blogPost->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return back()->withInput()->with('error', 'Impossible de mettre a jour l\'article. Verifiez le lien de couverture et reessayez.');
+        }
 
         return back()->with('success', 'Article mis a jour.');
     }
