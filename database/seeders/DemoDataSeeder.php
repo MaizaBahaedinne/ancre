@@ -22,9 +22,7 @@ class DemoDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get Faker instance from Laravel's service container (works on production)
-        $faker = app('Faker\Generator');
-        $faker->locale = 'fr_FR';
+        // No Faker dependency - using simple random generation
         
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Presence::truncate();

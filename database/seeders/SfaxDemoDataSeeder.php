@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Activite;
 use App\Models\Enfant;
-use App\Models\EnfantActivite;
-use App\Models\Incident;
 use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Models\ParentModel;
@@ -17,155 +14,156 @@ use Illuminate\Support\Facades\DB;
 class SfaxDemoDataSeeder extends Seeder
 {
     /**
-     * Seed realistic demo data for Sfax region.
+     * Seed realistic demo data for Sfax region - no external dependencies.
      */
     public function run(): void
     {
-        // Get Faker instance from Laravel's service container
-        $faker = app('Faker\Generator');
-        $faker->locale = 'fr_FR';
-
         // Clear existing data
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Presence::truncate();
-        EnfantActivite::truncate();
-        Incident::truncate();
-        Paiement::truncate();
         Inscription::truncate();
+        Paiement::truncate();
         Enfant::truncate();
         ParentModel::truncate();
-        Activite::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-        // Sfax-specific Tunisian names
-        $maleFirstNames = ['Mohamed', 'Ahmed', 'Ali', 'Youssef', 'Mahdi', 'Sami', 'Walid', 'Karim', 'Nidhal', 'Hatem'];
-        $femaleFirstNames = ['Amira', 'Ines', 'Mariem', 'Asma', 'Rania', 'Sarra', 'Nour', 'Lina', 'Yosra', 'Chaima'];
-        $lastNames = ['Ben Ali', 'Hmad', 'Kouki', 'Chihi', 'Turki', 'Dallali', 'Ayouni', 'Belkhiria', 'Jebali', 'Gaied'];
+        // Hard-coded Sfax parents data (15 parents)
+        $parentsData = [
+            ['nom' => 'Ben Ali', 'prenom' => 'Mohamed', 'email' => 'mohamed.benali@example.tn', 'telephone' => '21666123456', 'profession' => 'Ingénieur', 'sexe' => 'M'],
+            ['nom' => 'Hmad', 'prenom' => 'Ahmed', 'email' => 'ahmed.hmad@example.tn', 'telephone' => '21666234567', 'profession' => 'Médecin', 'sexe' => 'M'],
+            ['nom' => 'Kouki', 'prenom' => 'Ali', 'email' => 'ali.kouki@example.tn', 'telephone' => '21666345678', 'profession' => 'Avocat', 'sexe' => 'M'],
+            ['nom' => 'Chihi', 'prenom' => 'Youssef', 'email' => 'youssef.chihi@example.tn', 'telephone' => '21666456789', 'profession' => 'Professeur', 'sexe' => 'M'],
+            ['nom' => 'Turki', 'prenom' => 'Mahdi', 'email' => 'mahdi.turki@example.tn', 'telephone' => '21666567890', 'profession' => 'Commerçant', 'sexe' => 'M'],
+            ['nom' => 'Dallali', 'prenom' => 'Sami', 'email' => 'sami.dallali@example.tn', 'telephone' => '21666678901', 'profession' => 'Employé', 'sexe' => 'M'],
+            ['nom' => 'Ayouni', 'prenom' => 'Walid', 'email' => 'walid.ayouni@example.tn', 'telephone' => '21666789012', 'profession' => 'Technicien', 'sexe' => 'M'],
+            ['nom' => 'Belkhiria', 'prenom' => 'Karim', 'email' => 'karim.belkhiria@example.tn', 'telephone' => '21666890123', 'profession' => 'Musicien', 'sexe' => 'M'],
+            ['nom' => 'Jebali', 'prenom' => 'Nidhal', 'email' => 'nidhal.jebali@example.tn', 'telephone' => '21666901234', 'profession' => 'Artistique', 'sexe' => 'M'],
+            ['nom' => 'Gaied', 'prenom' => 'Hatem', 'email' => 'hatem.gaied@example.tn', 'telephone' => '21667012345', 'profession' => 'Consultant', 'sexe' => 'M'],
+            ['nom' => 'Ben Salah', 'prenom' => 'Amira', 'email' => 'amira.bensalah@example.tn', 'telephone' => '21667123456', 'profession' => 'Infirmière', 'sexe' => 'F'],
+            ['nom' => 'Mansour', 'prenom' => 'Ines', 'email' => 'ines.mansour@example.tn', 'telephone' => '21667234567', 'profession' => 'Directrice', 'sexe' => 'F'],
+            ['nom' => 'Khaled', 'prenom' => 'Mariem', 'email' => 'mariem.khaled@example.tn', 'telephone' => '21667345678', 'profession' => 'Comptable', 'sexe' => 'F'],
+            ['nom' => 'Saïdi', 'prenom' => 'Asma', 'email' => 'asma.saidi@example.tn', 'telephone' => '21667456789', 'profession' => 'Traductrice', 'sexe' => 'F'],
+            ['nom' => 'Ridha', 'prenom' => 'Rania', 'email' => 'rania.ridha@example.tn', 'telephone' => '21667567890', 'profession' => 'Pharmacienne', 'sexe' => 'F'],
+        ];
 
-        // Create 15 parents (smaller, more manageable dataset)
         $parents = [];
-        for ($i = 0; $i < 15; $i++) {
-            $gender = $faker->randomElement(['male', 'female']);
-            $firstName = $faker->randomElement($gender === 'male' ? $maleFirstNames : $femaleFirstNames);
-            $lastName = $faker->randomElement($lastNames);
-
+        foreach ($parentsData as $data) {
             $parents[] = ParentModel::create([
-                'nom' => $lastName,
-                'prenom' => $firstName,
-                'email' => strtolower("{$firstName}.{$lastName}.{$i}@example.tn"),
-                'telephone' => $faker->numerify('2166########'),
-                'adresse' => "Sfax, Tunisie",
+                'nom' => $data['nom'],
+                'prenom' => $data['prenom'],
+                'email' => $data['email'],
+                'telephone' => $data['telephone'],
+                'adresse' => 'Sfax, Tunisie',
                 'adresse_ville' => 'Sfax',
                 'adresse_gouvernorat' => 'Sfax',
-                'profession' => $faker->jobTitle(),
-                'sexe' => $gender === 'male' ? 'M' : 'F',
+                'profession' => $data['profession'],
+                'sexe' => $data['sexe'],
             ]);
         }
 
-        // Create 25 children
+        // Hard-coded children data (25 children)
+        $childrenData = [
+            ['nom' => 'Ben Ali', 'prenom' => 'Karim', 'dob' => '2021-03-15', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Ben Ali', 'prenom' => 'Leila', 'dob' => '2021-06-20', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Hmad', 'prenom' => 'Youssef', 'dob' => '2021-09-10', 'sexe' => 'M', 'allergie' => 'Arachides'],
+            ['nom' => 'Hmad', 'prenom' => 'Nour', 'dob' => '2022-01-05', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Kouki', 'prenom' => 'Ali', 'dob' => '2021-04-12', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Kouki', 'prenom' => 'Sarra', 'dob' => '2021-07-18', 'sexe' => 'F', 'allergie' => 'Œufs'],
+            ['nom' => 'Chihi', 'prenom' => 'Mahdi', 'dob' => '2021-11-22', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Chihi', 'prenom' => 'Lina', 'dob' => '2022-02-28', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Turki', 'prenom' => 'Sami', 'dob' => '2021-05-08', 'sexe' => 'M', 'allergie' => 'Lait'],
+            ['nom' => 'Turki', 'prenom' => 'Yosra', 'dob' => '2021-08-14', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Dallali', 'prenom' => 'Walid', 'dob' => '2021-10-30', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Dallali', 'prenom' => 'Chaima', 'dob' => '2022-03-12', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Ayouni', 'prenom' => 'Karim', 'dob' => '2021-02-19', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Ayouni', 'prenom' => 'Ikram', 'dob' => '2021-09-25', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Belkhiria', 'prenom' => 'Nidhal', 'dob' => '2021-06-07', 'sexe' => 'M', 'allergie' => 'Fruits de mer'],
+            ['nom' => 'Belkhiria', 'prenom' => 'Hela', 'dob' => '2021-12-11', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Jebali', 'prenom' => 'Hatem', 'dob' => '2021-04-23', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Jebali', 'prenom' => 'Rim', 'dob' => '2021-11-03', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Gaied', 'prenom' => 'Anis', 'dob' => '2021-07-29', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Gaied', 'prenom' => 'Dorra', 'dob' => '2022-01-17', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Ben Salah', 'prenom' => 'Riadh', 'dob' => '2021-08-06', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Mansour', 'prenom' => 'Mouna', 'dob' => '2021-05-15', 'sexe' => 'F', 'allergie' => null],
+            ['nom' => 'Khaled', 'prenom' => 'Skander', 'dob' => '2021-10-21', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Saïdi', 'prenom' => 'Moez', 'dob' => '2021-03-09', 'sexe' => 'M', 'allergie' => null],
+            ['nom' => 'Ridha', 'prenom' => 'Sabrine', 'dob' => '2021-12-27', 'sexe' => 'F', 'allergie' => null],
+        ];
+
         $children = [];
-        for ($i = 0; $i < 25; $i++) {
-            $gender = $faker->randomElement(['M', 'F']);
-            $firstName = $gender === 'M' ? $faker->randomElement($maleFirstNames) : $faker->randomElement($femaleFirstNames);
-            $lastName = $faker->randomElement($lastNames);
-
-            $hasAllergie = $faker->boolean(30);
-            $allergieOptions = [];
-            if ($hasAllergie) {
-                $allergieOptions = $faker->randomElements(['Arachides', 'Fruits de mer', 'Œufs', 'Lait', 'Gluten'], random_int(1, 3));
-            }
-
+        foreach ($childrenData as $data) {
             $children[] = Enfant::create([
-                'parent_id' => $faker->randomElement($parents)->id,
-                'nom' => $lastName,
-                'prenom' => $firstName,
-                'date_naissance' => $faker->dateTimeBetween('-5 years', '-2 years'),
-                'sexe' => $gender,
-                'has_allergie' => $hasAllergie,
-                'allergie_options' => $allergieOptions,
-                'allergies' => $hasAllergie ? implode(', ', $allergieOptions) : null,
-                'observations' => $hasAllergie ? "Attention: enfant allergique" : null,
+                'parent_id' => $parents[array_rand($parents)]->id,
+                'nom' => $data['nom'],
+                'prenom' => $data['prenom'],
+                'date_naissance' => $data['dob'],
+                'sexe' => $data['sexe'],
+                'has_allergie' => !is_null($data['allergie']),
+                'allergie_options' => $data['allergie'] ? [$data['allergie']] : [],
+                'allergies' => $data['allergie'],
+                'observations' => $data['allergie'] ? "Attention: enfant allergique à {$data['allergie']}" : null,
             ]);
         }
 
-        // Create inscriptions for children (only if packages exist)
+        // Create inscriptions (80% of children)
         $classes = ['Petite section', 'Moyenne section', 'Grande section'];
         $packages = \App\Models\Package::where('is_active', true)->pluck('id')->all();
-        $now = Carbon::now();
-
+        
         if (!empty($packages)) {
-            foreach ($children as $child) {
-                if ($faker->boolean(80)) { // 80% enrolled
-                    Inscription::create([
-                        'enfant_id' => $child->id,
-                        'package_id' => $faker->randomElement($packages),
-                        'annual_registration_fee' => $faker->randomFloat(2, 50, 150),
-                        'package_monthly_total' => $faker->randomFloat(2, 100, 300),
-                        'total_amount' => $faker->randomFloat(2, 500, 1500),
-                        'annee_scolaire' => '2026-2027',
-                        'date_inscription' => $faker->dateTimeBetween('-3 months', 'now'),
-                        'type_garde' => $faker->randomElement(['Matin', 'Apres-midi', 'Journee complete']),
-                        'statut' => $faker->randomElement(['Active', 'Renouvelee']),
-                        'classe' => $faker->randomElement($classes),
-                        'school_class_id' => null,
-                    ]);
-                }
+            foreach (array_slice($children, 0, intval(count($children) * 0.8)) as $child) {
+                Inscription::create([
+                    'enfant_id' => $child->id,
+                    'package_id' => $packages[array_rand($packages)],
+                    'annual_registration_fee' => rand(50, 150),
+                    'package_monthly_total' => rand(100, 300),
+                    'total_amount' => rand(500, 1500),
+                    'annee_scolaire' => '2026-2027',
+                    'date_inscription' => Carbon::now()->subDays(rand(1, 90))->format('Y-m-d'),
+                    'type_garde' => ['Matin', 'Apres-midi', 'Journee complete'][array_rand(['Matin', 'Apres-midi', 'Journee complete'])],
+                    'statut' => ['Active', 'Renouvelee'][array_rand(['Active', 'Renouvelee'])],
+                    'classe' => $classes[array_rand($classes)],
+                    'school_class_id' => null,
+                ]);
             }
         }
 
-        // Create some activities (optional)
-        // Skipped - activities require complex relationships and personnel
-
-        // Create presences for the current month
-        $enfantIds = Enfant::pluck('id')->all();
+        // Create presences (avoid duplicates with date unique constraint)
+        $now = Carbon::now();
         $startDate = $now->copy()->startOfMonth();
         $endDate = $now->copy()->endOfMonth();
-
-        // Track which enfant_id + date combinations we've created to avoid duplicates
         $createdPresences = [];
-        
-        for ($i = 0; $i < 50; $i++) {
-            if (empty($enfantIds)) break;
+
+        for ($i = 0; $i < 30; $i++) {
+            if (empty($children)) break;
             
-            $enfantId = $faker->randomElement($enfantIds);
-            $presenceDate = $faker->dateTimeBetween($startDate, $endDate)->format('Y-m-d');
+            $child = $children[array_rand($children)];
+            $presenceDate = $startDate->copy()->addDays(rand(0, $startDate->diffInDays($endDate)))->format('Y-m-d');
+            $key = "{$child->id}-{$presenceDate}";
             
-            // Skip if we already created a presence for this enfant on this date
-            $key = "$enfantId-$presenceDate";
-            if (isset($createdPresences[$key])) {
-                continue;
-            }
-            
-            try {
+            if (!isset($createdPresences[$key])) {
                 Presence::create([
-                    'enfant_id' => $enfantId,
+                    'enfant_id' => $child->id,
                     'date' => $presenceDate,
-                    'heure_arrivee' => $faker->time(),
-                    'heure_depart' => $faker->time(),
+                    'heure_arrivee' => sprintf('%02d:%02d:00', rand(7, 9), rand(0, 59)),
+                    'heure_depart' => sprintf('%02d:%02d:00', rand(16, 18), rand(0, 59)),
                 ]);
                 $createdPresences[$key] = true;
-            } catch (\Exception $e) {
-                // Skip duplicates silently
-                continue;
             }
         }
 
-        // Create some payments
-        for ($i = 0; $i < 20; $i++) {
-            if (!empty($children)) {
-                $child = $faker->randomElement($children);
-                $paymentDate = $faker->dateTimeBetween('-2 months', 'now');
-                Paiement::create([
-                    'enfant_id' => $child->id,
-                    'montant' => $faker->randomFloat(2, 50, 300),
-                    'date_paiement' => $paymentDate,
-                    'mode_paiement' => $faker->randomElement(['Especes', 'Cheque', 'Virement']),
-                    'mois' => $paymentDate->format('m'),
-                    'annee' => $paymentDate->format('Y'),
-                ]);
-            }
+        // Create payments (random children)
+        foreach (array_slice($children, 0, rand(5, 10)) as $child) {
+            Paiement::create([
+                'enfant_id' => $child->id,
+                'montant' => rand(50, 300),
+                'date_paiement' => Carbon::now()->subDays(rand(1, 60))->format('Y-m-d H:i:s'),
+                'mode_paiement' => ['Especes', 'Cheque', 'Virement'][array_rand(['Especes', 'Cheque', 'Virement'])],
+                'mois' => rand(1, 12),
+                'annee' => 2026,
+            ]);
         }
 
-        $this->command->info('✅ Sfax demo data seeded successfully!');
+        $this->command->info('✅ Sfax demo data seeded successfully (without Faker)!');
     }
 }
+
