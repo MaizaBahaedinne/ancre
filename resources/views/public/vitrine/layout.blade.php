@@ -105,13 +105,13 @@
         }
 
         .brand-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 14px;
-            border: 1px solid var(--line);
-            background: #fff;
-            padding: 0.36rem;
-            box-shadow: 0 8px 18px rgba(22, 42, 58, 0.1);
+            width: 72px;
+            height: 72px;
+            border-radius: 0;
+            border: none;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
         }
 
         .brand-title {
@@ -843,7 +843,7 @@
         <div class="footer-inner">
             <div>
                 <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem;">
-                    <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:48px;height:48px;border-radius:12px;background:#fff;padding:0.35rem;">
+                    <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:72px;height:72px;border-radius:0;background:transparent;padding:0;">
                     <h3 style="margin:0;">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</h3>
                 </div>
                 <p>{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
