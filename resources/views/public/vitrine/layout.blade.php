@@ -29,7 +29,7 @@
             --radius-xl: 28px;
             --radius-lg: 22px;
             --radius-md: 14px;
-            --container: min(1240px, calc(100% - 2rem));
+            --container: min(1400px, calc(100% - 2rem));
             --shadow-soft: 0 16px 36px rgba(22, 42, 58, 0.09);
         }
 
