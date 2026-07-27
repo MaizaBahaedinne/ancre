@@ -171,11 +171,11 @@
 	.modern-sidebar-overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(15, 23, 42, 0.4);
+		background: rgba(15, 23, 42, 0.5);
 		opacity: 0;
 		pointer-events: none;
 		transition: opacity 0.2s ease;
-		z-index: 1015;
+		z-index: 1040;
 	}
 
 	.modern-main {
@@ -1405,10 +1405,12 @@
 			left: 0;
 			bottom: 0;
 			width: min(88vw, 320px);
-			border-radius: 0 28px 28px 0;
+			border-radius: 0;
 			transform: translateX(-102%);
 			transition: transform 0.22s ease;
 			z-index: 1045;
+			box-shadow: none;
+			border: none;
 		}
 
 		.modern-nav {
