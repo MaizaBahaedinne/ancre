@@ -53,4 +53,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(ParentModel::class, 'user_id');
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
 }
