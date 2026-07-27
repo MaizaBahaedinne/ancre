@@ -728,13 +728,6 @@
                 </span>
             </a>
 
-            @auth
-                <a href="{{ route('home') }}" class="account-chip" title="Compte connecte">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <span>{{ auth()->user()->name }}</span>
-                </a>
-            @endauth
-
             <button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-nav">
                 <i class="fa-solid fa-bars"></i>
             </button>
@@ -748,7 +741,14 @@
                     <a href="{{ route('vitrine.blog') }}" class="{{ ($currentSlug ?? '') === 'blog' ? 'active' : '' }}">Actualites</a>
                     <a href="{{ route('vitrine.contact') }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
                 </nav>
-                <a href="{{ $settings?->parent_space_url ?: route('login') }}" class="btn-parent">Espace parent</a>
+                @auth
+                    <a href="{{ route('home') }}" class="btn-parent" title="Compte connecte">
+                        <i class="fa-solid fa-circle-user"></i>
+                        {{ auth()->user()->name }}
+                    </a>
+                @else
+                    <a href="{{ $settings?->parent_space_url ?: route('login') }}" class="btn-parent">Mon espace</a>
+                @endauth
             </div>
         </div>
     </header>
