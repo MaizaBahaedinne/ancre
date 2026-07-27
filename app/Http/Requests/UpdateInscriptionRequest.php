@@ -28,6 +28,8 @@ class UpdateInscriptionRequest extends FormRequest
             'date_inscription' => ['required', 'date'],
             'type_garde' => ['required', 'in:Matin,Apres-midi,Journee complete'],
             'statut' => ['required', 'in:Active,Renouvelee,Suspendue,Annulee'],
+            'classe' => ['nullable', 'string', 'max:100'],
+            'school_class_id' => ['nullable', 'exists:school_classes,id'],
         ];
     }
 }

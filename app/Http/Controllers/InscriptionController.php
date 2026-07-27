@@ -12,6 +12,7 @@ use App\Models\Inscription;
 use App\Models\Paiement;
 use App\Models\Package;
 use App\Models\ParentModel;
+use App\Models\SchoolClass;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\View\View;
@@ -85,8 +86,12 @@ class InscriptionController extends Controller
         $enfants = $this->availableChildrenForAcademicYear($activeAcademicYear?->label);
         $packages = $this->availablePackages();
         $annualRegistrationFee = (float) ($activeAcademicYear?->registration_fee ?? 0);
+        $schoolClasses = SchoolClass::with('school', 'academicYear')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
-        return view('inscriptions.create', compact('enfants', 'packages', 'activeAcademicYear', 'annualRegistrationFee'));
+        return view('inscriptions.create', compact('enfants', 'packages', 'activeAcademicYear', 'annualRegistrationFee', 'schoolClasses'));
     }
 
     /**
@@ -310,8 +315,12 @@ class InscriptionController extends Controller
         $packages = $this->availablePackages($inscription->package_id);
         $activeAcademicYear = AcademicYear::query()->where('label', $inscription->annee_scolaire)->first();
         $annualRegistrationFee = (float) ($inscription->annual_registration_fee ?? $activeAcademicYear?->registration_fee ?? 0);
+        $schoolClasses = SchoolClass::with('school', 'academicYear')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
-        return view('inscriptions.edit', compact('inscription', 'enfants', 'packages', 'activeAcademicYear', 'annualRegistrationFee'));
+        return view('inscriptions.edit', compact('inscription', 'enfants', 'packages', 'activeAcademicYear', 'annualRegistrationFee', 'schoolClasses'));
     }
 
     /**

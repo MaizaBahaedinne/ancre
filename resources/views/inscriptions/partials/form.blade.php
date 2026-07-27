@@ -86,6 +86,28 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-6 form-group">
+        <label>Classe</label>
+        <input type="text" name="classe" class="form-control @error('classe') is-invalid @enderror" placeholder="Ex: Petite section" value="{{ old('classe', optional($inscription)->classe) }}">
+        @error('classe') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        <small class="form-text text-muted">Nom de la classe (ex: Petite section, Moyenne section, etc.)</small>
+    </div>
+    <div class="col-md-6 form-group">
+        <label>Etablissement scolaire</label>
+        <select name="school_class_id" class="form-control @error('school_class_id') is-invalid @enderror">
+            <option value="">Choisir...</option>
+            @foreach($schoolClasses as $schoolClass)
+                <option value="{{ $schoolClass->id }}" @selected(old('school_class_id', optional($inscription)->school_class_id) == $schoolClass->id)>
+                    {{ $schoolClass->school?->name }} - {{ $schoolClass->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('school_class_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        <small class="form-text text-muted">Selectionnez l'etablissement et le niveau</small>
+    </div>
+</div>
+
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
