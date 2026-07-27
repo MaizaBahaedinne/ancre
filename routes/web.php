@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\ActivityRegistrationController;
 use App\Http\Controllers\AcademicYearController;
@@ -90,6 +91,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+    
+    // Notification routes
+    Route::get('/api/notifications/count', [NotificationController::class, 'count'])->name('notifications.count');
+    Route::get('/api/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/api/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 });
 
 Route::middleware(['auth', 'role:Administrateur'])->group(function () {

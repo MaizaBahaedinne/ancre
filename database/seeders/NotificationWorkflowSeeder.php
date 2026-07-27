@@ -124,5 +124,4 @@ class NotificationWorkflowSeeder extends Seeder
             'is_enabled' => true,
         ]);
     }
-    }
 }
