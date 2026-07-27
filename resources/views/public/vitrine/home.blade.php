@@ -208,7 +208,7 @@
                 <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
                     <aside class="media-frame" style="min-height:280px;">
-                        <img src="{{ $aboutImage }}" alt="Enfant tunisien" loading="lazy">
+                        <img src="https://img.magnific.com/photos-premium/maman-heureuse-conduit-enfant-ecole-chemin-du-retour-ecole_261642-3102.jpg?w=1480" alt="Enfant tunisien" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
