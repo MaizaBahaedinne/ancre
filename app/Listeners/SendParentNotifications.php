@@ -6,13 +6,10 @@ use App\Events\ParentCreated;
 use App\Mail\NewParentNotification;
 use App\Models\Notification;
 use App\Models\NotificationLog;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
 
-class SendParentNotifications implements ShouldQueue
+class SendParentNotifications
 {
-    use InteractsWithQueue;
 
     /**
      * Handle the event.
