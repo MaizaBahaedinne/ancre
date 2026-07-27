@@ -37,25 +37,71 @@
 
         <section class="section section-warm">
             <div class="wrap">
-                <h2 class="section-title">Mission, vision et valeurs</h2>
-                <p class="section-subtitle">Nos engagements definissent notre maniere d accueillir, d encadrer et d accompagner chaque enfant.</p>
-
-                <div class="reveal" style="display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.2rem;">
+                <div class="grid-2">
                     <article class="panel">
-                        <span class="icon-chip"><i class="fa-solid fa-bullseye"></i></span>
-                        <h3>Mission</h3>
+                        <span class="icon-chip" style="font-size:2rem;"><i class="fa-solid fa-bullseye"></i></span>
+                        <h2 class="section-title" style="margin-top:1rem;">Mission</h2>
                         <p class="muted">{!! nl2br(e($page?->mission ?: 'Accompagner les enfants dans leur developpement social, affectif et cognitif avec une approche pedagogique positive.')) !!}</p>
                     </article>
                     <article class="panel">
-                        <span class="icon-chip"><i class="fa-solid fa-eye"></i></span>
-                        <h3>Vision</h3>
+                        <span class="icon-chip" style="font-size:2rem;"><i class="fa-solid fa-eye"></i></span>
+                        <h2 class="section-title" style="margin-top:1rem;">Vision</h2>
                         <p class="muted">{!! nl2br(e($page?->vision ?: 'Devenir une reference locale de la petite enfance grace a un cadre moderne, bienveillant et stimulant.')) !!}</p>
                     </article>
+                </div>
+                <div style="margin-top:2rem;">
                     <article class="panel">
-                        <span class="icon-chip"><i class="fa-solid fa-heart"></i></span>
-                        <h3>Valeurs</h3>
+                        <span class="icon-chip" style="font-size:2rem;"><i class="fa-solid fa-heart"></i></span>
+                        <h2 class="section-title" style="margin-top:1rem;">Valeurs</h2>
                         <p class="muted">{!! nl2br(e($page?->valeurs ?: 'Respect, securite, ecoute active, autonomie, cooperation avec les parents et recherche continue de qualite.')) !!}</p>
                     </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-soft">
+            <div class="wrap">
+                <h2 class="section-title">Notre Equipe</h2>
+                <p class="section-subtitle">Une equipe passionnee et dedieea au bien-etre de vos enfants.</p>
+                
+                <div class="grid-3" style="margin-top:2rem;gap:1.5rem;">
+                    <article class="panel" style="text-align:center;">
+                        <div style="width:120px;height:120px;background:#f0f0f0;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-user" style="font-size:2rem;color:#999;"></i>
+                        </div>
+                        <h3>Directrice</h3>
+                        <p class="muted">Accueil et coordination pedagogique</p>
+                    </article>
+                    <article class="panel" style="text-align:center;">
+                        <div style="width:120px;height:120px;background:#f0f0f0;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-user" style="font-size:2rem;color:#999;"></i>
+                        </div>
+                        <h3>Educatrices</h3>
+                        <p class="muted">Accompagnement et eveil des enfants</p>
+                    </article>
+                    <article class="panel" style="text-align:center;">
+                        <div style="width:120px;height:120px;background:#f0f0f0;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-user" style="font-size:2rem;color:#999;"></i>
+                        </div>
+                        <h3>Personnel de soutien</h3>
+                        <p class="muted">Hygiene et securite</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-warm">
+            <div class="wrap">
+                <div style="max-width:600px;margin:0 auto;text-align:center;">
+                    <h2 class="section-title">Restez informes</h2>
+                    <p class="section-subtitle">Inscrivez-vous a notre newsletter pour recevoir les dernieres actualites et evenements.</p>
+                    
+                    <form style="display:flex;gap:0.5rem;margin-top:1.5rem;" action="{{ route('vitrine.newsletter.subscribe') }}" method="POST">
+                        @csrf
+                        <input type="email" name="email" placeholder="Votre adresse email" required style="flex:1;padding:0.75rem;border:1px solid var(--line);border-radius:8px;font-size:0.95rem;">
+                        <button type="submit" class="btn btn-primary">S'abonner</button>
+                    </form>
+                    <p class="muted" style="font-size:0.85rem;margin-top:0.75rem;">Nous respectons votre vie privee. Vous pouvez vous desabonner a tout moment.</p>
                 </div>
             </div>
         </section>
