@@ -20,7 +20,7 @@
                     <div class="card-body p-4 p-md-5">
                         <div class="d-flex align-items-center gap-3 mb-4">
                             <div class="modern-brand-mark modern-brand-mark-image">
-                                <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo Ancre Des Elites" class="modern-brand-logo">
+                                <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites" class="modern-brand-logo">
                             </div>
                             <div>
                                 <div class="text-uppercase small fw-bold text-secondary">Ancre Des Elites</div>

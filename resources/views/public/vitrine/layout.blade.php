@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Garderie')</title>
     <meta name="description" content="@yield('meta_description', 'Site vitrine de la garderie Ancre Des Elites')">
+    <link rel="icon" type="image/png" href="{{ asset('images/fav_ico.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -780,7 +781,7 @@
     <header class="site-header">
         <div class="header-inner">
             <a href="{{ route('vitrine.home') }}" class="brand">
-                <img class="brand-logo" src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}">
+                <img class="brand-logo" src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}">
                 <span>
                     <p class="brand-title">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</p>
                     <p class="brand-sub">{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
@@ -842,7 +843,7 @@
         <div class="footer-inner">
             <div>
                 <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem;">
-                    <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:48px;height:48px;border-radius:12px;background:#fff;padding:0.35rem;">
+                    <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:48px;height:48px;border-radius:12px;background:#fff;padding:0.35rem;">
                     <h3 style="margin:0;">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</h3>
                 </div>
                 <p>{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>

@@ -334,7 +334,7 @@
     <header class="topbar">
         <div class="container topbar-inner">
             <a class="brand" href="{{ route('vitrine') }}">
-                <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo Ancre Des Elites">
+                <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites">
                 <span>
                     <strong>Ancre Des Elites</strong>
                     <small>Garderie et eveil</small>

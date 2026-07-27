@@ -230,7 +230,7 @@
             <section class="auth-brand-wrap">
                 <a href="{{ route('home') }}" class="auth-brand-link">
                     <span class="auth-brand-mark">
-                        <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo Ancre Des Elites" class="auth-brand-logo">
+                        <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites" class="auth-brand-logo">
                     </span>
                     <span>
                         <strong>Ancre Des Elites</strong>

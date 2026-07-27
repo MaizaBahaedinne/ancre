@@ -28,7 +28,7 @@
             <div class="modern-brand">
                 <a href="{{ route('home') }}" class="modern-brand-link">
                     <span class="modern-brand-mark modern-brand-mark-image">
-                        <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo Ancre Des Elites" class="modern-brand-logo">
+                        <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites" class="modern-brand-logo">
                     </span>
                     <span>
                         <strong>Ancre Des Elites</strong>
