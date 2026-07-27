@@ -247,14 +247,23 @@
                     <h2 class="section-title title-center">Parents heureux</h2>
                     <div class="testimonials-strip reveal" data-testimonial-strip>
                         @forelse(($testimonials ?? collect()) as $testimonial)
+                            @php
+                                $parentPhoto = !empty($testimonial->parent_photo_url)
+                                    ? $testimonial->parent_photo_url
+                                    : 'https://ui-avatars.com/api/?name='.urlencode($testimonial->parent_name ?: 'Parent').'&background=2d6f85&color=ffffff&size=128';
+                            @endphp
                             <article class="panel testimonial-item">
+                                <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.65rem;">
+                                    <img src="{{ $parentPhoto }}" alt="{{ $testimonial->parent_name }}" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid #d9e4ec;">
+                                    <strong>{{ $testimonial->parent_name }}</strong>
+                                </div>
                                 <div class="stars">
                                     @for($i = 0; $i < ((int)($testimonial->rating ?? 5)); $i++)
                                         <i class="fa-solid fa-star"></i>
                                     @endfor
                                 </div>
                                 <p class="muted">"{{ $testimonial->content }}"</p>
-                                <strong>- {{ $testimonial->parent_name }}{{ $testimonial->child_name ? ' (Parent de '.$testimonial->child_name.')' : '' }}</strong>
+                                <strong>- {{ $testimonial->child_name ? 'Parent de '.$testimonial->child_name : 'Parent' }}</strong>
                             </article>
                         @empty
                             <article class="panel testimonial-item">

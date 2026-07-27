@@ -48,6 +48,68 @@
         </div>
     </div>
 
+    {{-- SSL Certificate Card --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h3 class="card-title mb-0">Certificat SSL</h3>
+                    @if($ssl['reachable'] ?? false)
+                        @if(($ssl['days_left'] ?? 0) > 30)
+                            <span class="badge bg-success">Valide &mdash; {{ $ssl['days_left'] }} jours restants</span>
+                        @elseif(($ssl['days_left'] ?? 0) > 7)
+                            <span class="badge bg-warning text-dark">Expire bientot &mdash; {{ $ssl['days_left'] }} jours restants</span>
+                        @else
+                            <span class="badge bg-danger">Critique &mdash; {{ $ssl['days_left'] }} jours restants</span>
+                        @endif
+                    @else
+                        <span class="badge bg-secondary">Inaccessible</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if(!($ssl['reachable'] ?? false))
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Impossible de verifier le certificat SSL pour <strong>{{ $ssl['host'] }}</strong>.
+                            @if(!empty($ssl['error']))
+                                &mdash; {{ $ssl['error'] }}
+                            @endif
+                        </div>
+                    @else
+                        <div class="row g-3">
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="text-muted small">Domaine</div>
+                                <div class="fw-semibold">{{ $ssl['host'] }}</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="text-muted small">Emis par</div>
+                                <div class="fw-semibold">{{ $ssl['issuer'] }}</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="text-muted small">Valide du</div>
+                                <div class="fw-semibold">{{ $ssl['valid_from'] }}</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="text-muted small">Expire le</div>
+                                <div class="fw-semibold @if(($ssl['days_left'] ?? 0) <= 30) text-danger @endif">{{ $ssl['valid_to'] }}</div>
+                            </div>
+                        </div>
+                        @if(!empty($ssl['sans']))
+                            <div class="mt-3">
+                                <div class="text-muted small mb-1">Domaines couverts (SAN)</div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($ssl['sans'] as $san)
+                                        <span class="badge bg-light text-dark border">{{ $san }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-7 mb-3">
             <div class="card">

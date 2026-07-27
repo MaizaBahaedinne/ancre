@@ -12,6 +12,7 @@ class VitrineTestimonial extends Model
     protected $fillable = [
         'parent_name',
         'child_name',
+        'parent_photo_url',
         'content',
         'rating',
         'sort_order',

@@ -11,6 +11,8 @@ class DeveloperToolsController extends Controller
 {
     public function index(): View
     {
+        $ssl = $this->checkSslCertificate();
+
         $deploymentSteps = [
             ['title' => 'Mettre a jour le code', 'command' => 'git pull origin main', 'description' => 'Recupere les derniers changements du depot distant.'],
             ['title' => 'Installer les dependances PHP', 'command' => 'composer install --no-dev --optimize-autoloader', 'description' => 'Reinstalle les packages de production et optimise l’autoloader.'],
@@ -24,7 +26,7 @@ class DeveloperToolsController extends Controller
         $latestEntries = $latestLog ? $this->readLogEntries($latestLog['path'], null, null, 8) : [];
         $latestLevelCounts = collect($latestEntries)->groupBy('level')->map->count()->all();
 
-        return view('admin.developer.index', compact('deploymentSteps', 'logFiles', 'latestLog', 'latestEntries', 'latestLevelCounts'));
+        return view('admin.developer.index', compact('deploymentSteps', 'logFiles', 'latestLog', 'latestEntries', 'latestLevelCounts', 'ssl'));
     }
 
     public function logs(Request $request): View
@@ -48,6 +50,72 @@ class DeveloperToolsController extends Controller
             ->all();
 
         return view('admin.developer.logs', compact('logFiles', 'selectedLog', 'entries', 'groupedEntries', 'levelCounts', 'level', 'search'));
+    }
+
+    private function checkSslCertificate(): array
+    {
+        $host = parse_url(config('app.url'), PHP_URL_HOST) ?? request()->getHost();
+        $port = 443;
+        $timeout = 10;
+
+        $context = stream_context_create([
+            'ssl' => [
+                'capture_peer_cert' => true,
+                'verify_peer'       => true,
+                'verify_peer_name'  => true,
+                'SNI_enabled'       => true,
+            ],
+        ]);
+
+        $client = @stream_socket_client(
+            "ssl://{$host}:{$port}",
+            $errno,
+            $errstr,
+            $timeout,
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+
+        if (! $client) {
+            return [
+                'host'       => $host,
+                'reachable'  => false,
+                'error'      => $errstr ?: 'Connexion impossible',
+            ];
+        }
+
+        $params = stream_context_get_params($client);
+        fclose($client);
+
+        $cert = $params['options']['ssl']['peer_certificate'] ?? null;
+        if (! $cert) {
+            return ['host' => $host, 'reachable' => false, 'error' => 'Certificat introuvable'];
+        }
+
+        $info    = openssl_x509_parse($cert);
+        $validTo = $info['validTo_time_t'] ?? 0;
+        $validFrom = $info['validFrom_time_t'] ?? 0;
+        $now     = time();
+        $daysLeft = (int) ceil(($validTo - $now) / 86400);
+        $subject  = $info['subject']['CN'] ?? '';
+        $issuer   = $info['issuer']['O'] ?? ($info['issuer']['CN'] ?? 'Inconnu');
+        $sans     = [];
+        if (isset($info['extensions']['subjectAltName'])) {
+            preg_match_all('/DNS:([^,\s]+)/', $info['extensions']['subjectAltName'], $m);
+            $sans = $m[1] ?? [];
+        }
+
+        return [
+            'host'        => $host,
+            'reachable'   => true,
+            'valid'       => $now >= $validFrom && $now <= $validTo,
+            'subject'     => $subject,
+            'issuer'      => $issuer,
+            'sans'        => $sans,
+            'valid_from'  => date('d/m/Y', $validFrom),
+            'valid_to'    => date('d/m/Y', $validTo),
+            'days_left'   => $daysLeft,
+        ];
     }
 
     private function discoverLogFiles(): array

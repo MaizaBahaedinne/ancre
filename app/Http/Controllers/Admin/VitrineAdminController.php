@@ -583,6 +583,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'parent_name' => ['required', 'string', 'max:255'],
             'child_name' => ['nullable', 'string', 'max:255'],
+            'parent_photo_url' => ['nullable', 'string', 'max:2048'],
             'content' => ['required', 'string'],
             'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
@@ -604,6 +605,7 @@ class VitrineAdminController extends Controller
         $validated = $request->validate([
             'parent_name' => ['required', 'string', 'max:255'],
             'child_name' => ['nullable', 'string', 'max:255'],
+            'parent_photo_url' => ['nullable', 'string', 'max:2048'],
             'content' => ['required', 'string'],
             'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
