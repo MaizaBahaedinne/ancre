@@ -127,25 +127,76 @@
             color: var(--ink-500);
         }
 
-        .account-chip {
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu summary {
+            list-style: none;
+        }
+
+        .user-menu summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .user-trigger {
+            border: 1px solid var(--brand);
+            background: var(--brand);
+            color: #fff;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.67rem 1rem;
+            box-shadow: 0 12px 22px rgba(30, 80, 98, 0.2);
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            padding: 0.35rem 0.7rem;
-            border-radius: 999px;
-            border: 1px solid rgba(224, 166, 63, 0.42);
-            background: linear-gradient(135deg, #ffffff 0%, var(--accent-soft) 100%);
-            color: var(--ink-900);
-            font-weight: 700;
-            font-size: 0.83rem;
-            text-decoration: none;
-            max-width: 320px;
+            cursor: pointer;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .account-chip i { color: var(--brand-dark); }
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 0.5rem);
+            width: min(290px, 90vw);
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            padding: 0.7rem;
+            z-index: 80;
+        }
+
+        .user-role {
+            margin: 0 0 0.55rem;
+            font-size: 0.82rem;
+            color: var(--ink-500);
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 0.55rem;
+        }
+
+        .user-item {
+            width: 100%;
+            text-decoration: none;
+            color: var(--ink-900);
+            border: 1px solid transparent;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.58rem 0.7rem;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .user-item:hover {
+            background: var(--surface-soft);
+            border-color: var(--line);
+        }
 
         .menu-toggle {
             display: none;
@@ -664,10 +715,12 @@
 
         @media (max-width: 780px) {
             .ribbon { display: none; }
-            .account-chip {
-                max-width: 170px;
-                font-size: 0.78rem;
-                padding: 0.3rem 0.55rem;
+            .user-menu {
+                width: 100%;
+            }
+            .user-trigger {
+                width: 100%;
+                justify-content: center;
             }
             .menu-toggle { display: inline-flex; }
 
@@ -702,6 +755,12 @@
             .btn-parent {
                 width: 100%;
                 text-align: center;
+            }
+
+            .user-dropdown {
+                position: static;
+                width: 100%;
+                margin-top: 0.55rem;
             }
 
             .grid-3, .social-grid, .grid-4, .form-row, .footer-inner { grid-template-columns: 1fr; }
@@ -742,10 +801,34 @@
                     <a href="{{ route('vitrine.contact') }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
                 </nav>
                 @auth
-                    <a href="{{ route('home') }}" class="btn-parent" title="Compte connecte">
-                        <i class="fa-solid fa-circle-user"></i>
-                        {{ auth()->user()->name }}
-                    </a>
+                    @php
+                        $userRoles = auth()->user()->getRoleNames()->implode(', ');
+                    @endphp
+                    <details class="user-menu">
+                        <summary class="user-trigger">
+                            <i class="fa-solid fa-circle-user"></i>
+                            {{ auth()->user()->name }}
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </summary>
+                        <div class="user-dropdown">
+                            <p class="user-role">Role: {{ $userRoles !== '' ? $userRoles : 'Utilisateur' }}</p>
+                            <a href="{{ route('home') }}" class="user-item">
+                                <i class="fa-solid fa-gauge"></i>
+                                Mon tableau de bord
+                            </a>
+                            <a href="{{ route('profile.edit') }}" class="user-item">
+                                <i class="fa-solid fa-id-badge"></i>
+                                Mon profil
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="user-item">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    Deconnexion
+                                </button>
+                            </form>
+                        </div>
+                    </details>
                 @else
                     <a href="{{ $settings?->parent_space_url ?: route('login') }}" class="btn-parent">Mon espace</a>
                 @endauth
