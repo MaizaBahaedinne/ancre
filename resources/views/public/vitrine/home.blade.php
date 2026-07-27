@@ -336,8 +336,61 @@
 
         <section class="section section-soft">
             <div class="wrap">
-                <h2 class="section-title">Notre equipe professionnelle</h2>
-                <div class="grid-4 reveal">
+                <h2 class="section-title">Nos packages</h2>
+                <p class="section-subtitle">Des formules adaptees aux besoins de votre famille.</p>
+                <div class="grid-3 reveal" style="margin-top:1.5rem;">
+                    @forelse(($packages ?? collect())->where('is_active', true) as $package)
+                        <article class="panel">
+                            <h3>{{ $package->name }}</h3>
+                            <p class="muted">{{ $package->description }}</p>
+                            @if($package->features)
+                                <div class="muted" style="font-size:0.9rem;margin-top:0.7rem;">
+                                    @foreach(is_string($package->features) ? explode(',', $package->features) : $package->features as $feature)
+                                        @if(trim($feature))
+                                            <div style="margin:0.4rem 0;"><i class="fa-solid fa-check" style="color:#2d6f85;margin-right:0.4rem;"></i>{{ trim($feature) }}</div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                        </article>
+                    @empty
+                        <article class="panel"><p class="muted">Aucun package disponible.</p></article>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title">Horaires d'accueil</h2>
+                <p class="section-subtitle">Ouvert du lundi au vendredi pour accueillir votre enfant.</p>
+                <div class="grid-2 reveal" style="margin-top:1.5rem;">
+                    <article class="panel">
+                        <h3><i class="fa-solid fa-calendar-days" style="margin-right:0.5rem;"></i>Jours d'ouverture</h3>
+                        <p class="muted">
+                            <strong>Lundi au vendredi</strong><br>
+                            Nous sommes fermes les samedis, dimanches et jours feries.
+                        </p>
+                    </article>
+                    <article class="panel">
+                        <h3><i class="fa-solid fa-clock" style="margin-right:0.5rem;"></i>Horaires</h3>
+                        <p class="muted">
+                            <strong>8h00 - 17h30</strong><br>
+                            Accueil flexible en fonction de vos besoins.<br>
+                            @if($settings?->phone)
+                                <small>Contactez-nous: <strong>{{ $settings->phone }}</strong></small>
+                            @endif
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-warm">
+            <div class="wrap">
+                <h2 class="section-title">Notre Equipe</h2>
+                <p class="section-subtitle">Des professionnels dedies au bien-etre de vos enfants.</p>
+                <div class="grid-4 reveal" style="margin-top:1.5rem;">
                     @forelse(($professionals ?? collect()) as $member)
                         @php
                             $memberPhoto = $member->photo
@@ -359,32 +412,10 @@
             </div>
         </section>
 
-        @if($showBlogSection)
-            <section class="section">
-                <div class="wrap">
-                    <h2 class="section-title title-center">Blog & actualites</h2>
-                    <div class="grid-3 reveal">
-                        @forelse(($blogPosts ?? collect()) as $post)
-                            <article class="panel">
-                                <div style="height:190px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
-                                    <img src="{{ $post->cover_url ?: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80' }}" alt="{{ $post->title }}" style="width:100%;height:100%;object-fit:cover;">
-                                </div>
-                                <h3>{{ $post->title }}</h3>
-                                <p class="muted">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content ?: ''), 130) }}</p>
-                            </article>
-                        @empty
-                            <article class="panel"><p class="muted">Aucun article disponible.</p></article>
-                        @endforelse
-                    </div>
-                    <a href="{{ route('vitrine.blog') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Voir toutes les actualites</a>
-                </div>
-            </section>
-        @endif
-
         <section class="section newsletter-band">
             <div class="wrap">
-                <h2 class="section-title title-center" style="margin-bottom:0.5rem;">Newsletter</h2>
-                <p class="section-subtitle" style="margin:0 auto 1rem;text-align:center;">Recevez nos actualites, nos conseils parents et les prochaines activites de la garderie.</p>
+                <h2 class="section-title title-center" style="margin-bottom:0.5rem;">Restez informes</h2>
+                <p class="section-subtitle" style="margin:0 auto 1rem;text-align:center;">Inscrivez-vous a notre newsletter pour recevoir nos actualites et les prochaines activites.</p>
                 @if(session('newsletter_success'))
                     <div class="alert alert-ok" style="max-width:620px;margin:0 auto 1rem;">{{ session('newsletter_success') }}</div>
                 @endif
