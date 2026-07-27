@@ -300,6 +300,10 @@
                         </summary>
 
                         <div class="modern-user-dropdown">
+                            <div class="modern-user-meta" style="padding: 0.75rem 0.9rem; border-bottom: 1px solid rgba(var(--brand-gold-rgb), 0.2); margin-bottom: 0.5rem;">
+                                <strong style="font-size: 1rem;">{{ auth()->user()->name }}</strong>
+                                <small style="color: #666;">{{ auth()->user()->email }}</small>
+                            </div>
                             <div class="modern-user-role">
                                 <i class="fa-solid fa-shield-heart"></i>
                                 <span>{{ auth()->user()->getRoleNames()->join(', ') ?: 'Aucun role' }}</span>

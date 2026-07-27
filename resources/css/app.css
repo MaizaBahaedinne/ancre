@@ -186,7 +186,7 @@
 	.modern-topbar {
 		position: sticky;
 		top: 0;
-		z-index: 1025;
+		z-index: 1050;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -378,6 +378,10 @@
 		cursor: pointer;
 		list-style: none;
 		background: rgba(248, 250, 252, 0.9);
+	}
+
+	.modern-user-menu summary .modern-user-meta {
+		display: none;
 	}
 
 	.modern-user-menu summary::-webkit-details-marker {
@@ -1417,18 +1421,47 @@
 		}
 
 		.modern-topbar {
-			flex-wrap: wrap;
+			flex-wrap: nowrap;
+			padding: 0.75rem 0.5rem;
+		}
+
+		.modern-topbar-left {
+			order: 1;
+			width: auto;
+			flex: 0 0 auto;
+		}
+
+		.modern-topbar-search {
+			display: none;
 		}
 
 		.modern-topbar-right {
-			width: 100%;
-			justify-content: space-between;
+			order: 3;
+			width: auto;
+			justify-content: flex-end;
+			flex: 0 0 auto;
 		}
 
 		.modern-sidebar-toggle {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
+		}
+
+		.modern-brand-link {
+			order: 2;
+			flex: 1;
+			justify-content: center;
+		}
+
+		.modern-user-meta {
+			display: flex;
+			flex-direction: column;
+			gap: 0.2rem;
+		}
+
+		.modern-user-menu summary .modern-user-meta {
+			display: none;
 		}
 
 		.modern-admin-layout.is-sidebar-open .modern-sidebar {
