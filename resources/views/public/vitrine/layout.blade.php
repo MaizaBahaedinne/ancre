@@ -127,6 +127,26 @@
             color: var(--ink-500);
         }
 
+        .account-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(224, 166, 63, 0.42);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-soft) 100%);
+            color: var(--ink-900);
+            font-weight: 700;
+            font-size: 0.83rem;
+            text-decoration: none;
+            max-width: 320px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-chip i { color: var(--brand-dark); }
+
         .menu-toggle {
             display: none;
             width: 2.6rem;
@@ -644,6 +664,11 @@
 
         @media (max-width: 780px) {
             .ribbon { display: none; }
+            .account-chip {
+                max-width: 170px;
+                font-size: 0.78rem;
+                padding: 0.3rem 0.55rem;
+            }
             .menu-toggle { display: inline-flex; }
 
             .nav-shell {
@@ -702,6 +727,13 @@
                     <p class="brand-sub">{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
                 </span>
             </a>
+
+            @auth
+                <a href="{{ route('home') }}" class="account-chip" title="Compte connecte">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <span>{{ auth()->user()->name }}</span>
+                </a>
+            @endauth
 
             <button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-nav">
                 <i class="fa-solid fa-bars"></i>
