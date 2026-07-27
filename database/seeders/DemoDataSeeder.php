@@ -12,6 +12,7 @@ use App\Models\ParentModel;
 use App\Models\Personnel;
 use App\Models\Presence;
 use Carbon\Carbon;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +35,7 @@ class DemoDataSeeder extends Seeder
         Activite::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-        $faker = fake('fr_FR');
+        $faker = Faker::create('fr_FR');
 
         $maleFirstNames = [
             'Mohamed', 'Ahmed', 'Ali', 'Youssef', 'Mahdi', 'Sami', 'Walid', 'Karim',
