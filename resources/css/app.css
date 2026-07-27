@@ -1490,7 +1490,15 @@
 		border-radius: 12px;
 	}
 
+	.modern-notifications-menu summary::-webkit-details-marker {
+		display: none;
+	}
+
 	@media (max-width: 991.98px) {
+		.modern-notifications-dropdown {
+			width: 320px;
+			right: -0.75rem;
+		}
 		.modern-sidebar {
 			top: 0;
 			left: 0;
