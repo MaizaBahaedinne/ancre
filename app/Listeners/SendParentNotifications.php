@@ -100,10 +100,16 @@ class SendParentNotifications
 
     private function resolveReceivers($receiver)
     {
-        return match ($receiver->receiver_type) {
-            'role' => \App\Models\User::role($receiver->receiver_value)->get(),
-            'user' => \App\Models\User::where('id', $receiver->receiver_value)->get(),
-            default => collect(),
-        };
+        try {
+            return match ($receiver->receiver_type) {
+                'role' => \App\Models\User::role($receiver->receiver_value)->get(),
+                'user' => \App\Models\User::where('id', $receiver->receiver_value)->get(),
+                default => collect(),
+            };
+        } catch (\Spatie\Permission\Exceptions\RoleDoesNotExist $e) {
+            // Role doesn't exist, return empty collection
+            \Illuminate\Support\Facades\Log::warning("Role '{$receiver->receiver_value}' does not exist", ['receiver' => $receiver]);
+            return collect();
+        }
     }
 }
