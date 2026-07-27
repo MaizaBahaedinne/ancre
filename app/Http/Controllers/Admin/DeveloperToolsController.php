@@ -54,66 +54,84 @@ class DeveloperToolsController extends Controller
 
     private function checkSslCertificate(): array
     {
-        $host = parse_url(config('app.url'), PHP_URL_HOST) ?? request()->getHost();
-        $port = 443;
+        $host    = parse_url(config('app.url'), PHP_URL_HOST) ?? request()->getHost();
         $timeout = 10;
 
-        $context = stream_context_create([
-            'ssl' => [
-                'capture_peer_cert' => true,
-                'verify_peer'       => true,
-                'verify_peer_name'  => true,
-                'SNI_enabled'       => true,
-            ],
+        if (! function_exists('curl_init')) {
+            return ['host' => $host, 'reachable' => false, 'error' => 'Extension cURL non disponible'];
+        }
+
+        // Step 1 — fetch the raw PEM certificate via cURL (verify_peer off just to grab the cert)
+        $ch = curl_init("https://{$host}/");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_TIMEOUT         => $timeout,
+            CURLOPT_CONNECTTIMEOUT  => $timeout,
+            CURLOPT_SSL_VERIFYPEER  => false,   // grab cert even when CA chain unknown locally
+            CURLOPT_SSL_VERIFYHOST  => 0,
+            CURLOPT_CERTINFO        => true,
+            CURLOPT_HEADER          => false,
+            CURLOPT_NOBODY          => true,
+            CURLOPT_FOLLOWLOCATION  => false,
         ]);
 
-        $client = @stream_socket_client(
-            "ssl://{$host}:{$port}",
-            $errno,
-            $errstr,
-            $timeout,
-            STREAM_CLIENT_CONNECT,
-            $context
-        );
+        curl_exec($ch);
+        $errno    = curl_errno($ch);
+        $errstr   = curl_error($ch);
+        $certInfo = curl_getinfo($ch, CURLINFO_CERTINFO);
+        curl_close($ch);
 
-        if (! $client) {
+        if ($errno || empty($certInfo)) {
             return [
-                'host'       => $host,
-                'reachable'  => false,
-                'error'      => $errstr ?: 'Connexion impossible',
+                'host'      => $host,
+                'reachable' => false,
+                'error'     => $errstr ?: 'Connexion impossible (cURL #' . $errno . ')',
             ];
         }
 
-        $params = stream_context_get_params($client);
-        fclose($client);
+        // Step 2 — parse dates from the first cert in the chain
+        $leaf     = $certInfo[0];
+        $subject  = $leaf['Subject'] ?? '';
+        $issuer   = $leaf['Issuer'] ?? 'Inconnu';
+        $start    = $leaf['Start date'] ?? '';
+        $expire   = $leaf['Expire date'] ?? '';
 
-        $cert = $params['options']['ssl']['peer_certificate'] ?? null;
-        if (! $cert) {
-            return ['host' => $host, 'reachable' => false, 'error' => 'Certificat introuvable'];
+        $validFrom = $start  ? strtotime($start)  : 0;
+        $validTo   = $expire ? strtotime($expire) : 0;
+        $now       = time();
+        $daysLeft  = $validTo ? (int) ceil(($validTo - $now) / 86400) : 0;
+
+        // Extract CN from subject string "CN=foo, O=bar, ..."
+        preg_match('/CN=([^,]+)/', $subject, $cnMatch);
+        $subjectCN = trim($cnMatch[1] ?? $subject);
+
+        // Extract O from issuer string
+        preg_match('/O=([^,]+)/', $issuer, $oMatch);
+        $issuerO = trim($oMatch[1] ?? $issuer);
+
+        // Step 3 — collect SANs from the leaf cert
+        $sans = [];
+        if (isset($leaf['Cert']) && is_string($leaf['Cert'])) {
+            $parsed = @openssl_x509_parse($leaf['Cert']);
+            if ($parsed && isset($parsed['extensions']['subjectAltName'])) {
+                preg_match_all('/DNS:([^,\s]+)/', $parsed['extensions']['subjectAltName'], $m);
+                $sans = $m[1] ?? [];
+            }
         }
 
-        $info    = openssl_x509_parse($cert);
-        $validTo = $info['validTo_time_t'] ?? 0;
-        $validFrom = $info['validFrom_time_t'] ?? 0;
-        $now     = time();
-        $daysLeft = (int) ceil(($validTo - $now) / 86400);
-        $subject  = $info['subject']['CN'] ?? '';
-        $issuer   = $info['issuer']['O'] ?? ($info['issuer']['CN'] ?? 'Inconnu');
-        $sans     = [];
-        if (isset($info['extensions']['subjectAltName'])) {
-            preg_match_all('/DNS:([^,\s]+)/', $info['extensions']['subjectAltName'], $m);
-            $sans = $m[1] ?? [];
-        }
+        $info      = null; // kept for compat below
+        $validFrom = $validFrom;
+        $validTo   = $validTo;
 
         return [
             'host'        => $host,
             'reachable'   => true,
             'valid'       => $now >= $validFrom && $now <= $validTo,
-            'subject'     => $subject,
-            'issuer'      => $issuer,
+            'subject'     => $subjectCN,
+            'issuer'      => $issuerO,
             'sans'        => $sans,
-            'valid_from'  => date('d/m/Y', $validFrom),
-            'valid_to'    => date('d/m/Y', $validTo),
+            'valid_from'  => $validFrom ? date('d/m/Y', $validFrom) : '—',
+            'valid_to'    => $validTo   ? date('d/m/Y', $validTo)   : '—',
             'days_left'   => $daysLeft,
         ];
     }
