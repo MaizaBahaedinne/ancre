@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             ParentRequestSubjectsSeeder::class,
             SfaxVilleSchoolsSeeder::class,
             AcademicSubjectsPrimarySeeder::class,
-            DemoDataSeeder::class,
+            SfaxDemoDataSeeder::class,
         ]);
     }
 }
