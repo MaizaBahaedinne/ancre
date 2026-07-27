@@ -20,6 +20,8 @@ class Inscription extends Model
         'date_inscription',
         'type_garde',
         'statut',
+        'classe',
+        'school_class_id',
     ];
 
     protected $casts = [
@@ -37,6 +39,11 @@ class Inscription extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function schoolClass(): BelongsTo
+    {
+        return $this->belongsTo(SchoolClass::class);
     }
 
     public function getResolvedAnnualRegistrationFeeAttribute(): float

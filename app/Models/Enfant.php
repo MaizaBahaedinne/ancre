@@ -13,12 +13,10 @@ class Enfant extends Model
 
     protected $fillable = [
         'parent_id',
-        'school_class_id',
         'nom',
         'prenom',
         'date_naissance',
         'sexe',
-        'classe',
         'photo',
         'has_allergie',
         'allergie_options',
@@ -35,11 +33,6 @@ class Enfant extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(ParentModel::class, 'parent_id');
-    }
-
-    public function schoolClass(): BelongsTo
-    {
-        return $this->belongsTo(SchoolClass::class);
     }
 
     public function inscriptions(): HasMany

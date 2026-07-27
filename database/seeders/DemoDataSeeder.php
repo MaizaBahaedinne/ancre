@@ -14,7 +14,6 @@ use App\Models\Presence;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Faker\Generator;
 
 class DemoDataSeeder extends Seeder
 {
@@ -23,9 +22,8 @@ class DemoDataSeeder extends Seeder
      */
     public function run(): void
     {
-        /** @var Generator $faker */
-        $faker = app('Faker.en_US');
-        $faker->setLocale('fr_FR');
+        // Get Faker instance with French locale
+        $faker = \Faker\Factory::create('fr_FR');
         
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Presence::truncate();
@@ -94,7 +92,6 @@ class DemoDataSeeder extends Seeder
                 'prenom' => $faker->randomElement($isMale ? $maleFirstNames : $femaleFirstNames),
                 'date_naissance' => $faker->dateTimeBetween('-6 years', '-2 years')->format('Y-m-d'),
                 'sexe' => $faker->randomElement(['M', 'F']),
-                'classe' => $faker->randomElement($classes),
                 'allergies' => $faker->boolean(25) ? $faker->randomElement(['Aucune', 'Arachides', 'Lactose', 'Pollen']) : null,
                 'observations' => $faker->boolean(35) ? $faker->sentence() : null,
             ]));
@@ -113,6 +110,7 @@ class DemoDataSeeder extends Seeder
                 'date_inscription' => $faker->dateTimeBetween('-10 months', 'now')->format('Y-m-d'),
                 'type_garde' => $faker->randomElement(['Matin', 'Apres-midi', 'Journee complete']),
                 'statut' => $faker->randomElement(['Active', 'Renouvelee', 'Suspendue']),
+                'classe' => $faker->randomElement($classes),
             ]);
         }
 
