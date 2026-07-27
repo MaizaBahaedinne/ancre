@@ -3,18 +3,16 @@
 namespace App\Listeners;
 
 use App\Events\ParentCreated;
+use App\Mail\NewParentNotification;
+use App\Models\Notification;
+use App\Models\NotificationLog;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Mail;
 
-class SendParentNotifications
+class SendParentNotifications implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
+    use InteractsWithQueue;
 
     /**
      * Handle the event.
@@ -44,7 +42,7 @@ class SendParentNotifications
         foreach ($users as $user) {
             // Créer la notification système
             if (in_array($receiver->notification_medium, ['system', 'all'])) {
-                \App\Models\Notification::create([
+                $notification = Notification::create([
                     'user_id' => $user->id,
                     'trigger' => 'parent.created',
                     'subject' => "Nouveau parent inscrit: {$parent->user->name}",
@@ -57,15 +55,48 @@ class SendParentNotifications
                         'email' => $parent->user->email,
                     ],
                 ]);
+
+                // Log notification system
+                NotificationLog::create([
+                    'notification_id' => $notification->id,
+                    'channel' => 'system',
+                    'recipient' => $user->email,
+                    'status' => 'sent',
+                ]);
             }
 
-            // Ajouter les autres canaux (email, SMS) ici
+            // Envoyer email
             if (in_array($receiver->notification_medium, ['email', 'all'])) {
-                // TODO: Dispatcher email
+                try {
+                    Mail::to($user->email)->queue(new NewParentNotification($parent));
+                    
+                    // Log email
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'trigger' => 'parent.created',
+                        'subject' => "Nouveau parent inscrit: {$parent->user->name}",
+                        'description' => "Un email de notification a été envoyé.",
+                        'notification_type' => 'email',
+                        'receiver_type' => $receiver->receiver_type,
+                        'metadata' => [
+                            'parent_id' => $parent->id,
+                        ],
+                    ]);
+                } catch (\Exception $e) {
+                    // Log erreur
+                    NotificationLog::create([
+                        'notification_id' => 0,
+                        'channel' => 'email',
+                        'recipient' => $user->email,
+                        'status' => 'failed',
+                        'error_message' => $e->getMessage(),
+                    ]);
+                }
             }
 
+            // SMS (à implémenter)
             if (in_array($receiver->notification_medium, ['sms', 'all'])) {
-                // TODO: Dispatcher SMS
+                // TODO: Implémenter l'envoi SMS
             }
         }
     }

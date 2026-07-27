@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ParentCreated;
 use App\Http\Requests\StoreParentRequest;
 use App\Http\Requests\UpdateParentRequest;
 use App\Models\AcademicYear;
@@ -91,6 +92,9 @@ class ParentController extends Controller
         }
 
         $parent = ParentModel::create($data);
+
+        // Dispatch notification event
+        ParentCreated::dispatch($parent);
 
         return redirect()
             ->route('parents.show', $parent)

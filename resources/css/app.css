@@ -455,6 +455,60 @@
 		color: #ddd;
 	}
 
+	.modern-notification-item {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: 1rem;
+		border-bottom: 1px solid #f0f0f0;
+		transition: background 0.2s ease;
+	}
+
+	.modern-notification-item:hover {
+		background: #f9fafb;
+	}
+
+	.modern-notification-content {
+		flex: 1;
+		padding-right: 0.75rem;
+	}
+
+	.modern-notification-content strong {
+		display: block;
+		color: var(--brand-navy);
+		margin-bottom: 0.25rem;
+		font-size: 0.9rem;
+	}
+
+	.modern-notification-content p {
+		font-size: 0.8rem;
+		color: #666;
+		margin: 0.25rem 0;
+		line-height: 1.4;
+	}
+
+	.modern-notification-content small {
+		display: block;
+		color: #999;
+		font-size: 0.75rem;
+		margin-top: 0.5rem;
+	}
+
+	.modern-notification-close {
+		flex-shrink: 0;
+		background: none;
+		border: none;
+		color: #999;
+		cursor: pointer;
+		padding: 0.25rem;
+		font-size: 0.9rem;
+		transition: color 0.2s ease;
+	}
+
+	.modern-notification-close:hover {
+		color: #28a745;
+	}
+
 	.modern-user-menu {
 		position: relative;
 		z-index: 1050;
