@@ -12,9 +12,9 @@ use App\Models\ParentModel;
 use App\Models\Personnel;
 use App\Models\Presence;
 use Carbon\Carbon;
-use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Faker\Generator;
 
 class DemoDataSeeder extends Seeder
 {
@@ -23,6 +23,10 @@ class DemoDataSeeder extends Seeder
      */
     public function run(): void
     {
+        /** @var Generator $faker */
+        $faker = app('Faker.en_US');
+        $faker->setLocale('fr_FR');
+        
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Presence::truncate();
         EnfantActivite::truncate();
@@ -34,8 +38,6 @@ class DemoDataSeeder extends Seeder
         Personnel::truncate();
         Activite::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
-
-        $faker = Faker::create('fr_FR');
 
         $maleFirstNames = [
             'Mohamed', 'Ahmed', 'Ali', 'Youssef', 'Mahdi', 'Sami', 'Walid', 'Karim',
