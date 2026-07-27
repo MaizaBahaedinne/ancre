@@ -317,7 +317,7 @@
 		border-radius: 14px;
 		background: var(--brand-navy);
 		color: #fff;
-		z-index: 1028;
+		z-index: 1050;
 		position: relative;
 	}
 
@@ -364,9 +364,100 @@
 		font-weight: 800;
 	}
 
+	.modern-notifications-menu {
+		position: relative;
+		z-index: 1050;
+	}
+
+	.modern-notifications-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 12px;
+		cursor: pointer;
+		list-style: none;
+		background: rgba(248, 250, 252, 0.9);
+		color: var(--brand-navy);
+		font-size: 1.1rem;
+		position: relative;
+		transition: all 0.2s ease;
+	}
+
+	.modern-notifications-toggle:hover {
+		background: rgba(248, 250, 252, 1);
+		transform: scale(1.05);
+	}
+
+	.modern-notifications-badge {
+		position: absolute;
+		top: -0.35rem;
+		right: -0.35rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.3rem;
+		height: 1.3rem;
+		border-radius: 50%;
+		background: #ef4444;
+		color: #fff;
+		font-size: 0.7rem;
+		font-weight: 700;
+	}
+
+	.modern-notifications-dropdown {
+		position: absolute;
+		top: calc(100% + 0.5rem);
+		right: 0;
+		width: 380px;
+		max-height: 500px;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		background: #fff;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+		overflow: hidden;
+		display: none;
+	}
+
+	.modern-notifications-menu[open] .modern-notifications-dropdown {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modern-notifications-header {
+		padding: 1rem;
+		border-bottom: 1px solid #e5e7eb;
+		font-weight: 700;
+		color: var(--brand-navy);
+	}
+
+	.modern-notifications-list {
+		flex: 1;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modern-notifications-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem 1rem;
+		color: #999;
+		text-align: center;
+	}
+
+	.modern-notifications-empty i {
+		font-size: 2rem;
+		margin-bottom: 0.5rem;
+		color: #ddd;
+	}
+
 	.modern-user-menu {
 		position: relative;
-		z-index: 60;
+		z-index: 1050;
 	}
 
 	.modern-user-menu summary {
@@ -1408,7 +1499,7 @@
 			border-radius: 0;
 			transform: translateX(-102%);
 			transition: transform 0.22s ease;
-			z-index: 1045;
+			z-index: 1090;
 			box-shadow: none;
 			border: none;
 		}

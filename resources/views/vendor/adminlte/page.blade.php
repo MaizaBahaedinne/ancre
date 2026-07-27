@@ -280,6 +280,24 @@
                 </div>
 
                 <div class="modern-topbar-right">
+                    <details class="modern-notifications-menu">
+                        <summary class="modern-notifications-toggle">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="modern-notifications-badge" id="notifications-count">0</span>
+                        </summary>
+                        <div class="modern-notifications-dropdown">
+                            <div class="modern-notifications-header">
+                                <strong>Notifications</strong>
+                            </div>
+                            <div class="modern-notifications-list" id="notifications-list">
+                                <div class="modern-notifications-empty">
+                                    <i class="fa-solid fa-inbox"></i>
+                                    <p>Aucune notification</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
                     <details class="modern-user-menu">
                         <summary>
                             @php
