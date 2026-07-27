@@ -25,7 +25,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'admin',
+            'receiver_value' => 'Administrateur',
             'notification_medium' => 'all',
             'is_enabled' => true,
         ]);
@@ -33,7 +33,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'responsable',
+            'receiver_value' => 'Responsable',
             'notification_medium' => 'email',
             'is_enabled' => true,
         ]);
@@ -59,7 +59,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'parent',
+            'receiver_value' => 'Parent',
             'notification_medium' => 'sms',
             'is_enabled' => true,
         ]);
@@ -85,7 +85,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'parent',
+            'receiver_value' => 'Parent',
             'notification_medium' => 'email',
             'is_enabled' => true,
         ]);
@@ -102,7 +102,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'admin',
+            'receiver_value' => 'Administrateur',
             'notification_medium' => 'system',
             'is_enabled' => true,
         ]);
@@ -119,7 +119,7 @@ class NotificationWorkflowSeeder extends Seeder
         NotificationReceiver::create([
             'workflow_id' => $workflow->id,
             'receiver_type' => 'role',
-            'receiver_value' => 'parent',
+            'receiver_value' => 'Parent',
             'notification_medium' => 'all',
             'is_enabled' => true,
         ]);
