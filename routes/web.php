@@ -61,12 +61,23 @@ Route::prefix('vitrine')->name('vitrine.')->group(function () {
     Route::get('/services', [VitrineController::class, 'services'])->name('services');
     Route::get('/activites', [VitrineController::class, 'activities'])->name('activities');
     Route::get('/actualites', [VitrineController::class, 'blog'])->name('blog');
+    Route::get('/actualites/{slug}', [VitrineController::class, 'blogShow'])->name('blog.show');
     Route::get('/contact', [VitrineController::class, 'contact'])->name('contact');
     Route::get('/privacy-policy-terms', [VitrineController::class, 'privacy'])->name('privacy');
     Route::get('/conditions', [VitrineController::class, 'conditions'])->name('conditions');
     Route::post('/contact', [VitrineController::class, 'submitContact'])->name('contact.submit');
     Route::post('/newsletter/subscribe', [VitrineController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
     Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest'])->name('visit-request.submit');
+});
+
+Route::middleware(['auth', 'role:Parent'])->prefix('vitrine')->name('vitrine.')->group(function () {
+    Route::post('/actualites/{blogPost}/commentaires', [VitrineController::class, 'storeBlogComment'])
+        ->name('blog.comments.store')
+        ->whereNumber('blogPost');
+
+    Route::post('/actualites/{blogPost}/reactions', [VitrineController::class, 'storeBlogReaction'])
+        ->name('blog.reactions.store')
+        ->whereNumber('blogPost');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])

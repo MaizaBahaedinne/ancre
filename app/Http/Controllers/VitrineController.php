@@ -8,6 +8,8 @@ use App\Models\Package;
 use App\Models\Personnel;
 use App\Models\VitrineNewsletterSubscriber;
 use App\Models\VitrineBlogPost;
+use App\Models\VitrineBlogPostComment;
+use App\Models\VitrineBlogPostReaction;
 use App\Models\VitrineFaq;
 use App\Models\VitrinePage;
 use App\Models\VitrineSchedule;
@@ -19,6 +21,7 @@ use App\Models\VitrineVisitRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
@@ -138,6 +141,102 @@ class VitrineController extends Controller
             'currentSlug' => 'blog',
             'posts' => $posts,
         ]));
+    }
+
+    public function blogShow(string $slug): View
+    {
+        abort_unless(Schema::hasTable('vitrine_blog_posts'), 404);
+
+        $post = VitrineBlogPost::query()
+            ->where('slug', $slug)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        $comments = collect();
+        $reactionCounts = [];
+        $myReaction = null;
+
+        if (Schema::hasTable('vitrine_blog_post_comments')) {
+            $comments = VitrineBlogPostComment::query()
+                ->with('user:id,name')
+                ->where('vitrine_blog_post_id', $post->id)
+                ->where('is_visible', true)
+                ->latest()
+                ->get();
+        }
+
+        if (Schema::hasTable('vitrine_blog_post_reactions')) {
+            $reactionCounts = VitrineBlogPostReaction::query()
+                ->selectRaw('reaction, COUNT(*) as total')
+                ->where('vitrine_blog_post_id', $post->id)
+                ->groupBy('reaction')
+                ->pluck('total', 'reaction')
+                ->toArray();
+
+            if (Auth::check()) {
+                $myReaction = VitrineBlogPostReaction::query()
+                    ->where('vitrine_blog_post_id', $post->id)
+                    ->where('user_id', Auth::id())
+                    ->value('reaction');
+            }
+        }
+
+        return view('public.vitrine.blog-show', $this->sharedData([
+            'currentSlug' => 'blog',
+            'post' => $post,
+            'comments' => $comments,
+            'reactionCounts' => $reactionCounts,
+            'myReaction' => $myReaction,
+        ]));
+    }
+
+    public function storeBlogComment(Request $request, int $blogPost): RedirectResponse
+    {
+        abort_unless(Schema::hasTable('vitrine_blog_post_comments') && Schema::hasTable('vitrine_blog_posts'), 404);
+
+        $post = VitrineBlogPost::query()
+            ->where('id', $blogPost)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        $validated = $request->validateWithBag('blogComment', [
+            'content' => ['required', 'string', 'min:3', 'max:2000'],
+        ]);
+
+        VitrineBlogPostComment::query()->create([
+            'vitrine_blog_post_id' => $post->id,
+            'user_id' => Auth::id(),
+            'content' => $validated['content'],
+            'is_visible' => true,
+        ]);
+
+        return redirect()->route('vitrine.blog.show', $post->slug)->with('blog_success', 'Commentaire ajoute avec succes.');
+    }
+
+    public function storeBlogReaction(Request $request, int $blogPost): RedirectResponse
+    {
+        abort_unless(Schema::hasTable('vitrine_blog_post_reactions') && Schema::hasTable('vitrine_blog_posts'), 404);
+
+        $post = VitrineBlogPost::query()
+            ->where('id', $blogPost)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        $validated = $request->validateWithBag('blogReaction', [
+            'reaction' => ['required', 'in:like,love,clap'],
+        ]);
+
+        VitrineBlogPostReaction::query()->updateOrCreate(
+            [
+                'vitrine_blog_post_id' => $post->id,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'reaction' => $validated['reaction'],
+            ]
+        );
+
+        return redirect()->route('vitrine.blog.show', $post->slug)->with('blog_success', 'Reaction enregistree.');
     }
 
     public function about(): View

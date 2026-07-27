@@ -31,6 +31,7 @@
                             </div>
                             <h3>{{ $post->title }}</h3>
                             <p class="muted">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content ?: ''), 140) }}</p>
+                            <a href="{{ route('vitrine.blog.show', $post->slug) }}" class="btn-parent" style="display:inline-flex;margin-top:0.55rem;">Lire l article</a>
                         </article>
                     @empty
                         <article class="panel"><p class="muted">Aucun article publie pour le moment.</p></article>

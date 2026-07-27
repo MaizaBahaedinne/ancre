@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VitrineBlogPost extends Model
 {
@@ -24,4 +25,14 @@ class VitrineBlogPost extends Model
         'is_published' => 'boolean',
         'published_at' => 'datetime',
     ];
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(VitrineBlogPostComment::class, 'vitrine_blog_post_id');
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(VitrineBlogPostReaction::class, 'vitrine_blog_post_id');
+    }
 }
