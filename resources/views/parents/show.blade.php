@@ -485,7 +485,7 @@
                             <td>{{ $enfant->nom }}</td>
                             <td>{{ $enfant->prenom }}</td>
                             <td>{{ optional($enfant->date_naissance)->format('d/m/Y') }}</td>
-                            <td>{{ $enfant->classe ?: '-' }}</td>
+                            <td>{{ $enfant->inscriptions()->latest()->first()?->classe ?: '-' }}</td>
                             <td>
                                 <a href="{{ route('enfants.show', $enfant) }}" class="btn btn-sm btn-info">Voir</a>
                             </td>

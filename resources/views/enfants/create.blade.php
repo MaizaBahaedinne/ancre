@@ -24,17 +24,6 @@
                         @error('parent_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         <small class="form-text text-muted">Ce parent est le contact principal de l'enfant.</small>
                     </div>
-                    <div class="col-md-6 form-group">
-                        <label>Classe / Ecole / Annee scolaire</label>
-                        <select name="school_class_id" class="form-control @error('school_class_id') is-invalid @enderror" data-enhance-select="true">
-                            <option value="">Choisir...</option>
-                            @foreach($schoolClasses as $schoolClass)
-                                <option value="{{ $schoolClass->id }}" @selected((string) old('school_class_id') === (string) $schoolClass->id)>{{ $schoolClass->name }} - {{ $schoolClass->school?->name }} - {{ $schoolClass->academicYear?->label }}</option>
-                            @endforeach
-                        </select>
-                        @error('school_class_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        <small class="form-text text-muted">{{ $activeAcademicYear ? 'Annee active : '.$activeAcademicYear->label : 'Aucune annee scolaire active definie.' }}</small>
-                    </div>
                 </div>
 
                 <div class="row">

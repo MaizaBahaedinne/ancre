@@ -82,7 +82,8 @@ class DashboardController extends Controller
 
         $childrenBySchool = School::query()
             ->leftJoin('school_classes', 'schools.id', '=', 'school_classes.school_id')
-            ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->leftJoin('inscriptions', 'school_classes.id', '=', 'inscriptions.school_class_id')
+            ->leftJoin('enfants', 'inscriptions.enfant_id', '=', 'enfants.id')
             ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
                 $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
             })
@@ -90,23 +91,25 @@ class DashboardController extends Controller
             ->orderByDesc('children_count')
             ->get([
                 'schools.name',
-                \DB::raw('COUNT(enfants.id) as children_count'),
+                \DB::raw('COUNT(DISTINCT enfants.id) as children_count'),
             ]);
 
         $childrenByLevel = SchoolClass::query()
-            ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->leftJoin('inscriptions', 'school_classes.id', '=', 'inscriptions.school_class_id')
+            ->leftJoin('enfants', 'inscriptions.enfant_id', '=', 'enfants.id')
             ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
                 $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
             })
             ->selectRaw("COALESCE(NULLIF(school_classes.level, ''), 'Non defini') as level_label")
-            ->selectRaw('COUNT(enfants.id) as children_count')
+            ->selectRaw('COUNT(DISTINCT enfants.id) as children_count')
             ->groupBy('level_label')
             ->orderByDesc('children_count')
             ->get();
 
         $schoolOccupancy = School::query()
             ->leftJoin('school_classes', 'schools.id', '=', 'school_classes.school_id')
-            ->leftJoin('enfants', 'school_classes.id', '=', 'enfants.school_class_id')
+            ->leftJoin('inscriptions', 'school_classes.id', '=', 'inscriptions.school_class_id')
+            ->leftJoin('enfants', 'inscriptions.enfant_id', '=', 'enfants.id')
             ->when($activeAcademicYearLabel, function ($query) use ($currentYearInscriptionChildrenIds) {
                 $query->whereIn('enfants.id', $currentYearInscriptionChildrenIds);
             })
@@ -115,7 +118,7 @@ class DashboardController extends Controller
                 'schools.name',
                 \DB::raw('COUNT(DISTINCT school_classes.id) as classes_count'),
                 \DB::raw('SUM(COALESCE(school_classes.capacity, 0)) as total_capacity'),
-                \DB::raw('COUNT(enfants.id) as children_count'),
+                \DB::raw('COUNT(DISTINCT enfants.id) as children_count'),
             ])
             ->map(function ($row) {
                 $capacity = (int) ($row->total_capacity ?? 0);
@@ -148,10 +151,11 @@ class DashboardController extends Controller
         $childrenWithoutClass = (clone $currentYearChildrenQuery)
             ->when($activeAcademicYearLabel, function ($query) {
                 $query->where(function ($inner) {
-                    $inner->whereNull('school_class_id')
-                        ->orWhereDoesntHave('schoolClass');
+                    $inner->whereDoesntHave('inscriptions', fn ($inscriptions) => $inscriptions->where('annee_scolaire', $query->getBindings()[-1]));
                 });
-            }, fn ($query) => $query->whereNull('school_class_id'))
+            }, function ($query) {
+                $query->whereDoesntHave('inscriptions');
+            })
             ->count();
 
         $presenceTrend = Presence::query()

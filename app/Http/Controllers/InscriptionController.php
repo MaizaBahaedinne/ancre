@@ -169,7 +169,7 @@ class InscriptionController extends Controller
 
         $evaluationAcademicYear = $this->resolveAcademicYearByLabel($inscription->annee_scolaire);
 
-        $currentLevel = $inscription->enfant?->schoolClass?->level ?: $inscription->enfant?->classe;
+        $currentLevel = $inscription->schoolClass?->level ?: $inscription->classe;
         $subjectCatalog = AcademicSubject::query()
             ->where('is_active', true)
             ->orderBy('name')

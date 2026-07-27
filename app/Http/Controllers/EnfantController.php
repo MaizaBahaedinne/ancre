@@ -61,13 +61,12 @@ class EnfantController extends Controller
     public function index(): View
     {
         $search = request('search');
-        $classe = request('classe');
         $parent = $this->currentParent();
         $activeAcademicYear = AcademicYear::query()->active()->first();
         $activeAcademicYearLabel = $activeAcademicYear?->label;
 
         $baseQuery = Enfant::query()
-            ->with(['parent.user', 'familyRelations.parent.user', 'schoolClass.school', 'schoolClass.academicYear'])
+            ->with(['parent.user', 'familyRelations.parent.user'])
             ->when($this->isParentUser(), function ($query) use ($parent) {
                 if (! $parent) {
                     return $query->whereRaw('1 = 0');
@@ -85,8 +84,6 @@ class EnfantController extends Controller
                     $searchScope->where('nom', 'like', "%{$searchValue}%")
                         ->orWhere('prenom', 'like', "%{$searchValue}%");
                 });
-            })
-            ->when($classe, fn ($query, $classeValue) => $query->where('classe', $classeValue));
 
         $statsQuery = clone $baseQuery;
 
@@ -123,7 +120,7 @@ class EnfantController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('enfants.index', compact('enfants', 'search', 'classe', 'classes', 'stats', 'activeAcademicYearLabel'));
+        return view('enfants.index', compact('enfants', 'search', 'stats', 'activeAcademicYearLabel'));
     }
 
     /**
@@ -134,10 +131,9 @@ class EnfantController extends Controller
         $parents = ParentModel::orderBy('nom')->orderBy('prenom')->get();
         $relationOptions = self::RELATION_OPTIONS;
         $allergieOptions = self::ALLERGIE_OPTIONS;
-        $schoolClasses = $this->schoolClasses();
         $activeAcademicYear = AcademicYear::query()->where('is_active', true)->first();
 
-        return view('enfants.create', compact('parents', 'relationOptions', 'allergieOptions', 'schoolClasses', 'activeAcademicYear'));
+        return view('enfants.create', compact('parents', 'relationOptions', 'allergieOptions', 'activeAcademicYear'));
     }
 
     /**
@@ -147,7 +143,6 @@ class EnfantController extends Controller
     {
         $data = $request->validated();
         unset($data['relations']);
-        $data = $this->syncClassLabel($data);
 
         if ($request->hasFile('photo')) {
             $data['photo'] = $request->file('photo')->store('enfants', 'public');
@@ -158,7 +153,7 @@ class EnfantController extends Controller
 
         return redirect()
             ->route('enfants.index')
-            ->with('success', 'Enfant ajoute avec succes.');
+            ->with('success', 'Enfant ajoute avec succes');
     }
 
     /**
@@ -304,13 +299,12 @@ class EnfantController extends Controller
         $parents = ParentModel::orderBy('nom')->orderBy('prenom')->get();
         $relationOptions = self::RELATION_OPTIONS;
         $allergieOptions = self::ALLERGIE_OPTIONS;
-        $schoolClasses = $this->schoolClasses();
         $activeAcademicYear = AcademicYear::query()->where('is_active', true)->first();
         $existingRelations = $enfant->familyRelations
             ->mapWithKeys(fn ($relation) => [$relation->relation => $relation->parent_id])
             ->toArray();
 
-        return view('enfants.edit', compact('enfant', 'parents', 'relationOptions', 'existingRelations', 'allergieOptions', 'schoolClasses', 'activeAcademicYear'));
+        return view('enfants.edit', compact('enfant', 'parents', 'relationOptions', 'existingRelations', 'allergieOptions', 'activeAcademicYear'));
     }
 
     /**
@@ -322,7 +316,6 @@ class EnfantController extends Controller
 
         $data = $request->validated();
         unset($data['relations']);
-        $data = $this->syncClassLabel($data);
 
         if ($request->hasFile('photo')) {
             if ($enfant->photo && Storage::disk('public')->exists($enfant->photo)) {
@@ -410,26 +403,6 @@ class EnfantController extends Controller
                 'relation' => 'Parent principal',
             ]);
         }
-    }
-
-    private function schoolClasses()
-    {
-        return SchoolClass::query()
-            ->with(['school', 'academicYear'])
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-    }
-
-    private function syncClassLabel(array $data): array
-    {
-        $schoolClass = ! empty($data['school_class_id']) ? SchoolClass::query()->with('school')->find($data['school_class_id']) : null;
-
-        if ($schoolClass) {
-            $data['classe'] = $schoolClass->name;
-        }
-
-        return $data;
     }
 
     private function isParentUser(): bool

@@ -62,7 +62,7 @@
                                 
                                 <td>{{ $enfant->nom }}</td>
                                 <td>{{ $enfant->prenom }}</td>
-                                <td>{{ $enfant->schoolClass?->name ?: ($enfant->classe ?: '-') }}</td>
+                                <td>{{ $enfant->inscriptions()->latest()->first()?->classe ?: '-' }}</td>
                                 <td>{{ $enfant->schoolClass?->school?->name ?: '-' }}</td>
                                 <td>
                                     @if($enfant->parent)

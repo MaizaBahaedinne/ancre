@@ -102,7 +102,7 @@ class EnfantEvaluationController extends Controller
             return;
         }
 
-        $level = $enfant->schoolClass?->level ?: $enfant->classe;
+        $level = $enfant->inscriptions()->latest()->first()?->schoolClass?->level ?: $enfant->inscriptions()->latest()->first()?->classe;
 
         if (! $level) {
             throw ValidationException::withMessages([

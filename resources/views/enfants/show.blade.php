@@ -53,7 +53,7 @@
                         <p class="child-profile-kicker">Profil enfant</p>
                         <h2 class="child-profile-name">{{ $displayName }}</h2>
                         <div class="child-profile-meta">
-                            <span><i class="fa-solid fa-graduation-cap"></i>{{ $enfant->classe ?: 'Classe non definie' }}</span>
+                            <span><i class="fa-solid fa-graduation-cap"></i>{{ $enfant->inscriptions()->latest()->first()?->classe ?: 'Classe non definie' }}</span>
                             <span><i class="fa-solid fa-cake-candles"></i>{{ $age ?: 'Age non disponible' }}</span>
                             <span><i class="fa-solid fa-venus-mars"></i>{{ $enfant->sexe }}</span>
                         </div>
@@ -163,7 +163,7 @@
                     <div class="card-body">
                         <ul class="child-profile-facts">
                             <li><i class="fa-solid fa-cake-candles"></i><span>Date de naissance</span><strong>{{ optional($enfant->date_naissance)->format('d/m/Y') ?: '-' }}</strong></li>
-                            <li><i class="fa-solid fa-graduation-cap"></i><span>Classe</span><strong>{{ $enfant->classe ?: '-' }}</strong></li>
+                            <li><i class="fa-solid fa-graduation-cap"></i><span>Classe</span><strong>{{ $enfant->inscriptions()->latest()->first()?->classe ?: '-' }}</strong></li>
                             <li><i class="fa-solid fa-user-group"></i><span>Parent principal</span><strong>{{ $parentPrincipal ? $parentPrincipal->prenom.' '.$parentPrincipal->nom : '-' }}</strong></li>
                             <li><i class="fa-solid fa-phone"></i><span>Telephone parent</span><strong>{{ $parentPrincipal?->telephone ?: '-' }}</strong></li>
                         </ul>
