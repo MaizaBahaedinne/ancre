@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ParentModel;
 use App\Models\VitrinePage;
 use App\Models\VitrineBlogPost;
 use App\Models\VitrineFaq;
@@ -94,7 +95,8 @@ class VitrineAdminController extends Controller
     public function testimonialsPage(): View
     {
         return view('admin.vitrine.testimonials', [
-            'testimonials' => VitrineTestimonial::query()->orderBy('sort_order')->latest()->get(),
+            'testimonials' => VitrineTestimonial::query()->latest('created_at')->orderBy('sort_order')->get(),
+            'parents' => ParentModel::query()->orderBy('prenom')->orderBy('nom')->get(),
         ]);
     }
 
