@@ -26,7 +26,12 @@ return new class extends Migration
     {
         Schema::table('vitrine_testimonials', function (Blueprint $table) {
             if (Schema::hasColumn('vitrine_testimonials', 'parent_id')) {
-                $table->dropForeignKeyIfExists(['parent_id']);
+                // Drop foreign key if it exists
+                try {
+                    $table->dropForeign(['parent_id']);
+                } catch (\Exception $e) {
+                    // Foreign key might not exist, continue
+                }
                 $table->dropColumn('parent_id');
             }
         });
