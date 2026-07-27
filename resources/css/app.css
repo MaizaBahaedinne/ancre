@@ -216,7 +216,6 @@
 
 	.modern-topbar-right {
 		flex-shrink: 0;
-		order: -1;
 	}
 
 	.modern-user-menu summary {
