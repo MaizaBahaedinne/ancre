@@ -253,24 +253,6 @@
             </div>
         </section>
 
-        <section class="section">
-            <div class="wrap">
-                <h2 class="section-title title-center">Nos services</h2>
-                <div class="grid-4 reveal">
-                    @forelse(($servicesFeatured ?? collect()) as $service)
-                        <article class="panel">
-                            <span class="icon-chip"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
-                            <h3>{{ $service->title }}</h3>
-                            <p class="muted">{{ \Illuminate\Support\Str::limit($service->description, 110) }}</p>
-                        </article>
-                    @empty
-                        <article class="panel"><p class="muted">Aucun service disponible.</p></article>
-                    @endforelse
-                </div>
-                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
-            </div>
-        </section>
-
         @if($showTestimonialsSection)
             <section class="section section-warm">
                 <div class="wrap">
@@ -306,6 +288,30 @@
                 </div>
             </section>
         @endif
+
+        <section class="section">
+            <div class="wrap">
+                <h2 class="section-title title-center">Nos services</h2>
+                <div class="grid-4 reveal">
+                    @forelse(($servicesFeatured ?? collect()) as $service)
+                        <article class="panel">
+                            @if($service->thumbnail)
+                                <div style="height:160px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
+                                    <img src="{{ \Illuminate\Support\Str::startsWith($service->thumbnail, ['http://', 'https://']) ? $service->thumbnail : asset('storage/'.$service->thumbnail) }}" alt="{{ $service->title }}" style="width:100%;height:100%;object-fit:cover;">
+                                </div>
+                            @else
+                                <span class="icon-chip"><i class="{{ $service->icon ?: 'fa-solid fa-star' }}"></i></span>
+                            @endif
+                            <h3>{{ $service->title }}</h3>
+                            <p class="muted">{{ \Illuminate\Support\Str::limit($service->description, 110) }}</p>
+                        </article>
+                    @empty
+                        <article class="panel"><p class="muted">Aucun service disponible.</p></article>
+                    @endforelse
+                </div>
+                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
+            </div>
+        </section>
 
         <section class="section section-warm">
             <div class="wrap">

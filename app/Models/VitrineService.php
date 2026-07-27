@@ -13,6 +13,7 @@ class VitrineService extends Model
         'title',
         'description',
         'icon',
+        'thumbnail',
         'sort_order',
         'is_active',
     ];
