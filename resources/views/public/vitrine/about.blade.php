@@ -8,7 +8,7 @@
         $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1526634332515-d56c5fd16991?auto=format&fit=crop&w=1800&q=80';
         $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
             ? asset('images/about-child-tunisie.jpg')
-            : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80';
+            : 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80';
     @endphp
     <main>
         <section class="hero hero-subpage">

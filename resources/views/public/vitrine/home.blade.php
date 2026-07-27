@@ -51,12 +51,12 @@
                     ? asset($relativePath)
                     : (file_exists(public_path('images/about-child-tunisie.jpg'))
                         ? asset('images/about-child-tunisie.jpg')
-                        : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80');
+                        : 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80');
             }
         } else {
             $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
                 ? asset('images/about-child-tunisie.jpg')
-                : 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=1400&q=80';
+                : 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80';
         }
 
         $aboutHighlights = [
