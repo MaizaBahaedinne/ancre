@@ -270,6 +270,16 @@
                     </div>
                 </div>
 
+                <div class="modern-topbar-search">
+                    <form method="GET" action="{{ route('search.index') }}" class="modern-search-form">
+                        <div class="modern-search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" name="q" placeholder="Rechercher..." class="modern-search-input" autocomplete="off">
+                            <span class="modern-search-hint">Entrez un nom, un numéro...</span>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="modern-topbar-right">
                     <details class="modern-user-menu">
                         <summary>
