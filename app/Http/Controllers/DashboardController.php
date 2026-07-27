@@ -77,7 +77,8 @@ class DashboardController extends Controller
         $ageBandCounts = [
             '2-3 ans' => (clone $currentYearChildrenQuery)->whereBetween('date_naissance', [$today->copy()->subYears(3), $today->copy()->subYears(2)])->count(),
             '4-5 ans' => (clone $currentYearChildrenQuery)->whereBetween('date_naissance', [$today->copy()->subYears(5), $today->copy()->subYears(4)])->count(),
-            '6+ ans' => (clone $currentYearChildrenQuery)->whereDate('date_naissance', '<', $today->copy()->subYears(6))->count(),
+            '6-12 ans' => (clone $currentYearChildrenQuery)->whereBetween('date_naissance', [$today->copy()->subYears(12), $today->copy()->subYears(6)])->count(),
+            '13+ ans' => (clone $currentYearChildrenQuery)->whereDate('date_naissance', '<', $today->copy()->subYears(13))->count(),
         ];
 
         $childrenBySchool = School::query()

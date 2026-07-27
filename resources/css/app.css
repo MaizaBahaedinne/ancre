@@ -1789,3 +1789,193 @@
 		}
 	}
 }
+/* Mobile Responsive Styles */
+@media (max-width: 1199.98px) {
+	.modern-sidebar {
+		width: 260px;
+	}
+
+	.modern-main {
+		margin-left: 276px;
+	}
+}
+
+@media (max-width: 991.98px) {
+	.modern-sidebar {
+		transform: translateX(-100%);
+		transition: transform 0.3s ease;
+		width: 100%;
+		max-width: 280px;
+		z-index: 1040;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		border-radius: 0;
+	}
+
+	.modern-sidebar.sidebar-visible {
+		transform: translateX(0);
+	}
+
+	.modern-main {
+		margin-left: 0 !important;
+	}
+
+	.modern-sidebar-toggle {
+		display: inline-flex !important;
+		margin-right: 0.8rem;
+	}
+
+	.modern-topbar-search {
+		flex: 0 1 300px;
+	}
+}
+
+@media (max-width: 767.98px) {
+	.modern-sidebar {
+		max-width: 260px;
+	}
+
+	.modern-topbar {
+		padding: 0.8rem 1rem !important;
+		gap: 0.5rem;
+	}
+
+	.modern-topbar-left {
+		gap: 0.5rem;
+	}
+
+	.modern-topbar-search {
+		display: none;
+	}
+
+	.modern-topbar-title {
+		font-size: 1.1rem;
+	}
+
+	.modern-sidebar-toggle {
+		width: 2.5rem;
+		height: 2.5rem;
+		font-size: 1rem;
+	}
+
+	.modern-brand-link strong {
+		display: none;
+	}
+
+	.modern-nav-link span {
+		display: none;
+	}
+
+	.modern-nav-link {
+		padding: 0.5rem;
+		justify-content: center;
+	}
+
+	.modern-nav-section {
+		padding: 0.5rem;
+	}
+
+	.modern-nav-label {
+		display: none;
+	}
+
+	.modern-nav-link i {
+		margin-right: 0;
+	}
+
+	.dashboard-kpi-card {
+		min-height: 100px;
+		padding: 0.8rem;
+	}
+
+	.dashboard-kpi-card .kpi-value {
+		font-size: 1.5rem;
+	}
+
+	.dashboard-kpi-card .kpi-label {
+		font-size: 0.7rem;
+	}
+
+	.chart-wrap,
+	.chart-wrap.chart-wrap-sm {
+		height: 200px;
+	}
+}
+
+@media (max-width: 575.98px) {
+	.modern-topbar {
+		padding: 0.6rem 0.8rem !important;
+		flex-wrap: wrap;
+	}
+
+	.modern-topbar-left,
+	.modern-topbar-right {
+		gap: 0.3rem;
+	}
+
+	.modern-sidebar-toggle {
+		width: 2.2rem;
+		height: 2.2rem;
+		font-size: 0.9rem;
+	}
+
+	.modern-brand-mark {
+		width: 2.2rem;
+		height: 2.2rem;
+	}
+
+	.modern-brand-logo {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+
+	.modern-sidebar {
+		max-width: 240px;
+	}
+
+	.dashboard-grid {
+		--bs-gutter-x: 0.5rem;
+		--bs-gutter-y: 0.5rem;
+	}
+
+	.dashboard-kpi-card {
+		min-height: 90px;
+		padding: 0.6rem;
+		border-radius: 12px;
+	}
+
+	.dashboard-kpi-card .kpi-value {
+		font-size: 1.25rem;
+	}
+
+	.dashboard-kpi-card .kpi-label {
+		font-size: 0.65rem;
+	}
+
+	.dashboard-kpi-icon {
+		width: 1.8rem;
+		height: 1.8rem;
+		top: 0.6rem;
+		right: 0.6rem;
+		font-size: 0.85rem;
+	}
+
+	.chart-wrap,
+	.chart-wrap.chart-wrap-sm {
+		height: 180px;
+	}
+
+	.dashboard-section-title {
+		font-size: 0.75rem;
+	}
+
+	.table {
+		font-size: 0.85rem;
+	}
+
+	.btn {
+		padding: 0.4rem 0.8rem;
+		font-size: 0.85rem;
+	}
+}
