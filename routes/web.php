@@ -182,6 +182,9 @@ Route::middleware(['auth', 'permission:users.manage'])->group(function () {
 
 Route::middleware(['auth', 'permission:users.manage'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('users', UserManagementController::class)->except(['show']);
+});
+
+Route::middleware(['auth', 'permission:permissions.manage'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('roles', RoleManagementController::class)->except(['show']);
 });
 

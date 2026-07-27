@@ -180,14 +180,20 @@
 
                 @can('users.manage')
                     <div class="modern-nav-section">
-                        <span class="modern-nav-label">Administration</span>
+                        <span class="modern-nav-label">Gestion Utilisateurs</span>
                         <a href="{{ route('admin.users.index') }}" class="modern-nav-link {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}">
                             <i class="fa-solid fa-users"></i>
                             <span>Users</span>
                         </a>
+                    </div>
+                @endcan
+
+                @can('permissions.manage')
+                    <div class="modern-nav-section">
+                        <span class="modern-nav-label">Securite</span>
                         <a href="{{ route('admin.roles.index') }}" class="modern-nav-link {{ request()->routeIs('admin.roles.*') ? 'is-active' : '' }}">
                             <i class="fa-solid fa-shield-halved"></i>
-                            <span>Rôles et permissions</span>
+                            <span>Roles et permissions</span>
                         </a>
                     </div>
                 @endcan
@@ -208,21 +214,45 @@
 
                 @can('vitrine.manage')
                     <div class="modern-nav-section">
-                        <span class="modern-nav-label">Vitrine</span>
-                        <a href="{{ route('admin.vitrine.index') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.*') ? 'is-active' : '' }}">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>Site vitrine</span>
+                        <span class="modern-nav-label">Gestion Vitrine</span>
+                        <a href="{{ route('admin.vitrine.settings') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.settings') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Parametres</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.pages') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.pages') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <span>Pages</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.services') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.services') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <span>Services</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.schedules') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.schedules') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>Horaires</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.testimonials') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.testimonials') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-quote-left"></i>
+                            <span>Temoignages</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.social-posts') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.social-posts') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span>Activites</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.blog-posts') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.blog-posts') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-newspaper"></i>
+                            <span>Blog</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.leads') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.leads') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-inbox"></i>
+                            <span>Demandes</span>
+                        </a>
+                        <a href="{{ route('admin.vitrine.newsletters') }}" class="modern-nav-link {{ request()->routeIs('admin.vitrine.newsletters') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Newsletter</span>
                         </a>
                     </div>
                 @endcan
-
-                <div class="modern-nav-section">
-                    <span class="modern-nav-label">Compte</span>
-                    <a href="{{ route('profile.edit') }}" class="modern-nav-link {{ request()->routeIs('profile.*') ? 'is-active' : '' }}">
-                        <i class="fa-solid fa-user"></i>
-                        <span>Profil</span>
-                    </a>
-                </div>
             </nav>
         </aside>
 

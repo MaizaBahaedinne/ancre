@@ -20,6 +20,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $permissions = [
             'users.manage',
+            'permissions.manage',
             'dashboard.view',
             'developer.tools.view',
             'vitrine.manage',
