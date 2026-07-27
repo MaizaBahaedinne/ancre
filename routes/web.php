@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\NotificationWorkflowController;
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\ActivityRegistrationController;
 use App\Http\Controllers\AcademicYearController;
@@ -241,6 +242,17 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
     Route::post('/faqs', [VitrineAdminController::class, 'storeFaq'])->name('faqs.store');
     Route::put('/faqs/{faq}', [VitrineAdminController::class, 'updateFaq'])->name('faqs.update')->whereNumber('faq');
     Route::delete('/faqs/{faq}', [VitrineAdminController::class, 'destroyFaq'])->name('faqs.destroy')->whereNumber('faq');
+});
+
+// Notification Workflows Admin Routes
+Route::middleware(['auth', 'permission:notifications.manage'])->prefix('admin/notifications')->name('admin.notifications.')->group(function () {
+    Route::get('/workflows', [NotificationWorkflowController::class, 'index'])->name('workflows.index');
+    Route::get('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'show'])->name('workflows.show');
+    Route::get('/workflows/{notificationWorkflow}/edit', [NotificationWorkflowController::class, 'edit'])->name('workflows.edit');
+    Route::put('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'update'])->name('workflows.update');
+    Route::post('/workflows/{notificationWorkflow}/receivers', [NotificationWorkflowController::class, 'addReceiver'])->name('receivers.store');
+    Route::post('/receivers/{notificationReceiver}/toggle', [NotificationWorkflowController::class, 'toggleReceiver'])->name('receivers.toggle');
+    Route::delete('/receivers/{notificationReceiver}', [NotificationWorkflowController::class, 'removeReceiver'])->name('receivers.destroy');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {
