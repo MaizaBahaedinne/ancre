@@ -21,7 +21,9 @@ class SfaxDemoDataSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = \Faker\Factory::create('fr_FR');
+        // Get Faker instance from Laravel's service container
+        $faker = app('Faker\Generator');
+        $faker->locale = 'fr_FR';
 
         // Clear existing data
         DB::statement('SET FOREIGN_KEY_CHECKS=0');

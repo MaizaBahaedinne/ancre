@@ -22,8 +22,9 @@ class DemoDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get Faker instance with French locale
-        $faker = \Faker\Factory::create('fr_FR');
+        // Get Faker instance from Laravel's service container (works on production)
+        $faker = app('Faker\Generator');
+        $faker->locale = 'fr_FR';
         
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Presence::truncate();
