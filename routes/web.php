@@ -103,7 +103,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/admin', function (Request $request) {
+    Route::get('/admin', function () {
+        $request = request();
         $roleNames = $request->user()->roles()->pluck('name');
 
         abort_unless($roleNames->contains('Administrateur') || $roleNames->contains('admin'), 403);
@@ -111,7 +112,8 @@ Route::middleware('auth')->group(function () {
         return app(DashboardController::class)->index($request);
     })->name('admin.dashboard');
 
-    Route::get('/responsable', function (Request $request) {
+    Route::get('/responsable', function () {
+        $request = request();
         $roleNames = $request->user()->roles()->pluck('name');
 
         abort_unless($roleNames->contains('Responsable') || $roleNames->contains('responsable'), 403);
@@ -119,7 +121,8 @@ Route::middleware('auth')->group(function () {
         return app(DashboardController::class)->index($request);
     })->name('responsable.dashboard');
 
-    Route::get('/educateur', function (Request $request) {
+    Route::get('/educateur', function () {
+        $request = request();
         $roleNames = $request->user()->roles()->pluck('name');
 
         abort_unless($roleNames->contains('Educateur') || $roleNames->contains('educateur'), 403);
