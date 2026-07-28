@@ -74,22 +74,29 @@ class AcademicYearController extends Controller
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
         $data = $request->validated();
+        $periodsInputExists = $request->has('periods');
         $periods = $this->flattenPeriods($data['periods'] ?? []);
         unset($data['periods']);
 
-        DB::transaction(function () use ($academicYear, $data, $periods): void {
+        DB::transaction(function () use ($academicYear, $data, $periods, $periodsInputExists): void {
             if (! empty($data['is_active'])) {
                 AcademicYear::query()->whereKeyNot($academicYear->id)->update(['is_active' => false]);
             }
 
             $academicYear->update($data);
-            $academicYear->periods()->delete();
-            $savedPeriods = $this->syncPeriods($academicYear, $periods);
 
-            if ($savedPeriods === 0) {
-                throw ValidationException::withMessages([
-                    'periods' => 'Ajoutez au moins une periode complete avant de sauvegarder.',
-                ]);
+            // Defensive guard: keep existing periods when the form payload does not include periods.
+            if ($periodsInputExists) {
+                $savedPeriods = $this->countCompletePeriods($periods);
+
+                if ($savedPeriods === 0) {
+                    throw ValidationException::withMessages([
+                        'periods' => 'Ajoutez au moins une periode complete avant de sauvegarder.',
+                    ]);
+                }
+
+                $academicYear->periods()->delete();
+                $this->syncPeriods($academicYear, $periods);
             }
         });
 
@@ -124,6 +131,24 @@ class AcademicYearController extends Controller
         }
 
         return $savedCount;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $periods
+     */
+    private function countCompletePeriods(array $periods): int
+    {
+        $count = 0;
+
+        foreach ($periods as $period) {
+            if (empty($period['title']) || empty($period['type']) || empty($period['start_date']) || empty($period['end_date'])) {
+                continue;
+            }
+
+            $count++;
+        }
+
+        return $count;
     }
 
     /**

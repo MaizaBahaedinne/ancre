@@ -21,11 +21,12 @@ class StoreAcademicYearRequest extends FormRequest
             'registration_fee' => ['required', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'periods' => ['nullable', 'array'],
-            'periods.*.title' => ['required_with:periods.*.type', 'nullable', 'string', 'max:255'],
-            'periods.*.type' => ['nullable', Rule::in(array_keys(\App\Models\AcademicCalendarPeriod::TYPE_OPTIONS))],
-            'periods.*.start_date' => ['nullable', 'date'],
-            'periods.*.end_date' => ['nullable', 'date', 'after_or_equal:periods.*.start_date'],
-            'periods.*.notes' => ['nullable', 'string'],
+            'periods.*' => ['nullable', 'array'],
+            'periods.*.*.title' => ['required_with:periods.*.*.type', 'nullable', 'string', 'max:255'],
+            'periods.*.*.type' => ['nullable', Rule::in(array_keys(\App\Models\AcademicCalendarPeriod::TYPE_OPTIONS))],
+            'periods.*.*.start_date' => ['nullable', 'date'],
+            'periods.*.*.end_date' => ['nullable', 'date', 'after_or_equal:periods.*.*.start_date'],
+            'periods.*.*.notes' => ['nullable', 'string'],
         ];
     }
 }
