@@ -132,6 +132,7 @@ class SendParentNotifications
                 'created_by_id' => $actor?->id,
                 'created_by_name' => $actor?->name,
                 'created_by_email' => $actor?->email,
+                'action_url' => route('parents.show', $parent),
                 // Backward compatibility with previous templates/keys.
                 'user_name' => $parentUser->name ?? null,
                 'email' => $parentUser->email ?? $parent->email,

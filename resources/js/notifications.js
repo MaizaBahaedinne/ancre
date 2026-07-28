@@ -49,22 +49,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     notificationList.addEventListener('click', async (event) => {
-        const button = event.target.closest('[data-action="mark-read"]');
-        if (!button) {
+        const item = event.target.closest('[data-notification-item="true"]');
+        if (!item) {
             return;
         }
 
-        const id = button.dataset.id;
+        const id = item.dataset.id;
         if (!id) {
             return;
         }
 
-        await markNotificationAsRead(id);
+        const actionUrl = item.dataset.actionUrl || null;
+
+        if (activeView === 'unread') {
+            await markNotificationAsRead(id);
+        }
+
+        if (actionUrl) {
+            window.location.href = actionUrl;
+            return;
+        }
+
         if (activeView === 'archive') {
             await loadArchiveNotifications();
-        } else {
-            await loadUnreadNotifications();
+            return;
         }
+
+        await loadUnreadNotifications();
     });
 
     loadUnreadNotifications();
@@ -155,26 +166,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const html = notifications.map((notification) => {
             const subject = escapeHtml(notification.subject || 'Notification');
-            const description = escapeHtml(notification.description || '');
+            const description = formatDescription(notification.description || '', notification.metadata || {});
             const date = formatDate(notification.created_at);
-            const trigger = escapeHtml(notification.trigger || 'general');
+            const actorName = escapeHtml(notification.actor_name || 'Systeme');
+            const actorAvatarUrl = notification.actor_avatar_url ? escapeHtml(notification.actor_avatar_url) : '';
+            const actorInitial = escapeHtml((notification.actor_name || 'S').trim().charAt(0).toUpperCase() || 'S');
+            const actionUrl = notification.action_url ? escapeHtml(notification.action_url) : '';
 
             return `
-                <article class="modern-notification-item" data-id="${notification.id}">
-                    <div class="modern-notification-icon">
-                        <i class="fa-solid fa-bell"></i>
+                <article class="modern-notification-item" data-notification-item="true" data-id="${notification.id}" data-action-url="${actionUrl}">
+                    <div class="modern-notification-avatar" title="Declencheur: ${actorName}">
+                        ${actorAvatarUrl ? `<img src="${actorAvatarUrl}" alt="Avatar de ${actorName}">` : `<span>${actorInitial}</span>`}
                     </div>
                     <div class="modern-notification-content">
                         <div class="modern-notification-topline">
                             <strong>${subject}</strong>
-                            <span class="modern-notification-chip">${trigger}</span>
+                            <span class="modern-notification-actor">${actorName}</span>
                         </div>
                         ${description ? `<p>${description}</p>` : ''}
                         <small>${date}</small>
                     </div>
-                    <button type="button" class="modern-notification-close" data-action="mark-read" data-id="${notification.id}" title="Marquer comme lu" aria-label="Marquer comme lu">
-                        <i class="fa-solid fa-check"></i>
-                    </button>
                 </article>
             `;
         }).join('');
@@ -240,5 +251,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    function formatDescription(rawDescription, metadata) {
+        const escaped = escapeHtml(rawDescription);
+        const safeMetadata = metadata && typeof metadata === 'object' ? metadata : {};
+
+        return escaped.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, key) => {
+            if (Object.prototype.hasOwnProperty.call(safeMetadata, key) && safeMetadata[key] !== null && safeMetadata[key] !== '') {
+                return `<strong>${escapeHtml(String(safeMetadata[key]))}</strong>`;
+            }
+
+            return match;
+        });
     }
 });

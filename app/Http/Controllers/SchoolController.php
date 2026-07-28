@@ -50,6 +50,7 @@ class SchoolController extends Controller
                 'created_by' => auth()->id(),
                 'created_by_name' => $creator?->name,
                 'created_by_email' => $creator?->email,
+                'action_url' => route('schools.show', $school),
             ],
         ]);
 
