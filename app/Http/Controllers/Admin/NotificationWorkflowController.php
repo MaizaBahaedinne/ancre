@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NotificationWorkflow;
 use App\Models\NotificationReceiver;
+use App\Support\NotificationTemplateVariables;
 use App\Support\NotificationWorkflowSynchronizer;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -26,7 +27,9 @@ class NotificationWorkflowController extends Controller
         $notificationWorkflow->load('receivers');
         $roles = Role::all();
         $users = User::all();
-        return view('admin.notifications.workflows.show', compact('notificationWorkflow', 'roles', 'users'));
+        $variableCatalog = NotificationTemplateVariables::forTrigger($notificationWorkflow->trigger);
+
+        return view('admin.notifications.workflows.show', compact('notificationWorkflow', 'roles', 'users', 'variableCatalog'));
     }
 
     public function edit(NotificationWorkflow $notificationWorkflow)
@@ -34,7 +37,9 @@ class NotificationWorkflowController extends Controller
         $notificationWorkflow->load('receivers');
         $roles = Role::all();
         $users = User::all();
-        return view('admin.notifications.workflows.edit', compact('notificationWorkflow', 'roles', 'users'));
+        $variableCatalog = NotificationTemplateVariables::forTrigger($notificationWorkflow->trigger);
+
+        return view('admin.notifications.workflows.edit', compact('notificationWorkflow', 'roles', 'users', 'variableCatalog'));
     }
 
     public function update(Request $request, NotificationWorkflow $notificationWorkflow)

@@ -259,6 +259,73 @@
             </form>
         </div>
     </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-primary">
+            <h3 class="card-title">Variables disponibles pour les templates</h3>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-2">Generiques</h5>
+            <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(($variableCatalog['generic'] ?? []) as $item)
+                            <tr>
+                                <td><code>{{ $item['name'] }}</code></td>
+                                <td>{{ $item['description'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mb-2">Specifiques a {{ $notificationWorkflow->trigger }}</h5>
+            <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(($variableCatalog['specific'] ?? []) as $item)
+                            <tr>
+                                <td><code>{{ $item['name'] }}</code></td>
+                                <td>{{ $item['description'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mb-2">Relations possibles</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>Relation</th>
+                            <th>Variables exposees</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(($variableCatalog['relations'] ?? []) as $item)
+                            <tr>
+                                <td>{{ $item['relation'] }}</td>
+                                <td>{{ $item['variables'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')

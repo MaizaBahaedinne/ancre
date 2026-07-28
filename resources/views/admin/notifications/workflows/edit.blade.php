@@ -83,6 +83,68 @@
                         <small class="text-muted d-block">
                             Les formats {key} et @{{key}} sont acceptes.
                         </small>
+
+                        <div class="mt-3">
+                            <h6 class="mb-2">Variables generiques</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-2">
+                                    <thead>
+                                        <tr>
+                                            <th>Variable</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(($variableCatalog['generic'] ?? []) as $item)
+                                            <tr>
+                                                <td><code>{{ $item['name'] }}</code></td>
+                                                <td>{{ $item['description'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h6 class="mb-2">Variables du workflow {{ $notificationWorkflow->trigger }}</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-2">
+                                    <thead>
+                                        <tr>
+                                            <th>Variable</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(($variableCatalog['specific'] ?? []) as $item)
+                                            <tr>
+                                                <td><code>{{ $item['name'] }}</code></td>
+                                                <td>{{ $item['description'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h6 class="mb-2">Relations possibles</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Relation</th>
+                                            <th>Variables exposees</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(($variableCatalog['relations'] ?? []) as $item)
+                                            <tr>
+                                                <td>{{ $item['relation'] }}</td>
+                                                <td>{{ $item['variables'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
