@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
@@ -116,6 +117,7 @@ class PersonnelController extends Controller
         }
 
         Personnel::create($data);
+        $this->syncReferenceOptions($data);
 
         return redirect()
             ->route('personnels.index')
@@ -223,6 +225,7 @@ class PersonnelController extends Controller
         }
 
         $personnel->update($data);
+        $this->syncReferenceOptions($data);
 
         return redirect()->route('personnels.index')->with('success', 'Employe mis a jour avec succes.');
     }
@@ -250,13 +253,18 @@ class PersonnelController extends Controller
      */
     private function formData(?Personnel $personnel = null): array
     {
-        $options = PersonnelReferenceOption::query()
-            ->where('is_active', true)
-            ->orderBy('type')
-            ->orderBy('sort_order')
-            ->orderBy('label')
-            ->get()
-            ->groupBy('type');
+        $fonctions = $this->referenceSuggestions(
+            PersonnelReferenceOption::TYPE_FONCTION,
+            'fonction'
+        );
+        $departements = $this->referenceSuggestions(
+            PersonnelReferenceOption::TYPE_DEPARTEMENT,
+            'departement'
+        );
+        $niveauxEtude = $this->referenceSuggestions(
+            PersonnelReferenceOption::TYPE_NIVEAU_ETUDE,
+            'niveau_etude'
+        );
 
         $managers = Personnel::query()
             ->when($personnel, fn ($query) => $query->whereKeyNot($personnel->id))
@@ -267,14 +275,69 @@ class PersonnelController extends Controller
         $roles = Role::query()->orderBy('name')->get();
 
         return [
-            'fonctions' => $options->get(PersonnelReferenceOption::TYPE_FONCTION, collect()),
-            'departements' => $options->get(PersonnelReferenceOption::TYPE_DEPARTEMENT, collect()),
-            'niveauxEtude' => $options->get(PersonnelReferenceOption::TYPE_NIVEAU_ETUDE, collect()),
+            'fonctions' => $fonctions,
+            'departements' => $departements,
+            'niveauxEtude' => $niveauxEtude,
             'managers' => $managers,
             'schools' => School::query()->orderBy('name')->get(),
             'schoolClasses' => SchoolClass::query()->with(['school', 'academicYear'])->where('is_active', true)->orderBy('name')->get(),
             'roles' => $roles,
             'linkedUserRole' => $personnel?->user?->roles?->pluck('name')?->first(),
         ];
+    }
+
+    private function referenceSuggestions(string $type, string $personnelColumn): Collection
+    {
+        $fromReferences = PersonnelReferenceOption::query()
+            ->where('is_active', true)
+            ->where('type', $type)
+            ->orderBy('sort_order')
+            ->orderBy('label')
+            ->pluck('label');
+
+        $fromPersonnels = Personnel::query()
+            ->whereNotNull($personnelColumn)
+            ->where($personnelColumn, '!=', '')
+            ->distinct()
+            ->pluck($personnelColumn);
+
+        return $fromReferences
+            ->merge($fromPersonnels)
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+    }
+
+    /**
+     * Persist any new free-text values into reference options.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function syncReferenceOptions(array $data): void
+    {
+        $map = [
+            PersonnelReferenceOption::TYPE_FONCTION => 'fonction',
+            PersonnelReferenceOption::TYPE_DEPARTEMENT => 'departement',
+            PersonnelReferenceOption::TYPE_NIVEAU_ETUDE => 'niveau_etude',
+        ];
+
+        foreach ($map as $type => $field) {
+            $label = trim((string) ($data[$field] ?? ''));
+            if ($label === '') {
+                continue;
+            }
+
+            PersonnelReferenceOption::query()->updateOrCreate(
+                [
+                    'type' => $type,
+                    'label' => $label,
+                ],
+                [
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\PersonnelReferenceOption;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,17 +33,17 @@ class StorePersonnelRequest extends FormRequest
             'fonction' => [
                 'required',
                 'string',
-                Rule::exists('personnel_reference_options', 'label')->where(fn ($query) => $query->where('type', PersonnelReferenceOption::TYPE_FONCTION)->where('is_active', true)),
+                'max:255',
             ],
             'departement' => [
                 'required',
                 'string',
-                Rule::exists('personnel_reference_options', 'label')->where(fn ($query) => $query->where('type', PersonnelReferenceOption::TYPE_DEPARTEMENT)->where('is_active', true)),
+                'max:255',
             ],
             'niveau_etude' => [
                 'required',
                 'string',
-                Rule::exists('personnel_reference_options', 'label')->where(fn ($query) => $query->where('type', PersonnelReferenceOption::TYPE_NIVEAU_ETUDE)->where('is_active', true)),
+                'max:255',
             ],
             'domaine_etude' => ['nullable', 'string', 'max:255'],
             'annees_experience' => ['required', 'integer', 'min:0', 'max:80'],
