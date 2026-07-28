@@ -42,11 +42,11 @@ Route::get('/', function () {
     $user = auth()->user();
 
     if ($user->hasRole('Administrateur')) {
-        return redirect()->route('platform.feed');
+        return redirect()->route('admin.dashboard');
     }
 
     if ($user->hasRole('Responsable')) {
-        return redirect()->route('platform.feed');
+        return redirect()->route('responsable.dashboard');
     }
 
     if ($user->hasRole('Educateur')) {
