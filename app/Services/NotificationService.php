@@ -44,11 +44,13 @@ class NotificationService
      */
     private static function createNotification($workflow, $user, $receiver, $data)
     {
+        [$subject, $description] = self::buildContent($workflow, $data);
+
         $notification = Notification::create([
             'user_id' => $user->id,
             'trigger' => $workflow->trigger,
-            'subject' => $data['subject'] ?? $workflow->name,
-            'description' => $data['description'] ?? '',
+            'subject' => $subject,
+            'description' => $description,
             'notification_type' => 'system',
             'receiver_type' => $receiver->receiver_type,
             'metadata' => $data['metadata'] ?? [],
@@ -75,6 +77,61 @@ class NotificationService
             'user' => User::where('id', $receiver->receiver_value)->get(),
             default => collect(),
         };
+    }
+
+    /**
+     * Build subject and description from workflow templates, with fallback to payload defaults.
+     *
+     * Supported placeholders: {key} and {{key}} using payload values and metadata.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function buildContent($workflow, array $data): array
+    {
+        $config = is_array($workflow->config) ? $workflow->config : [];
+
+        $context = [];
+        foreach ($data as $key => $value) {
+            if (is_scalar($value) || $value === null) {
+                $context[(string) $key] = (string) $value;
+            }
+        }
+
+        $metadata = is_array($data['metadata'] ?? null) ? $data['metadata'] : [];
+        foreach ($metadata as $key => $value) {
+            if (is_scalar($value) || $value === null) {
+                $context[(string) $key] = (string) $value;
+            }
+        }
+
+        $context['trigger'] = (string) $workflow->trigger;
+        $context['workflow_name'] = (string) $workflow->name;
+
+        $subjectTemplate = is_string($config['subject_template'] ?? null) ? trim($config['subject_template']) : '';
+        $descriptionTemplate = is_string($config['description_template'] ?? null) ? trim($config['description_template']) : '';
+
+        $subject = $subjectTemplate !== ''
+            ? self::renderTemplate($subjectTemplate, $context)
+            : (string) ($data['subject'] ?? $workflow->name);
+
+        $description = $descriptionTemplate !== ''
+            ? self::renderTemplate($descriptionTemplate, $context)
+            : (string) ($data['description'] ?? '');
+
+        return [$subject, $description];
+    }
+
+    private static function renderTemplate(string $template, array $context): string
+    {
+        $rendered = $template;
+
+        foreach ($context as $key => $value) {
+            $safeValue = (string) $value;
+            $rendered = str_replace('{{'.$key.'}}', $safeValue, $rendered);
+            $rendered = str_replace('{'.$key.'}', $safeValue, $rendered);
+        }
+
+        return $rendered;
     }
 
     /**

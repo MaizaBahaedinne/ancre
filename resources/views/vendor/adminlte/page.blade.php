@@ -302,19 +302,28 @@
 
                 <div class="modern-topbar-right">
                     <details class="modern-notifications-menu">
-                        <summary class="modern-notifications-toggle">
+                        <summary class="modern-notifications-toggle" aria-label="Notifications">
                             <i class="fa-solid fa-bell"></i>
                             <span class="modern-notifications-badge" id="notifications-count">0</span>
                         </summary>
                         <div class="modern-notifications-dropdown">
                             <div class="modern-notifications-header">
-                                <strong>Notifications</strong>
+                                <div>
+                                    <strong>Notifications</strong>
+                                    <small id="notifications-subtitle">Aucune notification non lue</small>
+                                </div>
+                                <button type="button" id="notifications-mark-all" class="modern-notifications-action" aria-label="Tout marquer comme lu">
+                                    Tout lire
+                                </button>
                             </div>
                             <div class="modern-notifications-list" id="notifications-list">
                                 <div class="modern-notifications-empty">
                                     <i class="fa-solid fa-inbox"></i>
                                     <p>Aucune notification</p>
                                 </div>
+                            </div>
+                            <div class="modern-notifications-footer">
+                                <span>Mise a jour automatique toutes les 30 secondes</span>
                             </div>
                         </div>
                     </details>

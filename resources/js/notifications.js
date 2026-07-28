@@ -1,40 +1,85 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const notificationToggle = document.querySelector('.modern-notifications-toggle');
+document.addEventListener('DOMContentLoaded', () => {
     const notificationMenu = document.querySelector('.modern-notifications-menu');
     const notificationList = document.getElementById('notifications-list');
     const notificationCount = document.getElementById('notifications-count');
+    const subtitle = document.getElementById('notifications-subtitle');
+    const markAllButton = document.getElementById('notifications-mark-all');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-    if (!notificationToggle) return;
+    if (!notificationMenu || !notificationList || !notificationCount) {
+        return;
+    }
 
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!notificationMenu.contains(e.target)) {
+    document.addEventListener('click', (event) => {
+        if (!notificationMenu.contains(event.target)) {
             notificationMenu.removeAttribute('open');
         }
     });
 
-    // Load notifications on page load
-    loadNotifications();
+    if (markAllButton) {
+        markAllButton.addEventListener('click', async () => {
+            await markAllAsRead();
+            await loadNotifications();
+        });
+    }
 
-    // Refresh notifications every 30 seconds
+    notificationList.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-action="mark-read"]');
+        if (!button) {
+            return;
+        }
+
+        const id = button.dataset.id;
+        if (!id) {
+            return;
+        }
+
+        await markNotificationAsRead(id);
+        await loadNotifications();
+    });
+
+    loadNotifications();
     setInterval(loadNotifications, 30000);
 
-    function loadNotifications() {
-        fetch('/api/notifications/unread')
-            .then(response => response.json())
-            .then(data => {
-                updateNotificationList(data);
-                updateNotificationCount(data.length);
-            })
-            .catch(error => console.error('Error loading notifications:', error));
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/api/notifications/unread', {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load notifications');
+            }
+
+            const notifications = await response.json();
+            updateNotificationCount(Array.isArray(notifications) ? notifications.length : 0);
+            updateNotificationList(Array.isArray(notifications) ? notifications : []);
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
     }
 
     function updateNotificationCount(count) {
         if (count > 0) {
-            notificationCount.textContent = count > 99 ? '99+' : count;
+            notificationCount.textContent = count > 99 ? '99+' : String(count);
             notificationCount.style.display = 'flex';
-        } else {
-            notificationCount.style.display = 'none';
+            if (subtitle) {
+                subtitle.textContent = `${count} notification${count > 1 ? 's' : ''} non lue${count > 1 ? 's' : ''}`;
+            }
+            if (markAllButton) {
+                markAllButton.disabled = false;
+            }
+            return;
+        }
+
+        notificationCount.style.display = 'none';
+        if (subtitle) {
+            subtitle.textContent = 'Aucune notification non lue';
+        }
+        if (markAllButton) {
+            markAllButton.disabled = true;
         }
     }
 
@@ -44,95 +89,90 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="modern-notifications-empty">
                     <i class="fa-solid fa-inbox"></i>
                     <p>Aucune notification</p>
+                    <small>Tout est a jour</small>
                 </div>
             `;
             return;
         }
 
-        let html = '';
-        notifications.forEach(notification => {
-            html += `
-                <div class="modern-notification-item" data-id="${notification.id}">
-                    <div class="modern-notification-content">
-                        <strong>${notification.subject}</strong>
-                        <p>${notification.description}</p>
-                        <small>${new Date(notification.created_at).toLocaleString('fr-FR')}</small>
+        const html = notifications.map((notification) => {
+            const subject = escapeHtml(notification.subject || 'Notification');
+            const description = escapeHtml(notification.description || '');
+            const date = formatDate(notification.created_at);
+            const trigger = escapeHtml(notification.trigger || 'general');
+
+            return `
+                <article class="modern-notification-item" data-id="${notification.id}">
+                    <div class="modern-notification-icon">
+                        <i class="fa-solid fa-bell"></i>
                     </div>
-                    <button class="modern-notification-close" onclick="markNotificationAsRead(${notification.id})">
+                    <div class="modern-notification-content">
+                        <div class="modern-notification-topline">
+                            <strong>${subject}</strong>
+                            <span class="modern-notification-chip">${trigger}</span>
+                        </div>
+                        ${description ? `<p>${description}</p>` : ''}
+                        <small>${date}</small>
+                    </div>
+                    <button type="button" class="modern-notification-close" data-action="mark-read" data-id="${notification.id}" title="Marquer comme lu" aria-label="Marquer comme lu">
                         <i class="fa-solid fa-check"></i>
                     </button>
-                </div>
+                </article>
             `;
-        });
+        }).join('');
 
         notificationList.innerHTML = html;
     }
+
+    async function markNotificationAsRead(notificationId) {
+        if (!csrfToken) {
+            return;
+        }
+
+        await fetch(`/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+        });
+    }
+
+    async function markAllAsRead() {
+        if (!csrfToken) {
+            return;
+        }
+
+        await fetch('/api/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+        });
+    }
+
+    function formatDate(rawDate) {
+        if (!rawDate) {
+            return '';
+        }
+
+        const date = new Date(rawDate);
+        return date.toLocaleString('fr-FR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 });
-
-function markNotificationAsRead(notificationId) {
-    fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.querySelector(`[data-id="${notificationId}"]`).remove();
-            // Reload notifications
-            loadNotifications();
-        }
-    });
-}
-
-function loadNotifications() {
-    fetch('/api/notifications/unread')
-        .then(response => response.json())
-        .then(data => {
-            updateNotificationList(data);
-            updateNotificationCount(data.length);
-        })
-        .catch(error => console.error('Error loading notifications:', error));
-}
-
-function updateNotificationCount(count) {
-    const badge = document.getElementById('notifications-count');
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function updateNotificationList(notifications) {
-    const list = document.getElementById('notifications-list');
-    if (notifications.length === 0) {
-        list.innerHTML = `
-            <div class="modern-notifications-empty">
-                <i class="fa-solid fa-inbox"></i>
-                <p>Aucune notification</p>
-            </div>
-        `;
-        return;
-    }
-
-    let html = '';
-    notifications.forEach(notification => {
-        html += `
-            <div class="modern-notification-item" data-id="${notification.id}">
-                <div class="modern-notification-content">
-                    <strong>${notification.subject}</strong>
-                    <p>${notification.description}</p>
-                    <small>${new Date(notification.created_at).toLocaleString('fr-FR')}</small>
-                </div>
-                <button class="modern-notification-close" onclick="markNotificationAsRead(${notification.id})">
-                    <i class="fa-solid fa-check"></i>
-                </button>
-            </div>
-        `;
-    });
-
-    list.innerHTML = html;
-}

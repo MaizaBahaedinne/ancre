@@ -51,6 +51,41 @@
                     @enderror
                 </div>
 
+                @php
+                    $config = is_array($notificationWorkflow->config) ? $notificationWorkflow->config : [];
+                @endphp
+
+                <div class="card border-0 bg-light mt-3">
+                    <div class="card-body">
+                        <h5 class="mb-3"><i class="fas fa-pen-fancy"></i> Personnalisation du message</h5>
+
+                        <div class="form-group mb-3">
+                            <label for="subject_template">Template du sujet</label>
+                            <input type="text" name="subject_template" id="subject_template" class="form-control @error('subject_template') is-invalid @enderror"
+                                value="{{ old('subject_template', $config['subject_template'] ?? '') }}"
+                                placeholder="Ex: Nouvelle ecole creee: {school_name}">
+                            @error('subject_template')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="description_template">Template de la description</label>
+                            <textarea name="description_template" id="description_template" class="form-control @error('description_template') is-invalid @enderror" rows="3" placeholder="Ex: {created_by} a ajoute l'ecole {school_name}.">{{ old('description_template', $config['description_template'] ?? '') }}</textarea>
+                            @error('description_template')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <small class="text-muted d-block">
+                            Variables disponibles: {trigger}, {workflow_name}, + metadata du trigger (ex: {school_name}, {school_id}, {created_by}).
+                        </small>
+                        <small class="text-muted d-block">
+                            Les formats {key} et {{key}} sont acceptes.
+                        </small>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="is_enabled" name="is_enabled" value="1"

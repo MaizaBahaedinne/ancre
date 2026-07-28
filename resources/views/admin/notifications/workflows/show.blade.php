@@ -69,6 +69,27 @@
                             {{ $notificationWorkflow->description ?? 'N/A' }}
                         </dd>
 
+                        @php
+                            $config = is_array($notificationWorkflow->config) ? $notificationWorkflow->config : [];
+                        @endphp
+                        <dt class="col-sm-4">Template sujet:</dt>
+                        <dd class="col-sm-8">
+                            @if(!empty($config['subject_template']))
+                                <code>{{ $config['subject_template'] }}</code>
+                            @else
+                                <span class="text-muted">Non defini</span>
+                            @endif
+                        </dd>
+
+                        <dt class="col-sm-4">Template description:</dt>
+                        <dd class="col-sm-8">
+                            @if(!empty($config['description_template']))
+                                <code>{{ $config['description_template'] }}</code>
+                            @else
+                                <span class="text-muted">Non defini</span>
+                            @endif
+                        </dd>
+
                         <dt class="col-sm-4">Créé:</dt>
                         <dd class="col-sm-8">
                             {{ $notificationWorkflow->created_at->format('d/m/Y H:i') }}

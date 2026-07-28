@@ -43,9 +43,21 @@ class NotificationWorkflowController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_enabled' => 'boolean',
+            'subject_template' => 'nullable|string|max:255',
+            'description_template' => 'nullable|string',
         ]);
 
         $validated['is_enabled'] = $request->boolean('is_enabled');
+
+        $config = is_array($notificationWorkflow->config) ? $notificationWorkflow->config : [];
+        $config['subject_template'] = filled($request->input('subject_template'))
+            ? trim((string) $request->input('subject_template'))
+            : null;
+        $config['description_template'] = filled($request->input('description_template'))
+            ? trim((string) $request->input('description_template'))
+            : null;
+
+        $validated['config'] = $config;
 
         $notificationWorkflow->update($validated);
 
