@@ -199,50 +199,20 @@
                                             <img src="{{ $comment->author_avatar }}" alt="Avatar {{ $commentAuthor }}">
                                         @else
                                             <span>{{ $commentAvatarFallback }}</span>
-                                        @endif
-                                    </span>
-                                                        $calendarReferenceDate = now();
-                                                        $academicStart = $activeAcademicYear->start_date?->copy();
-                                                        $academicEnd = $activeAcademicYear->end_date?->copy();
-
-                                                        if ($academicStart && $academicEnd && (! $calendarReferenceDate->betweenIncluded($academicStart, $academicEnd))) {
-                                                            $calendarReferenceDate = $academicStart->copy();
-                                                        }
-
-                                                        $calendarMonthStart = $calendarReferenceDate->copy()->startOfMonth();
-                                                        $calendarMonthEnd = $calendarReferenceDate->copy()->endOfMonth();
-                                                        $calendarGridStart = $calendarMonthStart->copy()->startOfWeek(\Carbon\Carbon::SUNDAY);
-                                                        $calendarGridEnd = $calendarMonthEnd->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
-                                                        $calendarDay = $calendarGridStart->copy();
-                                                        $calendarToday = now()->startOfDay();
-                                                        $dateTypePriority = [
-                                                            \App\Models\AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => 5,
-                                                            \App\Models\AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => 4,
-                                                            \App\Models\AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => 3,
-                                                            \App\Models\AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM => 2,
-                                                            \App\Models\AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM => 1,
-                                                        ];
-                                                        $periodsForDate = function (\Carbon\Carbon $date) use ($activeAcademicYear) {
-                                                            return $activeAcademicYear->periods->filter(function ($period) use ($date) {
-                                                                return $period->start_date && $period->end_date
-                                                                    && $date->betweenIncluded($period->start_date->copy()->startOfDay(), $period->end_date->copy()->endOfDay());
-                                                            })->values();
-                                                        };
-                        </form>
-                    </div>
+                                                @if($calendarSidebar)
                                                     <div class="feed-calendar-month-shell">
                                                         <div class="feed-calendar-month-head">
                                                             <div>
-                                                                <div class="feed-calendar-year-label">{{ $activeAcademicYear->label }}</div>
-                                                                <h3 class="feed-calendar-month-title">{{ ucfirst($calendarReferenceDate->translatedFormat('F Y')) }}</h3>
+                                                                <div class="feed-calendar-year-label">{{ $calendarSidebar['yearLabel'] }}</div>
+                                                                <h3 class="feed-calendar-month-title">{{ $calendarSidebar['monthLabel'] }}</h3>
                                                             </div>
                                                             <div class="feed-calendar-month-meta">
-                                                                {{ $activeAcademicYear->start_date?->format('d/m/Y') }} - {{ $activeAcademicYear->end_date?->format('d/m/Y') }}
+                                                                {{ $calendarSidebar['monthRange']['start'] }} - {{ $calendarSidebar['monthRange']['end'] }}
                                                             </div>
                                                         </div>
 
                                                         <div class="feed-calendar-legend">
-                                                            @foreach($periodColorMap as $typeValue => $color)
+                                                            @foreach ($periodColorMap as $typeValue => $color)
                                                                 <div class="feed-calendar-legend-item">
                                                                     <span class="feed-calendar-legend-dot" style="background-color: {{ $color }};"></span>
                                                                     <span>{{ \App\Models\AcademicCalendarPeriod::TYPE_OPTIONS[$typeValue] ?? $typeValue }}</span>
@@ -251,45 +221,29 @@
                                                         </div>
 
                                                         <div class="feed-calendar-grid">
-                                                            @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $weekday)
+                                                            @foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $weekday)
                                                                 <div class="feed-calendar-weekday">{{ $weekday }}</div>
                                                             @endforeach
 
-                                                            @while($calendarDay->lte($calendarGridEnd))
-                                                                @php
-                                                                    $dayPeriods = $periodsForDate($calendarDay);
-                                                                    $dayType = $dayPeriods->sortByDesc(fn ($period) => $dateTypePriority[$period->type] ?? 0)->first()?->type;
-                                                                    $dayColor = $dayType ? ($periodColorMap[$dayType] ?? '#6b7280') : null;
-                                                                    $isToday = $calendarDay->isSameDay($calendarToday);
-                                                                    $isInMonth = $calendarDay->month === $calendarReferenceDate->month;
-                                                                @endphp
-                                                                <div class="feed-calendar-day {{ $isInMonth ? '' : 'is-outside' }} {{ $isToday ? 'is-today' : '' }} {{ $dayColor ? 'has-period' : '' }}" @if($dayColor) style="--day-accent: {{ $dayColor }};" @endif>
-                                                                    <span class="feed-calendar-day-number">{{ $calendarDay->day }}</span>
-                                                                    @if($dayPeriods->isNotEmpty())
-                                                                        <span class="feed-calendar-day-dot"></span>
+                                                            @foreach ($calendarSidebar['days'] as $day)
+                                                                <div class="feed-calendar-day {{ $day['is_outside'] ? 'is-outside' : '' }} {{ $day['is_today'] ? 'is-today' : '' }} {{ $day['has_period'] ? 'has-period' : '' }}" @if($day['accent']) style="border-color: {{ $day['accent'] }}; background-color: {{ $day['accent'] }}14;" @endif>
+                                                                    <span class="feed-calendar-day-number">{{ $day['day'] }}</span>
+                                                                    @if($day['has_period'])
+                                                                        <span class="feed-calendar-day-dot" @if($day['accent']) style="background-color: {{ $day['accent'] }};" @endif></span>
                                                                     @endif
                                                                 </div>
-                                                                @php $calendarDay->addDay(); @endphp
-                                                            @endwhile
+                                                            @endforeach
                                                         </div>
 
                                                         <div class="feed-calendar-day-summary">
-                                                            <div class="feed-calendar-day-summary-title">Périodes de {{ ucfirst($calendarReferenceDate->translatedFormat('F')) }}</div>
-                                                            @forelse($activeAcademicYear->periods->filter(function ($period) use ($calendarMonthStart, $calendarMonthEnd) {
-                                                                return $period->start_date && $period->end_date
-                                                                    && $period->end_date->greaterThanOrEqualTo($calendarMonthStart)
-                                                                    && $period->start_date->lessThanOrEqualTo($calendarMonthEnd);
-                                                            }) as $period)
-                                                                @php
-                                                                    $periodColor = $periodColorMap[$period->type] ?? '#6b7280';
-                                                                    $typeLabel = \App\Models\AcademicCalendarPeriod::TYPE_OPTIONS[$period->type] ?? $period->type;
-                                                                @endphp
+                                                            <div class="feed-calendar-day-summary-title">Périodes de {{ $calendarSidebar['monthName'] }}</div>
+                                                            @forelse ($calendarSidebar['periods'] as $period)
                                                                 <div class="feed-calendar-item">
-                                                                    <span class="feed-period-dot" style="background-color: {{ $periodColor }};"></span>
+                                                                    <span class="feed-period-dot" style="background-color: {{ $period['color'] }};"></span>
                                                                     <div>
-                                                                        <strong>{{ $period->title }}</strong>
-                                                                        <div class="text-muted small">{{ $typeLabel }}</div>
-                                                                        <div class="small">{{ $period->start_date?->format('d/m') }} - {{ $period->end_date?->format('d/m/Y') }}</div>
+                                                                        <strong>{{ $period['title'] }}</strong>
+                                                                        <div class="text-muted small">{{ $period['type_label'] }}</div>
+                                                                        <div class="small">{{ $period['start_date']?->format('d/m') }} - {{ $period['end_date']?->format('d/m/Y') }}</div>
                                                                     </div>
                                                                 </div>
                                                             @empty
@@ -297,9 +251,6 @@
                                                             @endforelse
                                                         </div>
                                                     </div>
-            gap: 1rem;
-            max-height: calc(100vh - 155px);
-            overflow-y: auto;
             padding-right: 0.35rem;
             scrollbar-gutter: stable;
         }

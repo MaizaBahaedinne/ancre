@@ -31,6 +31,7 @@ class PlatformFeedController extends Controller
             ->active()
             ->with(['periods' => fn ($query) => $query->orderBy('start_date')])
             ->first();
+        $calendar = $this->buildCalendarSidebarData($activeYear);
 
         return view('feed.index', [
             'canPublish' => $canPublish,
@@ -42,6 +43,7 @@ class PlatformFeedController extends Controller
             'currentUserAvatar' => $this->resolveUserAvatar($user),
             'activeAcademicYear' => $activeYear,
             'periodColorMap' => $this->periodColorMap(),
+            'calendarSidebar' => $calendar,
         ]);
     }
 
@@ -327,6 +329,90 @@ class PlatformFeedController extends Controller
             AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => '#7c3aed',
             AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => '#059669',
             AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => '#dc2626',
+        ];
+    }
+
+    private function buildCalendarSidebarData(?AcademicYear $activeYear): ?array
+    {
+        if (! $activeYear) {
+            return null;
+        }
+
+        $referenceDate = now();
+        $academicStart = $activeYear->start_date?->copy();
+        $academicEnd = $activeYear->end_date?->copy();
+
+        if ($academicStart && $academicEnd && (! $referenceDate->betweenIncluded($academicStart, $academicEnd))) {
+            $referenceDate = $academicStart->copy();
+        }
+
+        $monthStart = $referenceDate->copy()->startOfMonth();
+        $monthEnd = $referenceDate->copy()->endOfMonth();
+        $gridStart = $monthStart->copy()->startOfWeek(Carbon::SUNDAY);
+        $gridEnd = $monthEnd->copy()->endOfWeek(Carbon::SATURDAY);
+        $today = now()->startOfDay();
+        $periodColorMap = $this->periodColorMap();
+        $priority = [
+            AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => 5,
+            AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => 4,
+            AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => 3,
+            AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM => 2,
+            AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM => 1,
+        ];
+
+        $monthPeriods = $activeYear->periods
+            ->filter(function (AcademicCalendarPeriod $period) use ($monthStart, $monthEnd) {
+                return $period->start_date && $period->end_date
+                    && $period->end_date->greaterThanOrEqualTo($monthStart)
+                    && $period->start_date->lessThanOrEqualTo($monthEnd);
+            })
+            ->values()
+            ->map(function (AcademicCalendarPeriod $period) use ($periodColorMap) {
+                return [
+                    'id' => $period->id,
+                    'title' => $period->title,
+                    'type' => $period->type,
+                    'type_label' => AcademicCalendarPeriod::TYPE_OPTIONS[$period->type] ?? $period->type,
+                    'start_date' => $period->start_date?->copy(),
+                    'end_date' => $period->end_date?->copy(),
+                    'color' => $periodColorMap[$period->type] ?? '#6b7280',
+                ];
+            });
+
+        $days = [];
+        $currentDay = $gridStart->copy();
+
+        while ($currentDay->lte($gridEnd)) {
+            $dayPeriods = $activeYear->periods->filter(function (AcademicCalendarPeriod $period) use ($currentDay) {
+                return $period->start_date && $period->end_date
+                    && $currentDay->betweenIncluded($period->start_date->copy()->startOfDay(), $period->end_date->copy()->endOfDay());
+            });
+
+            $highlightPeriod = $dayPeriods
+                ->sortByDesc(fn (AcademicCalendarPeriod $period) => $priority[$period->type] ?? 0)
+                ->first();
+
+            $days[] = [
+                'day' => $currentDay->day,
+                'is_outside' => $currentDay->month !== $referenceDate->month,
+                'is_today' => $currentDay->isSameDay($today),
+                'has_period' => $highlightPeriod !== null,
+                'accent' => $highlightPeriod ? ($periodColorMap[$highlightPeriod->type] ?? '#6b7280') : null,
+            ];
+
+            $currentDay->addDay();
+        }
+
+        return [
+            'yearLabel' => $activeYear->label,
+            'monthLabel' => ucfirst($referenceDate->translatedFormat('F Y')),
+            'monthName' => ucfirst($referenceDate->translatedFormat('F')),
+            'monthRange' => [
+                'start' => $activeYear->start_date?->format('d/m/Y'),
+                'end' => $activeYear->end_date?->format('d/m/Y'),
+            ],
+            'days' => $days,
+            'periods' => $monthPeriods,
         ];
     }
 
