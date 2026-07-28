@@ -264,6 +264,7 @@ Route::middleware(['auth', 'permission:vitrine.manage'])->prefix('admin/vitrine'
 // Notification Workflows Admin Routes
 Route::middleware(['auth', 'permission:notifications.manage'])->prefix('admin/notifications')->name('admin.notifications.')->group(function () {
     Route::get('/workflows', [NotificationWorkflowController::class, 'index'])->name('workflows.index');
+    Route::get('/logs', [NotificationWorkflowController::class, 'logs'])->name('logs.index');
     Route::get('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'show'])->name('workflows.show');
     Route::get('/workflows/{notificationWorkflow}/edit', [NotificationWorkflowController::class, 'edit'])->name('workflows.edit');
     Route::put('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'update'])->name('workflows.update');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NotificationWorkflow;
 use App\Models\NotificationReceiver;
+use App\Models\NotificationLog;
 use App\Support\NotificationTemplateVariables;
 use App\Support\NotificationWorkflowSynchronizer;
 use Illuminate\Http\Request;
@@ -20,6 +21,17 @@ class NotificationWorkflowController extends Controller
 
         $workflows = NotificationWorkflow::with('receivers')->orderBy('trigger')->get();
         return view('admin.notifications.workflows.index', compact('workflows'));
+    }
+
+    public function logs()
+    {
+        $logs = NotificationLog::query()
+            ->with(['notification.user'])
+            ->latest()
+            ->limit(500)
+            ->get();
+
+        return view('admin.notifications.logs.index', compact('logs'));
     }
 
     public function show(NotificationWorkflow $notificationWorkflow)

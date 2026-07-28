@@ -186,6 +186,10 @@
                             <i class="fa-solid fa-diagram-project"></i>
                             <span>Trigger Registry</span>
                         </a>
+                        <a href="{{ route('admin.notifications.logs.index') }}" class="modern-nav-link {{ request()->routeIs('admin.notifications.logs.*') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>Logs Notifications</span>
+                        </a>
                     </div>
                 @endif
 
