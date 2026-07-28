@@ -25,7 +25,8 @@
     @endif
 
     <div class="row g-4 feed-layout-row">
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-xl-8 feed-stream-column">
+            <div class="feed-stream">
             @if($canPublish)
                 <div class="feed-card feed-composer mb-4" data-composer>
                     <div class="feed-card-body">
@@ -237,6 +238,7 @@
                     </div>
                 </div>
             @endforelse
+            </div>
         </div>
 
         <div class="col-12 col-xl-4">
@@ -284,6 +286,37 @@
             background: #eef2f7;
         }
 
+        .feed-layout-row {
+            align-items: flex-start;
+        }
+
+        .feed-stream-column {
+            min-height: 0;
+        }
+
+        .feed-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: calc(100vh - 155px);
+            overflow-y: auto;
+            padding-right: 0.35rem;
+            scrollbar-gutter: stable;
+        }
+
+        .feed-stream::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .feed-stream::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 999px;
+        }
+
+        .feed-stream::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
         .feed-page-title-wrap {
             padding-bottom: 0.25rem;
         }
@@ -300,6 +333,7 @@
             border-radius: 14px;
             background: #fff;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+            margin-bottom: 0 !important;
         }
 
         .feed-card-header {
@@ -696,6 +730,11 @@
             font-weight: 700;
         }
 
+        .feed-calendar-card {
+            position: sticky;
+            top: 1rem;
+        }
+
         .feed-calendar-list {
             display: grid;
             gap: 0.7rem;
@@ -719,6 +758,12 @@
         }
 
         @media (max-width: 991.98px) {
+            .feed-stream {
+                max-height: none;
+                overflow: visible;
+                padding-right: 0;
+            }
+
             .feed-card-body {
                 padding: 0.9rem;
             }
