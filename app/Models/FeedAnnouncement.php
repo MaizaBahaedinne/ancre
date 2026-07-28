@@ -14,6 +14,7 @@ class FeedAnnouncement extends Model
         'user_id',
         'title',
         'body',
+        'image_path',
         'is_published',
         'published_at',
     ];

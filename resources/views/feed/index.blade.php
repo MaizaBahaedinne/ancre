@@ -27,35 +27,77 @@
     <div class="row g-4 feed-layout-row">
         <div class="col-12 col-xl-8">
             @if($canPublish)
-                <div class="feed-card feed-composer mb-4">
+                <div class="feed-card feed-composer mb-4" data-composer>
                     <div class="feed-card-body">
-                        <div class="feed-composer-title">Creer une publication</div>
-                        <form action="{{ route('platform.feed.announcements.store') }}" method="POST">
+                        <form action="{{ route('platform.feed.announcements.store') }}" method="POST" enctype="multipart/form-data" id="feed-composer-form">
                             @csrf
-                            <div class="mb-2">
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    class="form-control feed-input"
-                                    required
-                                    maxlength="255"
-                                    value="{{ old('title') }}"
-                                    placeholder="Titre de la publication"
-                                >
+                            <input type="hidden" name="mode" value="text" id="feed-composer-mode">
+
+                            <div class="feed-composer-top">
+                                <span class="feed-avatar-lg feed-composer-avatar">
+                                    @if($currentUserAvatar)
+                                        <img src="{{ $currentUserAvatar }}" alt="Mon avatar">
+                                    @else
+                                        <span>{{ strtoupper(substr((string) auth()->user()->name, 0, 1)) }}</span>
+                                    @endif
+                                </span>
+
+                                <div class="feed-composer-input-wrap">
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        class="form-control feed-composer-input"
+                                        maxlength="255"
+                                        value="{{ old('title') }}"
+                                        placeholder="Commencer un post"
+                                    >
+                                </div>
                             </div>
-                            <div class="mb-3">
+
+                            <div class="feed-composer-tabs" role="tablist" aria-label="Modes de publication">
+                                <button type="button" class="feed-composer-tab is-active" data-mode-tab="text">
+                                    <i class="fa-solid fa-pen"></i>
+                                    <span>Text</span>
+                                </button>
+                                <button type="button" class="feed-composer-tab" data-mode-tab="photo">
+                                    <i class="fa-regular fa-image"></i>
+                                    <span>Text + image</span>
+                                </button>
+                                <a href="{{ route('admin.vitrine.blog-posts') }}" class="feed-composer-tab feed-composer-tab-link">
+                                    <i class="fa-solid fa-newspaper"></i>
+                                    <span>Article blog</span>
+                                </a>
+                            </div>
+
+                            <div class="feed-composer-panel is-visible" data-mode-panel="text">
                                 <textarea
-                                    id="body"
                                     name="body"
-                                    class="form-control feed-input feed-textarea"
-                                    rows="4"
+                                    class="form-control feed-composer-textarea"
+                                    rows="3"
                                     required
                                     maxlength="6000"
                                     placeholder="Quoi de neuf aujourd'hui ?"
                                 >{{ old('body') }}</textarea>
                             </div>
-                            <div class="d-flex justify-content-end">
+
+                            <div class="feed-composer-panel" data-mode-panel="photo">
+                                <textarea
+                                    name="body"
+                                    class="form-control feed-composer-textarea"
+                                    rows="3"
+                                    maxlength="6000"
+                                    placeholder="Ajoutez un texte pour accompagner l'image..."
+                                >{{ old('body') }}</textarea>
+
+                                <label class="feed-photo-dropzone">
+                                    <input type="file" name="image" accept="image/*">
+                                    <span class="feed-photo-dropzone-icon"><i class="fa-regular fa-image"></i></span>
+                                    <strong>Ajouter une photo</strong>
+                                    <small>JPG, PNG ou WEBP jusqu'a 5 Mo</small>
+                                </label>
+                            </div>
+
+                            <div class="feed-composer-actions">
                                 <button type="submit" class="btn btn-primary feed-btn-post">
                                     <i class="fa-solid fa-paper-plane"></i> Publier
                                 </button>
@@ -98,6 +140,22 @@
                             <p class="feed-content mb-0">{{ $item['content'] }}</p>
                         </div>
 
+                        @if(!empty($item['media_url']) && $item['media_type'] === 'image')
+                            <div class="feed-media-preview">
+                                <img src="{{ $item['media_url'] }}" alt="{{ $item['media_alt'] ?? $item['title'] }}">
+                            </div>
+                        @elseif($item['media_type'] === 'activity-card')
+                            <div class="feed-activity-preview">
+                                <div class="feed-activity-preview-icon">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                </div>
+                                <div>
+                                    <strong>{{ $item['title'] }}</strong>
+                                    <div class="small text-muted">{{ $item['meta_line'] ?? '' }}</div>
+                                </div>
+                            </div>
+                        @endif
+
                         @if(!empty($item['target_url']))
                             <div class="feed-link-wrap">
                                 <a href="{{ $item['target_url'] }}" class="feed-source-link" target="_blank" rel="noopener">
@@ -112,15 +170,16 @@
                             </small>
                         </div>
 
-                        <div class="feed-actions d-flex gap-2 flex-wrap">
-                            @foreach(['like' => '👍', 'love' => '❤️', 'care' => '🤝', 'wow' => '🎉'] as $reactionKey => $reactionLabel)
-                                <form method="POST" action="{{ route('platform.feed.reactions.store') }}">
+                        <div class="feed-actions-horizontal">
+                            @foreach(['like' => 'J’aime', 'love' => 'J’adore', 'care' => 'Solidaire', 'wow' => 'Wouah'] as $reactionKey => $reactionLabel)
+                                <form method="POST" action="{{ route('platform.feed.reactions.store') }}" class="feed-action-form">
                                     @csrf
                                     <input type="hidden" name="source_type" value="{{ $item['source_type'] }}">
                                     <input type="hidden" name="source_id" value="{{ $item['source_id'] }}">
                                     <input type="hidden" name="reaction" value="{{ $reactionKey }}">
-                                    <button type="submit" class="feed-react-btn {{ $myReaction === $reactionKey ? 'is-active' : '' }}">
-                                        {{ $reactionLabel }} {{ $reactions[$reactionKey] ?? 0 }}
+                                    <button type="submit" class="feed-action-button {{ $myReaction === $reactionKey ? 'is-active' : '' }}">
+                                        <span class="feed-action-emoji">@if($reactionKey === 'like')👍@elseif($reactionKey === 'love')❤️@elseif($reactionKey === 'care')🤝@else🎉@endif</span>
+                                        <span>{{ $reactionLabel }}</span>
                                     </button>
                                 </form>
                             @endforeach
@@ -155,9 +214,18 @@
                             @csrf
                             <input type="hidden" name="source_type" value="{{ $item['source_type'] }}">
                             <input type="hidden" name="source_id" value="{{ $item['source_id'] }}">
-                            <div class="input-group">
-                                <input type="text" name="content" class="form-control feed-input" maxlength="2000" placeholder="Ecrire un commentaire..." required>
-                                <button class="btn btn-primary" type="submit">Publier</button>
+                            <div class="feed-inline-comment">
+                                <span class="feed-avatar-sm">
+                                    @if($currentUserAvatar)
+                                        <img src="{{ $currentUserAvatar }}" alt="Mon avatar">
+                                    @else
+                                        <span>{{ strtoupper(substr((string) auth()->user()->name, 0, 1)) }}</span>
+                                    @endif
+                                </span>
+                                <div class="feed-inline-comment-box">
+                                    <input type="text" name="content" class="form-control feed-comment-input" maxlength="2000" placeholder="Ecrire un commentaire..." required>
+                                </div>
+                                <button class="btn btn-primary feed-comment-submit" type="submit">Publier</button>
                             </div>
                         </form>
                     </div>
@@ -247,29 +315,129 @@
             background: linear-gradient(180deg, #ffffff, #f8fbff);
         }
 
-        .feed-composer-title {
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: #1c1e21;
+        .feed-composer-top {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
         }
 
-        .feed-input {
+        .feed-composer-avatar {
+            width: 48px;
+            height: 48px;
+        }
+
+        .feed-composer-input-wrap {
+            flex: 1;
+        }
+
+        .feed-composer-input {
+            width: 100%;
             border-radius: 999px;
             border: 1px solid #d8dee8;
             background: #f4f6fa;
-            padding-top: 0.62rem;
-            padding-bottom: 0.62rem;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
         }
 
-        .feed-input:focus {
+        .feed-composer-input:focus {
             border-color: #2d88ff;
-            box-shadow: 0 0 0 0.15rem rgba(45, 136, 255, 0.2);
+            box-shadow: 0 0 0 0.15rem rgba(45, 136, 255, 0.18);
             background: #fff;
         }
 
-        .feed-textarea {
+        .feed-composer-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .feed-composer-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 14px;
+            border: 1px solid #d6dde8;
+            background: #fff;
+            color: #344054;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .feed-composer-tab:hover {
+            background: #f6f8fb;
+            color: #111827;
+        }
+
+        .feed-composer-tab.is-active {
+            border-color: #2d88ff;
+            background: #eaf3ff;
+            color: #0f4fa8;
+        }
+
+        .feed-composer-tab-link {
+            cursor: pointer;
+        }
+
+        .feed-composer-panel {
+            display: none;
+            gap: 0.75rem;
+        }
+
+        .feed-composer-panel.is-visible {
+            display: grid;
+        }
+
+        .feed-composer-textarea {
             border-radius: 18px;
+            border: 1px solid #d8dee8;
+            background: #f4f6fa;
+            min-height: 120px;
             resize: vertical;
+        }
+
+        .feed-composer-textarea:focus {
+            border-color: #2d88ff;
+            box-shadow: 0 0 0 0.15rem rgba(45, 136, 255, 0.18);
+            background: #fff;
+        }
+
+        .feed-photo-dropzone {
+            display: grid;
+            place-items: center;
+            gap: 0.35rem;
+            padding: 1rem;
+            border: 1.5px dashed #b8c4d5;
+            border-radius: 18px;
+            background: #fbfcfe;
+            color: #475467;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .feed-photo-dropzone input {
+            display: none;
+        }
+
+        .feed-photo-dropzone-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #eaf3ff;
+            color: #2d88ff;
+            font-size: 1.1rem;
+        }
+
+        .feed-composer-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.9rem;
         }
 
         .feed-btn-post {
@@ -278,6 +446,46 @@
             background: #1877f2;
             border-color: #1877f2;
             min-width: 140px;
+        }
+
+        .feed-media-preview {
+            margin: 0.8rem 0 0.2rem;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #f3f5f8;
+            border: 1px solid #e5eaf1;
+        }
+
+        .feed-media-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 420px;
+            object-fit: cover;
+        }
+
+        .feed-activity-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+            padding: 0.85rem 0.95rem;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #eef5ff, #f7fbff);
+            border: 1px solid #dce8ff;
+        }
+
+        .feed-activity-preview-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1877f2;
+            color: #fff;
+            font-size: 1.05rem;
+            flex-shrink: 0;
         }
 
         .feed-item-header {
@@ -381,31 +589,48 @@
             font-weight: 500;
         }
 
-        .feed-actions {
-            margin-top: 0.55rem;
-            margin-bottom: 0.75rem;
+
+        .feed-actions-horizontal {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            margin-bottom: 0.8rem;
+            padding: 0.75rem 0;
+            border-top: 1px solid #edf0f4;
             border-bottom: 1px solid #edf0f4;
-            padding-bottom: 0.75rem;
         }
 
-        .feed-react-btn {
-            border: 1px solid #d4dbe5;
-            background: #fff;
-            color: #4b5563;
-            border-radius: 999px;
-            font-size: 0.86rem;
-            font-weight: 600;
-            padding: 0.28rem 0.65rem;
+        .feed-action-form {
+            min-width: 0;
         }
 
-        .feed-react-btn:hover {
-            background: #f3f6fa;
+        .feed-action-button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.65rem 0.45rem;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            background: #f5f7fb;
+            color: #344054;
+            font-weight: 700;
         }
 
-        .feed-react-btn.is-active {
-            color: #0b5ed7;
-            border-color: #a9caff;
-            background: #eaf3ff;
+        .feed-action-button:hover {
+            background: #eef3fa;
+        }
+
+        .feed-action-button.is-active {
+            background: #e8f1ff;
+            border-color: #b7d2ff;
+            color: #0f4fa8;
+        }
+
+        .feed-action-emoji {
+            font-size: 1rem;
         }
 
         .feed-comments {
@@ -442,9 +667,33 @@
             white-space: nowrap;
         }
 
-        .feed-comment-form .btn {
+        .feed-inline-comment {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .feed-inline-comment-box {
+            flex: 1;
+        }
+
+        .feed-comment-input {
             border-radius: 999px;
-            min-width: 105px;
+            border: 1px solid #d8dee8;
+            background: #f4f6fa;
+            padding: 0.72rem 0.95rem;
+        }
+
+        .feed-comment-input:focus {
+            border-color: #2d88ff;
+            box-shadow: 0 0 0 0.15rem rgba(45, 136, 255, 0.18);
+            background: #fff;
+        }
+
+        .feed-comment-submit {
+            border-radius: 999px;
+            min-width: 95px;
+            font-weight: 700;
         }
 
         .feed-calendar-list {
@@ -474,13 +723,67 @@
                 padding: 0.9rem;
             }
 
+            .feed-composer-top {
+                align-items: flex-start;
+            }
+
+            .feed-composer-tabs,
+            .feed-actions-horizontal {
+                grid-template-columns: 1fr 1fr;
+            }
+
             .feed-title {
                 font-size: 1.05rem;
             }
 
-            .feed-comment-form .btn {
-                min-width: 88px;
+            .feed-inline-comment {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .feed-comment-submit {
+                width: 100%;
             }
         }
     </style>
+@stop
+
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const composer = document.querySelector('[data-composer]');
+            if (!composer) {
+                return;
+            }
+
+            const modeInput = composer.querySelector('#feed-composer-mode');
+            const tabs = Array.from(composer.querySelectorAll('[data-mode-tab]'));
+            const panels = Array.from(composer.querySelectorAll('[data-mode-panel]'));
+
+            function setMode(mode) {
+                modeInput.value = mode;
+
+                tabs.forEach((tab) => {
+                    tab.classList.toggle('is-active', tab.dataset.modeTab === mode);
+                });
+
+                panels.forEach((panel) => {
+                    panel.classList.toggle('is-visible', panel.dataset.modePanel === mode);
+                    panel.querySelectorAll('textarea, input[type="file"]').forEach((field) => {
+                        if (panel.dataset.modePanel === mode) {
+                            field.removeAttribute('disabled');
+                        } else {
+                            field.setAttribute('disabled', 'disabled');
+                        }
+                    });
+                });
+            }
+
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => setMode(tab.dataset.modeTab));
+            });
+
+            setMode(modeInput.value || 'text');
+        });
+    </script>
 @stop

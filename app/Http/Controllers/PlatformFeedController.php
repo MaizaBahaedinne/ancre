@@ -9,11 +9,13 @@ use App\Models\FeedAnnouncement;
 use App\Models\FeedComment;
 use App\Models\FeedReaction;
 use App\Models\VitrineBlogPost;
+use App\Support\AvatarUrl;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class PlatformFeedController extends Controller
 {
@@ -50,14 +52,27 @@ class PlatformFeedController extends Controller
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'body' => 'required|string|max:6000',
+            'mode' => 'required|in:text,photo',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        $title = trim((string) ($validated['title'] ?? ''));
+        if ($title === '') {
+            $title = str($validated['body'])->squish()->limit(72)->toString();
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('feed/announcements', 'public');
+        }
 
         FeedAnnouncement::query()->create([
             'user_id' => $request->user()->id,
-            'title' => $validated['title'],
+            'title' => $title,
             'body' => $validated['body'],
+            'image_path' => $imagePath,
             'is_published' => true,
             'published_at' => now(),
         ]);
@@ -134,9 +149,9 @@ class PlatformFeedController extends Controller
                     'author_avatar' => $this->resolveUserAvatar($announcement->author),
                     'source_label' => 'Annonce',
                     'target_url' => null,
-                    'media_type' => null,
-                    'media_url' => null,
-                    'media_alt' => null,
+                    'media_type' => $announcement->image_path ? 'image' : null,
+                    'media_url' => $announcement->image_path ? AvatarUrl::fromPath($announcement->image_path) : null,
+                    'media_alt' => $announcement->title,
                     'meta_line' => null,
                 ];
             });
@@ -160,7 +175,7 @@ class PlatformFeedController extends Controller
                     'source_label' => 'Blog',
                     'target_url' => route('vitrine.blog.show', ['slug' => $blog->slug]),
                     'media_type' => $blog->cover_url ? 'image' : null,
-                    'media_url' => $blog->cover_url ?: null,
+                    'media_url' => $blog->cover_url ? AvatarUrl::fromPath($blog->cover_url) : null,
                     'media_alt' => $blog->title,
                     'meta_line' => 'Article de blog',
                 ];
