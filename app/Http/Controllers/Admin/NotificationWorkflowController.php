@@ -87,15 +87,26 @@ class NotificationWorkflowController extends Controller
     {
         $validated = $request->validate([
             'target_user_id' => 'required|integer|exists:users,id',
-            'test_metadata' => 'nullable|json',
+            'test_metadata' => 'nullable|string',
         ]);
 
         $targetUser = User::query()->findOrFail((int) $validated['target_user_id']);
         $metadata = [];
 
-        if (!empty($validated['test_metadata'])) {
-            $decoded = json_decode($validated['test_metadata'], true);
-            $metadata = is_array($decoded) ? $decoded : [];
+        $rawMetadata = trim((string) ($validated['test_metadata'] ?? ''));
+        if ($rawMetadata !== '') {
+            $decoded = json_decode($rawMetadata, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        'test_metadata' => 'Le champ metadata doit contenir un JSON valide (objet ou tableau).',
+                    ])
+                    ->withInput();
+            }
+
+            $metadata = $decoded;
         }
 
         $notification = NotificationService::sendTest($notificationWorkflow, $targetUser, $metadata);
