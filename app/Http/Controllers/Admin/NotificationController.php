@@ -33,7 +33,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get notifications archive (already read + recent unread mixed), paginated by limit.
+     * Get notifications archive (already read notifications only), paginated by limit.
      */
     public function archive(Request $request)
     {
@@ -42,6 +42,7 @@ class NotificationController extends Controller
 
         $notifications = auth()->user()
             ->notifications()
+            ->whereNotNull('read_at')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
