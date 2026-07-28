@@ -168,6 +168,23 @@
                     </div>
                 @endcanany
 
+                @php
+                    $canAccessNotifications = auth()->check()
+                        && (
+                            auth()->user()->hasAnyPermission(['notifications.manage', 'notifications.view'])
+                            || auth()->user()->hasAnyRole(['Administrateur', 'Responsable'])
+                        );
+                @endphp
+                @if($canAccessNotifications)
+                    <div class="modern-nav-section">
+                        <span class="modern-nav-label">Notifications</span>
+                        <a href="{{ route('admin.notifications.workflows.index') }}" class="modern-nav-link {{ request()->routeIs('admin.notifications.workflows.*') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-bell"></i>
+                            <span>Workflows</span>
+                        </a>
+                    </div>
+                @endif
+
                 @can('requests.parent')
                     <div class="modern-nav-section">
                         <span class="modern-nav-label">Communication Parent</span>
