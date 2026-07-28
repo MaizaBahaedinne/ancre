@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationCount = document.getElementById('notifications-count');
     const subtitle = document.getElementById('notifications-subtitle');
     const markAllButton = document.getElementById('notifications-mark-all');
+    const viewSwitchButtons = Array.from(document.querySelectorAll('.modern-notifications-switch-btn'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    let activeView = 'unread';
 
     if (!notificationMenu || !notificationList || !notificationCount) {
         return;
@@ -19,7 +21,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (markAllButton) {
         markAllButton.addEventListener('click', async () => {
             await markAllAsRead();
-            await loadNotifications();
+            await loadUnreadNotifications();
+            if (activeView === 'archive') {
+                await loadArchiveNotifications();
+            }
+        });
+    }
+
+    if (viewSwitchButtons.length > 0) {
+        viewSwitchButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const nextView = button.dataset.view;
+                if (!nextView || nextView === activeView) {
+                    return;
+                }
+
+                activeView = nextView;
+                syncActiveViewButton();
+
+                if (activeView === 'archive') {
+                    await loadArchiveNotifications();
+                } else {
+                    await loadUnreadNotifications();
+                }
+            });
         });
     }
 
@@ -35,13 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         await markNotificationAsRead(id);
-        await loadNotifications();
+        if (activeView === 'archive') {
+            await loadArchiveNotifications();
+        } else {
+            await loadUnreadNotifications();
+        }
     });
 
-    loadNotifications();
-    setInterval(loadNotifications, 30000);
+    loadUnreadNotifications();
+    setInterval(() => {
+        if (activeView === 'unread') {
+            loadUnreadNotifications();
+        }
+    }, 30000);
 
-    async function loadNotifications() {
+    async function loadUnreadNotifications() {
         try {
             const response = await fetch('/api/notifications/unread', {
                 headers: {
@@ -55,9 +88,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const notifications = await response.json();
             updateNotificationCount(Array.isArray(notifications) ? notifications.length : 0);
-            updateNotificationList(Array.isArray(notifications) ? notifications : []);
+            updateNotificationList(Array.isArray(notifications) ? notifications : [], 'unread');
         } catch (error) {
             console.error('Error loading notifications:', error);
+        }
+    }
+
+    async function loadArchiveNotifications() {
+        try {
+            const response = await fetch('/api/notifications/archive?limit=50', {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load notifications archive');
+            }
+
+            const notifications = await response.json();
+            updateNotificationList(Array.isArray(notifications) ? notifications : [], 'archive');
+            if (subtitle) {
+                subtitle.textContent = 'Archive des notifications';
+            }
+            if (markAllButton) {
+                markAllButton.disabled = true;
+            }
+        } catch (error) {
+            console.error('Error loading notifications archive:', error);
         }
     }
 
@@ -83,13 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateNotificationList(notifications) {
+    function updateNotificationList(notifications, view) {
         if (notifications.length === 0) {
             notificationList.innerHTML = `
                 <div class="modern-notifications-empty">
                     <i class="fa-solid fa-inbox"></i>
-                    <p>Aucune notification</p>
-                    <small>Tout est a jour</small>
+                    <p>${view === 'archive' ? 'Archive vide' : 'Aucune notification'}</p>
+                    <small>${view === 'archive' ? 'Aucune notification a afficher pour le moment' : 'Tout est a jour'}</small>
                 </div>
             `;
             return;
@@ -122,6 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         notificationList.innerHTML = html;
+    }
+
+    function syncActiveViewButton() {
+        viewSwitchButtons.forEach((button) => {
+            const isActive = button.dataset.view === activeView;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
     }
 
     async function markNotificationAsRead(notificationId) {

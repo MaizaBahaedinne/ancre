@@ -316,6 +316,14 @@
                                     Tout lire
                                 </button>
                             </div>
+                            <div class="modern-notifications-switch" role="tablist" aria-label="Filtrer les notifications">
+                                <button type="button" class="modern-notifications-switch-btn is-active" data-view="unread" aria-pressed="true">
+                                    Non lues
+                                </button>
+                                <button type="button" class="modern-notifications-switch-btn" data-view="archive" aria-pressed="false">
+                                    Archive
+                                </button>
+                            </div>
                             <div class="modern-notifications-list" id="notifications-list">
                                 <div class="modern-notifications-empty">
                                     <i class="fa-solid fa-inbox"></i>

@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
     // Notification routes
     Route::get('/api/notifications/count', [NotificationController::class, 'count'])->name('notifications.count');
     Route::get('/api/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::get('/api/notifications/archive', [NotificationController::class, 'archive'])->name('notifications.archive');
     Route::post('/api/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 });

@@ -33,6 +33,23 @@ class NotificationController extends Controller
     }
 
     /**
+     * Get notifications archive (already read + recent unread mixed), paginated by limit.
+     */
+    public function archive(Request $request)
+    {
+        $limit = (int) $request->integer('limit', 50);
+        $limit = max(10, min($limit, 100));
+
+        $notifications = auth()->user()
+            ->notifications()
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+
+        return response()->json($notifications);
+    }
+
+    /**
      * Mark a notification as read
      */
     public function markAsRead(Notification $notification)

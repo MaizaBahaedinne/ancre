@@ -479,6 +479,36 @@
 		gap: 0.35rem;
 	}
 
+	.modern-notifications-switch {
+		display: flex;
+		gap: 0.4rem;
+		padding: 0.55rem 0.8rem 0.35rem;
+		border-bottom: 1px solid rgba(var(--brand-navy-rgb), 0.08);
+		background: rgba(248, 250, 252, 0.55);
+	}
+
+	.modern-notifications-switch-btn {
+		border: 1px solid rgba(var(--brand-navy-rgb), 0.16);
+		background: #fff;
+		color: #475569;
+		font-size: 0.75rem;
+		font-weight: 700;
+		padding: 0.28rem 0.55rem;
+		border-radius: 999px;
+		transition: all 0.2s ease;
+	}
+
+	.modern-notifications-switch-btn:hover {
+		color: var(--brand-navy);
+		border-color: rgba(var(--brand-gold-rgb), 0.56);
+	}
+
+	.modern-notifications-switch-btn.is-active {
+		background: var(--brand-navy);
+		border-color: var(--brand-navy);
+		color: #fff;
+	}
+
 	.modern-notifications-empty {
 		display: flex;
 		flex-direction: column;
