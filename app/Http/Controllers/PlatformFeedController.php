@@ -322,11 +322,11 @@ class PlatformFeedController extends Controller
     private function periodColorMap(): array
     {
         return [
-            AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM => '#f97316',
-            AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM => '#3b82f6',
-            AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => '#0ea5e9',
-            AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => '#10b981',
-            AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => '#ef4444',
+            AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM => '#f59e0b',
+            AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM => '#2563eb',
+            AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => '#7c3aed',
+            AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => '#059669',
+            AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => '#dc2626',
         ];
     }
 

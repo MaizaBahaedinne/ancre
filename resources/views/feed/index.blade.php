@@ -200,103 +200,102 @@
                                             <span>{{ $commentAvatarFallback }}</span>
                                         @endif
                                     </span>
-                                    <div class="feed-comment-bubble">
-                                        <div class="feed-comment-top">
-                                            <strong>{{ $commentAuthor }}</strong>
-                                            <small>{{ $comment->created_at?->format('d/m H:i') }}</small>
-                                        </div>
-                                        <div>{{ $comment->content }}</div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                                                        $calendarReferenceDate = now();
+                                                        $academicStart = $activeAcademicYear->start_date?->copy();
+                                                        $academicEnd = $activeAcademicYear->end_date?->copy();
 
-                        <form method="POST" action="{{ route('platform.feed.comments.store') }}" class="feed-comment-form">
-                            @csrf
-                            <input type="hidden" name="source_type" value="{{ $item['source_type'] }}">
-                            <input type="hidden" name="source_id" value="{{ $item['source_id'] }}">
-                            <div class="feed-inline-comment">
-                                <span class="feed-avatar-sm">
-                                    @if($currentUserAvatar)
-                                        <img src="{{ $currentUserAvatar }}" alt="Mon avatar">
-                                    @else
-                                        <span>{{ strtoupper(substr((string) auth()->user()->name, 0, 1)) }}</span>
-                                    @endif
-                                </span>
-                                <div class="feed-inline-comment-box">
-                                    <input type="text" name="content" class="form-control feed-comment-input" maxlength="2000" placeholder="Ecrire un commentaire..." required>
-                                </div>
-                                <button class="btn btn-primary feed-comment-submit" type="submit">Publier</button>
-                            </div>
+                                                        if ($academicStart && $academicEnd && (! $calendarReferenceDate->betweenIncluded($academicStart, $academicEnd))) {
+                                                            $calendarReferenceDate = $academicStart->copy();
+                                                        }
+
+                                                        $calendarMonthStart = $calendarReferenceDate->copy()->startOfMonth();
+                                                        $calendarMonthEnd = $calendarReferenceDate->copy()->endOfMonth();
+                                                        $calendarGridStart = $calendarMonthStart->copy()->startOfWeek(\Carbon\Carbon::SUNDAY);
+                                                        $calendarGridEnd = $calendarMonthEnd->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
+                                                        $calendarDay = $calendarGridStart->copy();
+                                                        $calendarToday = now()->startOfDay();
+                                                        $dateTypePriority = [
+                                                            \App\Models\AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => 5,
+                                                            \App\Models\AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => 4,
+                                                            \App\Models\AcademicCalendarPeriod::TYPE_SYNTHESIS_EXAM => 3,
+                                                            \App\Models\AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM => 2,
+                                                            \App\Models\AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM => 1,
+                                                        ];
+                                                        $periodsForDate = function (\Carbon\Carbon $date) use ($activeAcademicYear) {
+                                                            return $activeAcademicYear->periods->filter(function ($period) use ($date) {
+                                                                return $period->start_date && $period->end_date
+                                                                    && $date->betweenIncluded($period->start_date->copy()->startOfDay(), $period->end_date->copy()->endOfDay());
+                                                            })->values();
+                                                        };
                         </form>
                     </div>
-                </article>
-            @empty
-                <div class="feed-card">
-                    <div class="feed-card-body text-center text-muted py-5">
-                        Aucun contenu dans le fil pour le moment.
-                    </div>
-                </div>
-            @endforelse
-            </div>
-        </div>
+                                                    <div class="feed-calendar-month-shell">
+                                                        <div class="feed-calendar-month-head">
+                                                            <div>
+                                                                <div class="feed-calendar-year-label">{{ $activeAcademicYear->label }}</div>
+                                                                <h3 class="feed-calendar-month-title">{{ ucfirst($calendarReferenceDate->translatedFormat('F Y')) }}</h3>
+                                                            </div>
+                                                            <div class="feed-calendar-month-meta">
+                                                                {{ $activeAcademicYear->start_date?->format('d/m/Y') }} - {{ $activeAcademicYear->end_date?->format('d/m/Y') }}
+                                                            </div>
+                                                        </div>
 
-        <div class="col-12 col-xl-4">
-            <div class="feed-card feed-calendar-card sticky-xl-top" style="top: 1rem;">
-                <div class="feed-card-header">
-                    <strong>Calendrier annee scolaire en cours</strong>
-                </div>
-                <div class="feed-card-body">
-                    @if($activeAcademicYear)
-                        <p class="mb-3">
-                            <strong>{{ $activeAcademicYear->label }}</strong><br>
-                            <small class="text-muted">{{ $activeAcademicYear->start_date?->format('d/m/Y') }} - {{ $activeAcademicYear->end_date?->format('d/m/Y') }}</small>
-                        </p>
+                                                        <div class="feed-calendar-legend">
+                                                            @foreach($periodColorMap as $typeValue => $color)
+                                                                <div class="feed-calendar-legend-item">
+                                                                    <span class="feed-calendar-legend-dot" style="background-color: {{ $color }};"></span>
+                                                                    <span>{{ \App\Models\AcademicCalendarPeriod::TYPE_OPTIONS[$typeValue] ?? $typeValue }}</span>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
 
-                        <div class="feed-calendar-list">
-                            @forelse($activeAcademicYear->periods as $period)
-                                @php
-                                    $periodColor = $periodColorMap[$period->type] ?? '#6b7280';
-                                    $typeLabel = \App\Models\AcademicCalendarPeriod::TYPE_OPTIONS[$period->type] ?? $period->type;
-                                @endphp
-                                <div class="feed-calendar-item">
-                                    <span class="feed-period-dot" style="background-color: {{ $periodColor }};"></span>
-                                    <div>
-                                        <strong>{{ $period->title }}</strong>
-                                        <div class="text-muted small">{{ $typeLabel }}</div>
-                                        <div class="small">{{ $period->start_date?->format('d/m') }} - {{ $period->end_date?->format('d/m/Y') }}</div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-muted">Aucune periode definie pour cette annee.</p>
-                            @endforelse
-                        </div>
-                    @else
-                        <p class="text-muted mb-0">Aucune annee scolaire active.</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-@stop
+                                                        <div class="feed-calendar-grid">
+                                                            @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $weekday)
+                                                                <div class="feed-calendar-weekday">{{ $weekday }}</div>
+                                                            @endforeach
 
-@section('css')
-    <style>
-        .content-wrapper {
-            background: #eef2f7;
-        }
+                                                            @while($calendarDay->lte($calendarGridEnd))
+                                                                @php
+                                                                    $dayPeriods = $periodsForDate($calendarDay);
+                                                                    $dayType = $dayPeriods->sortByDesc(fn ($period) => $dateTypePriority[$period->type] ?? 0)->first()?->type;
+                                                                    $dayColor = $dayType ? ($periodColorMap[$dayType] ?? '#6b7280') : null;
+                                                                    $isToday = $calendarDay->isSameDay($calendarToday);
+                                                                    $isInMonth = $calendarDay->month === $calendarReferenceDate->month;
+                                                                @endphp
+                                                                <div class="feed-calendar-day {{ $isInMonth ? '' : 'is-outside' }} {{ $isToday ? 'is-today' : '' }} {{ $dayColor ? 'has-period' : '' }}" @if($dayColor) style="--day-accent: {{ $dayColor }};" @endif>
+                                                                    <span class="feed-calendar-day-number">{{ $calendarDay->day }}</span>
+                                                                    @if($dayPeriods->isNotEmpty())
+                                                                        <span class="feed-calendar-day-dot"></span>
+                                                                    @endif
+                                                                </div>
+                                                                @php $calendarDay->addDay(); @endphp
+                                                            @endwhile
+                                                        </div>
 
-        .feed-layout-row {
-            align-items: flex-start;
-        }
-
-        .feed-stream-column {
-            min-height: 0;
-        }
-
-        .feed-stream {
-            display: flex;
-            flex-direction: column;
+                                                        <div class="feed-calendar-day-summary">
+                                                            <div class="feed-calendar-day-summary-title">Périodes de {{ ucfirst($calendarReferenceDate->translatedFormat('F')) }}</div>
+                                                            @forelse($activeAcademicYear->periods->filter(function ($period) use ($calendarMonthStart, $calendarMonthEnd) {
+                                                                return $period->start_date && $period->end_date
+                                                                    && $period->end_date->greaterThanOrEqualTo($calendarMonthStart)
+                                                                    && $period->start_date->lessThanOrEqualTo($calendarMonthEnd);
+                                                            }) as $period)
+                                                                @php
+                                                                    $periodColor = $periodColorMap[$period->type] ?? '#6b7280';
+                                                                    $typeLabel = \App\Models\AcademicCalendarPeriod::TYPE_OPTIONS[$period->type] ?? $period->type;
+                                                                @endphp
+                                                                <div class="feed-calendar-item">
+                                                                    <span class="feed-period-dot" style="background-color: {{ $periodColor }};"></span>
+                                                                    <div>
+                                                                        <strong>{{ $period->title }}</strong>
+                                                                        <div class="text-muted small">{{ $typeLabel }}</div>
+                                                                        <div class="small">{{ $period->start_date?->format('d/m') }} - {{ $period->end_date?->format('d/m/Y') }}</div>
+                                                                    </div>
+                                                                </div>
+                                                            @empty
+                                                                <p class="text-muted mb-0">Aucune periode definie pour ce mois.</p>
+                                                            @endforelse
+                                                        </div>
+                                                    </div>
             gap: 1rem;
             max-height: calc(100vh - 155px);
             overflow-y: auto;
@@ -735,9 +734,134 @@
             top: 1rem;
         }
 
-        .feed-calendar-list {
+        .feed-calendar-month-shell {
             display: grid;
-            gap: 0.7rem;
+            gap: 0.9rem;
+        }
+
+        .feed-calendar-month-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.2rem 0 0.4rem;
+        }
+
+        .feed-calendar-year-label {
+            font-size: 0.82rem;
+            color: #667085;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .feed-calendar-month-title {
+            margin: 0.15rem 0 0;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1c1e21;
+        }
+
+        .feed-calendar-month-meta {
+            color: #667085;
+            font-size: 0.85rem;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .feed-calendar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem 0.7rem;
+            padding: 0.7rem;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+        }
+
+        .feed-calendar-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.82rem;
+            color: #344054;
+            font-weight: 600;
+        }
+
+        .feed-calendar-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .feed-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.35rem;
+            padding: 0.6rem 0.2rem 0;
+        }
+
+        .feed-calendar-weekday {
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #98a2b3;
+            padding-bottom: 0.25rem;
+        }
+
+        .feed-calendar-day {
+            min-height: 46px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #eef2f7;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0.45rem 0.2rem;
+            position: relative;
+            color: #1c1e21;
+            font-weight: 700;
+        }
+
+        .feed-calendar-day.is-outside {
+            opacity: 0.35;
+            background: #f8fafc;
+        }
+
+        .feed-calendar-day.is-today {
+            border-color: #2d88ff;
+            box-shadow: 0 0 0 1px rgba(45, 136, 255, 0.15) inset;
+        }
+
+        .feed-calendar-day.has-period {
+            border-color: var(--day-accent, #e2e8f0);
+            background: color-mix(in srgb, var(--day-accent) 10%, #ffffff);
+        }
+
+        .feed-calendar-day-number {
+            line-height: 1;
+        }
+
+        .feed-calendar-day-dot {
+            position: absolute;
+            bottom: 0.45rem;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--day-accent, #667085);
+        }
+
+        .feed-calendar-day-summary {
+            display: grid;
+            gap: 0.65rem;
+            padding-top: 0.25rem;
+        }
+
+        .feed-calendar-day-summary-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1c1e21;
         }
 
         .feed-calendar-item {

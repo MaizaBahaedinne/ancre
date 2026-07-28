@@ -31,6 +31,20 @@ return new class extends Migration
                     'notes' => 'Preparation avant la reprise des cours.',
                 ],
                 [
+                    'title' => 'Naissance du Prophete',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2026-09-27',
+                    'end_date' => '2026-09-27',
+                    'notes' => 'Jour ferie national. Date a confirmer selon le calendrier officiel.',
+                ],
+                [
+                    'title' => 'Jour de l evacuation',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2026-10-15',
+                    'end_date' => '2026-10-15',
+                    'notes' => 'Jour ferie national en Tunisie.',
+                ],
+                [
                     'title' => 'Examen du premier trimestre',
                     'type' => AcademicCalendarPeriod::TYPE_THEORETICAL_EXAM,
                     'start_date' => '2026-11-30',
@@ -45,6 +59,13 @@ return new class extends Migration
                     'notes' => 'Pause hivernale.',
                 ],
                 [
+                    'title' => 'Jour de la revolution et de la jeunesse',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2027-01-14',
+                    'end_date' => '2027-01-14',
+                    'notes' => 'Jour ferie national en Tunisie.',
+                ],
+                [
                     'title' => 'Examen du deuxieme trimestre',
                     'type' => AcademicCalendarPeriod::TYPE_PRACTICAL_EXAM,
                     'start_date' => '2027-02-22',
@@ -52,11 +73,32 @@ return new class extends Migration
                     'notes' => 'Evaluation du deuxieme trimestre.',
                 ],
                 [
+                    'title' => 'Jour de l independance',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2027-03-20',
+                    'end_date' => '2027-03-20',
+                    'notes' => 'Jour ferie national en Tunisie.',
+                ],
+                [
                     'title' => 'Vacances de printemps',
                     'type' => AcademicCalendarPeriod::TYPE_SCHOOL_VACATION,
                     'start_date' => '2027-03-27',
                     'end_date' => '2027-04-11',
                     'notes' => 'Pause printaniere.',
+                ],
+                [
+                    'title' => 'Jour des martyrs',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2027-04-09',
+                    'end_date' => '2027-04-09',
+                    'notes' => 'Jour ferie national en Tunisie.',
+                ],
+                [
+                    'title' => 'Fete du travail',
+                    'type' => AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY,
+                    'start_date' => '2027-05-01',
+                    'end_date' => '2027-05-01',
+                    'notes' => 'Jour ferie national en Tunisie.',
                 ],
                 [
                     'title' => 'Examen de synthese',
