@@ -6,6 +6,7 @@ use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Requests\UpdateSchoolRequest;
 use App\Models\AcademicYear;
 use App\Models\School;
+use App\Services\NotificationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -36,6 +37,16 @@ class SchoolController extends Controller
 
         $school = School::create($data);
         $this->syncClasses($school, $classes);
+
+        NotificationService::dispatch('school.created', [
+            'subject' => 'Nouvelle ecole creee: '.$school->name,
+            'description' => 'Une nouvelle ecole a ete ajoutee a la plateforme.',
+            'metadata' => [
+                'school_id' => $school->id,
+                'school_name' => $school->name,
+                'created_by' => auth()->id(),
+            ],
+        ]);
 
         return redirect()->route('schools.index')->with('success', 'Ecole ajoutee avec succes.');
     }

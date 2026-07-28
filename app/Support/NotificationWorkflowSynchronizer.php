@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\NotificationReceiver;
+use App\Models\NotificationTriggerOverride;
 use App\Models\NotificationWorkflow;
 
 class NotificationWorkflowSynchronizer
@@ -15,6 +16,9 @@ class NotificationWorkflowSynchronizer
     public function sync(): array
     {
         $definitions = app(TriggerRegistry::class)->definitions();
+        $enabledOverrides = NotificationTriggerOverride::query()
+            ->whereNotNull('is_enabled')
+            ->pluck('is_enabled', 'trigger');
 
         $workflowCount = 0;
         $receiverCount = 0;
@@ -24,15 +28,25 @@ class NotificationWorkflowSynchronizer
                 continue;
             }
 
-            $workflow = NotificationWorkflow::updateOrCreate(
-                ['trigger' => $workflowData['trigger']],
-                [
-                    'name' => $workflowData['name'] ?? $workflowData['trigger'],
-                    'description' => $workflowData['description'] ?? null,
-                    'is_enabled' => (bool) ($workflowData['is_enabled'] ?? false),
-                    'module' => $workflowData['module'] ?? 'general',
-                ]
-            );
+            $workflow = NotificationWorkflow::query()->firstOrNew([
+                'trigger' => $workflowData['trigger'],
+            ]);
+
+            $isEnabled = $workflow->exists
+                ? (bool) $workflow->is_enabled
+                : (bool) ($workflowData['is_enabled'] ?? false);
+
+            if ($enabledOverrides->has($workflowData['trigger'])) {
+                $isEnabled = (bool) $enabledOverrides->get($workflowData['trigger']);
+            }
+
+            $workflow->fill([
+                'name' => $workflowData['name'] ?? $workflowData['trigger'],
+                'description' => $workflowData['description'] ?? null,
+                'is_enabled' => $isEnabled,
+                'module' => $workflowData['module'] ?? 'general',
+            ]);
+            $workflow->save();
 
             $workflowCount++;
 
