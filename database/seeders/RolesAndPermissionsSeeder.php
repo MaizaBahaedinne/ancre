@@ -104,6 +104,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'dashboard.view',
             'developer.tools.view',
             'vitrine.manage',
+            'notifications.manage',
             'parents.view',
             'parents.create',
             'parents.update',
