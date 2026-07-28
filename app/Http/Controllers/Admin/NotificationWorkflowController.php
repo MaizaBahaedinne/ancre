@@ -11,12 +11,6 @@ use App\Models\User;
 
 class NotificationWorkflowController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:notifications.manage');
-    }
-
     public function index()
     {
         $workflows = NotificationWorkflow::with('receivers')->orderBy('created_at', 'desc')->get();
