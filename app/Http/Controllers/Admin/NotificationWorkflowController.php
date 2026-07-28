@@ -47,6 +47,8 @@ class NotificationWorkflowController extends Controller
             'is_enabled' => 'boolean',
         ]);
 
+        $validated['is_enabled'] = $request->boolean('is_enabled');
+
         $notificationWorkflow->update($validated);
 
         return redirect()->route('admin.notifications.workflows.show', $notificationWorkflow)
@@ -57,7 +59,7 @@ class NotificationWorkflowController extends Controller
     {
         $validated = $request->validate([
             'receiver_type' => 'required|in:role,user,default',
-            'receiver_value' => 'nullable|string',
+            'receiver_value' => 'nullable|string|required_if:receiver_type,role,user',
             'notification_medium' => 'required|in:system,email,sms,all',
         ]);
 
@@ -67,20 +69,20 @@ class NotificationWorkflowController extends Controller
             ->with('success', 'Receiver ajouté avec succès');
     }
 
-    public function removeReceiver(NotificationReceiver $receiver)
+    public function removeReceiver(NotificationReceiver $notificationReceiver)
     {
-        $workflowId = $receiver->workflow_id;
-        $receiver->delete();
+        $workflowId = $notificationReceiver->workflow_id;
+        $notificationReceiver->delete();
 
         return redirect()->route('admin.notifications.workflows.show', $workflowId)
             ->with('success', 'Receiver supprimé avec succès');
     }
 
-    public function toggleReceiver(NotificationReceiver $receiver)
+    public function toggleReceiver(NotificationReceiver $notificationReceiver)
     {
-        $receiver->update(['is_enabled' => !$receiver->is_enabled]);
+        $notificationReceiver->update(['is_enabled' => !$notificationReceiver->is_enabled]);
 
-        return redirect()->route('admin.notifications.workflows.show', $receiver->workflow_id)
+        return redirect()->route('admin.notifications.workflows.show', $notificationReceiver->workflow_id)
             ->with('success', 'Receiver mis à jour');
     }
 }

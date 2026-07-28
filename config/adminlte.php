@@ -370,6 +370,18 @@ return [
             'can' => 'incidents.view',
         ],
         [
+            'text' => 'Notifications',
+            'icon' => 'fas fa-fw fa-bell',
+            'can' => 'notifications.manage',
+            'submenu' => [
+                [
+                    'text' => 'Workflows',
+                    'route' => 'admin.notifications.workflows.index',
+                    'icon' => 'fas fa-fw fa-diagram-project',
+                ],
+            ],
+        ],
+        [
             'text' => 'Developpeur',
             'icon' => 'fas fa-fw fa-code',
             'can' => 'developer.tools.view',
