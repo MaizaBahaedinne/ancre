@@ -22,7 +22,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table id="workflows-table" class="table table-striped table-hover w-100">
                     <thead>
                         <tr>
                             <th>Trigger</th>
@@ -83,4 +83,50 @@
         .badge { padding: 0.35rem 0.6rem; }
         .btn-sm { padding: 0.25rem 0.5rem; }
     </style>
+@stop
+
+@section('js')
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof DataTable === 'undefined') {
+                return;
+            }
+
+            new DataTable('#workflows-table', {
+                order: [[0, 'asc']],
+                pageLength: 25,
+                lengthMenu: [10, 25, 50, 100],
+                responsive: true,
+                layout: {
+                    topStart: {
+                        buttons: [
+                            { extend: 'csvHtml5', text: 'Exporter CSV', className: 'btn btn-sm btn-outline-primary' }
+                        ]
+                    }
+                },
+                language: {
+                    search: 'Rechercher:',
+                    lengthMenu: 'Afficher _MENU_ elements',
+                    info: 'Affichage _START_ a _END_ sur _TOTAL_ elements',
+                    infoEmpty: 'Aucun element a afficher',
+                    zeroRecords: 'Aucun resultat trouve',
+                    paginate: {
+                        first: 'Premier',
+                        last: 'Dernier',
+                        next: 'Suivant',
+                        previous: 'Precedent'
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: [6] }
+                ]
+            });
+        });
+    </script>
 @stop
