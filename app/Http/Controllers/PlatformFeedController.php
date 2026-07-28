@@ -115,7 +115,7 @@ class PlatformFeedController extends Controller
     private function buildFeedItems(): Collection
     {
         $announcements = FeedAnnouncement::query()
-            ->with('author.parentProfile')
+            ->with(['author.personnel', 'author.parentProfile'])
             ->where('is_published', true)
             ->orderByDesc('published_at')
             ->limit(80)
@@ -130,9 +130,7 @@ class PlatformFeedController extends Controller
                     'content' => $announcement->body,
                     'published_at' => $publishedAt,
                     'author_name' => $announcement->author?->name ?? 'Systeme',
-                    'author_avatar' => $announcement->author?->parentProfile?->photo
-                        ? asset('storage/'.$announcement->author->parentProfile->photo)
-                        : null,
+                    'author_avatar' => $this->resolveUserAvatar($announcement->author),
                     'source_label' => 'Annonce',
                     'target_url' => null,
                 ];
@@ -160,7 +158,7 @@ class PlatformFeedController extends Controller
             });
 
         $activities = Activite::query()
-            ->with(['responsablePersonnel.user.parentProfile'])
+            ->with(['responsablePersonnel.user.personnel', 'responsablePersonnel.user.parentProfile'])
             ->orderByDesc('date')
             ->orderByDesc('heure_debut')
             ->limit(80)
@@ -174,9 +172,9 @@ class PlatformFeedController extends Controller
 
                 $responsableName = trim((string) (($activity->responsablePersonnel?->prenom ?? '').' '.($activity->responsablePersonnel?->nom ?? '')));
                 $responsableUser = $activity->responsablePersonnel?->user;
-                $avatar = $responsableUser?->parentProfile?->photo
-                    ? asset('storage/'.$responsableUser->parentProfile->photo)
-                    : ($activity->responsablePersonnel?->photo ? asset('storage/'.$activity->responsablePersonnel->photo) : null);
+                $avatar = $activity->responsablePersonnel?->photo
+                    ? asset('storage/'.$activity->responsablePersonnel->photo)
+                    : $this->resolveUserAvatar($responsableUser);
 
                 return [
                     'source_type' => 'activity',
@@ -214,7 +212,7 @@ class PlatformFeedController extends Controller
             ->get();
 
         $comments = FeedComment::query()
-            ->with('user')
+            ->with(['user.personnel', 'user.parentProfile'])
             ->when($sourceTypes->isNotEmpty(), fn ($query) => $query->whereIn('source_type', $sourceTypes))
             ->when($sourceIds->isNotEmpty(), fn ($query) => $query->whereIn('source_id', $sourceIds))
             ->orderByDesc('created_at')
@@ -254,6 +252,7 @@ class PlatformFeedController extends Controller
             $latestComments[$key] = $latestComments[$key] ?? [];
 
             if (count($latestComments[$key]) < 3) {
+                $comment->setAttribute('author_avatar', $this->resolveUserAvatar($comment->user));
                 $latestComments[$key][] = $comment;
             }
         }
@@ -299,5 +298,22 @@ class PlatformFeedController extends Controller
             AcademicCalendarPeriod::TYPE_SCHOOL_VACATION => '#10b981',
             AcademicCalendarPeriod::TYPE_PUBLIC_HOLIDAY => '#ef4444',
         ];
+    }
+
+    private function resolveUserAvatar($user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if (! empty($user->personnel?->photo)) {
+            return asset('storage/'.$user->personnel->photo);
+        }
+
+        if (! empty($user->parentProfile?->photo)) {
+            return asset('storage/'.$user->parentProfile->photo);
+        }
+
+        return null;
     }
 }

@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->hasOne(ParentModel::class, 'user_id');
     }
 
+    public function personnel(): HasOne
+    {
+        return $this->hasOne(Personnel::class, 'user_id');
+    }
+
     public function notifications()
     {
         return $this->hasMany(Notification::class);
