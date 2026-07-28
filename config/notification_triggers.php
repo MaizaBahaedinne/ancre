@@ -25,6 +25,51 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Route Discovery
+    |--------------------------------------------------------------------------
+    |
+    | Detect triggers from named routes so new platform modules are discovered
+    | automatically without adding manual trigger definitions.
+    |
+    */
+    'route_discovery' => [
+        'enabled' => true,
+
+        // Strip these prefixes when inferring the domain entity.
+        'context_prefixes' => ['admin', 'parent', 'vitrine'],
+
+        // Ignore technical/auth/internal route groups.
+        'ignore_route_name_prefixes' => [
+            'login',
+            'logout',
+            'password',
+            'verification',
+            'sanctum',
+            'ignition',
+            'debugbar',
+            'profile.',
+            'search.',
+            'notifications.',
+            'admin.notifications.',
+            'admin.developer.',
+            'admin.vitrine.',
+        ],
+
+        // Route action => trigger action
+        'action_map' => [
+            'index' => 'viewed',
+            'show' => 'viewed',
+            'store' => 'created',
+            'create' => 'create_form_opened',
+            'update' => 'updated',
+            'edit' => 'edit_form_opened',
+            'destroy' => 'deleted',
+            'sync' => 'synced',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Module Mapping
     |--------------------------------------------------------------------------
     |
@@ -34,12 +79,24 @@ return [
     'module_map' => [
         'parent' => 'family',
         'child' => 'family',
+        'enfant' => 'family',
+        'demande' => 'communication',
+        'request' => 'communication',
+        'inscription' => 'school_life',
         'presence' => 'presences',
         'activity' => 'activities',
+        'activite' => 'activities',
         'evaluation' => 'activities',
         'incident' => 'incidents',
         'invoice' => 'payments',
         'payment' => 'payments',
+        'paiement' => 'payments',
+        'package' => 'payments',
+        'school' => 'structure',
+        'salle' => 'structure',
+        'subject' => 'structure',
+        'academic_year' => 'structure',
+        'personnel' => 'team',
     ],
 
     /*

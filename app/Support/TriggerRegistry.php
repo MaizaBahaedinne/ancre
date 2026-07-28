@@ -7,6 +7,7 @@ use App\Models\NotificationTriggerOverride;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Route;
 
 class TriggerRegistry
 {
@@ -18,7 +19,10 @@ class TriggerRegistry
     public function definitions(): array
     {
         $configured = config('notification_triggers.definitions', []);
-        $discovered = $this->discoverFromEvents();
+        $discovered = array_merge(
+            $this->discoverFromEvents(),
+            $this->discoverFromRoutes(),
+        );
         $overrides = $this->overridesFromDatabase();
 
         $byTrigger = [];
@@ -54,6 +58,39 @@ class TriggerRegistry
         }
 
         return array_values($byTrigger);
+    }
+
+    /**
+     * Discover triggers from named routes to cover platform modules automatically.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function discoverFromRoutes(): array
+    {
+        if (!config('notification_triggers.route_discovery.enabled', true)) {
+            return [];
+        }
+
+        $definitions = [];
+        $ignoredPrefixes = (array) config('notification_triggers.route_discovery.ignore_route_name_prefixes', []);
+
+        foreach (Route::getRoutes() as $route) {
+            $name = $route->getName();
+            if (!$name) {
+                continue;
+            }
+
+            if (collect($ignoredPrefixes)->contains(fn (string $prefix) => Str::startsWith($name, $prefix))) {
+                continue;
+            }
+
+            $inferred = $this->inferFromRouteName($name);
+            if ($inferred !== null) {
+                $definitions[] = $inferred;
+            }
+        }
+
+        return $definitions;
     }
 
     /**
@@ -159,6 +196,47 @@ class TriggerRegistry
         }
 
         return null;
+    }
+
+    /**
+     * Infer trigger metadata from route names.
+     * Example: parents.store => parent.created
+     */
+    private function inferFromRouteName(string $routeName): ?array
+    {
+        $parts = explode('.', $routeName);
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $action = array_pop($parts);
+        $actionMap = (array) config('notification_triggers.route_discovery.action_map', []);
+        $mappedAction = $actionMap[$action] ?? null;
+        if (!$mappedAction) {
+            return null;
+        }
+
+        $contextPrefixes = (array) config('notification_triggers.route_discovery.context_prefixes', []);
+        while (count($parts) > 1 && in_array($parts[0], $contextPrefixes, true)) {
+            array_shift($parts);
+        }
+
+        $entityRaw = (string) ($parts[0] ?? '');
+        if ($entityRaw === '') {
+            return null;
+        }
+
+        $entity = Str::singular(Str::snake(str_replace('-', '_', $entityRaw)));
+        $trigger = $entity.'.'.$mappedAction;
+
+        return [
+            'trigger' => $trigger,
+            'name' => Str::headline($entity).' '.Str::headline(str_replace('_', ' ', $mappedAction)),
+            'description' => 'Auto-discovered from route '.$routeName,
+            'module' => $this->inferModule($entity),
+            'is_enabled' => false,
+            'receivers' => [],
+        ];
     }
 
     /**
