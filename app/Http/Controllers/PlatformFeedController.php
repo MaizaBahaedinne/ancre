@@ -31,7 +31,7 @@ class PlatformFeedController extends Controller
             ->active()
             ->with(['periods' => fn ($query) => $query->orderBy('start_date')])
             ->first();
-        $calendar = $this->buildCalendarSidebarData($activeYear);
+        $calendar = $this->buildCalendarSidebarData($activeYear, $request->query('calendar_month'));
 
         return view('feed.index', [
             'canPublish' => $canPublish,
@@ -332,18 +332,37 @@ class PlatformFeedController extends Controller
         ];
     }
 
-    private function buildCalendarSidebarData(?AcademicYear $activeYear): ?array
+    private function buildCalendarSidebarData(?AcademicYear $activeYear, ?string $requestedMonth = null): ?array
     {
         if (! $activeYear) {
             return null;
         }
 
-        $referenceDate = now();
         $academicStart = $activeYear->start_date?->copy();
         $academicEnd = $activeYear->end_date?->copy();
+        $minMonth = $academicStart?->copy()->startOfMonth();
+        $maxMonth = $academicEnd?->copy()->startOfMonth();
+
+        $referenceDate = now();
+
+        if (is_string($requestedMonth) && preg_match('/^\d{4}-\d{2}$/', $requestedMonth) === 1) {
+            try {
+                $referenceDate = Carbon::createFromFormat('Y-m', $requestedMonth)->startOfMonth();
+            } catch (\Throwable $exception) {
+                $referenceDate = now();
+            }
+        }
 
         if ($academicStart && $academicEnd && (! $referenceDate->betweenIncluded($academicStart, $academicEnd))) {
             $referenceDate = $academicStart->copy();
+        }
+
+        if ($minMonth && $referenceDate->lt($minMonth)) {
+            $referenceDate = $minMonth->copy();
+        }
+
+        if ($maxMonth && $referenceDate->gt($maxMonth)) {
+            $referenceDate = $maxMonth->copy();
         }
 
         $monthStart = $referenceDate->copy()->startOfMonth();
@@ -403,10 +422,20 @@ class PlatformFeedController extends Controller
             $currentDay->addDay();
         }
 
+        $previousMonth = $referenceDate->copy()->subMonthNoOverflow();
+        $nextMonth = $referenceDate->copy()->addMonthNoOverflow();
+        $canGoPrevious = ! $minMonth || $previousMonth->greaterThanOrEqualTo($minMonth);
+        $canGoNext = ! $maxMonth || $nextMonth->lessThanOrEqualTo($maxMonth);
+
         return [
             'yearLabel' => $activeYear->label,
             'monthLabel' => ucfirst($referenceDate->translatedFormat('F Y')),
             'monthName' => ucfirst($referenceDate->translatedFormat('F')),
+            'currentMonthKey' => $referenceDate->format('Y-m'),
+            'previousMonthKey' => $previousMonth->format('Y-m'),
+            'nextMonthKey' => $nextMonth->format('Y-m'),
+            'canGoPrevious' => $canGoPrevious,
+            'canGoNext' => $canGoNext,
             'monthRange' => [
                 'start' => $activeYear->start_date?->format('d/m/Y'),
                 'end' => $activeYear->end_date?->format('d/m/Y'),

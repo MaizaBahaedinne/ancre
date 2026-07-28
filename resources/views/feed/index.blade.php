@@ -251,8 +251,41 @@
                                     <div class="feed-calendar-year-label">{{ $calendarSidebar['yearLabel'] }}</div>
                                     <h3 class="feed-calendar-month-title">{{ $calendarSidebar['monthLabel'] }}</h3>
                                 </div>
-                                <div class="feed-calendar-month-meta">
-                                    {{ $calendarSidebar['monthRange']['start'] }} - {{ $calendarSidebar['monthRange']['end'] }}
+                                <div class="feed-calendar-month-tools">
+                                    <div class="feed-calendar-nav" aria-label="Navigation du mois">
+                                        @if ($calendarSidebar['canGoPrevious'])
+                                            <a
+                                                href="{{ route('platform.feed', array_merge(request()->query(), ['calendar_month' => $calendarSidebar['previousMonthKey']])) }}"
+                                                class="feed-calendar-nav-btn"
+                                                title="Mois precedent"
+                                                aria-label="Mois precedent"
+                                            >
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </a>
+                                        @else
+                                            <span class="feed-calendar-nav-btn is-disabled" aria-disabled="true">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </span>
+                                        @endif
+
+                                        @if ($calendarSidebar['canGoNext'])
+                                            <a
+                                                href="{{ route('platform.feed', array_merge(request()->query(), ['calendar_month' => $calendarSidebar['nextMonthKey']])) }}"
+                                                class="feed-calendar-nav-btn"
+                                                title="Mois suivant"
+                                                aria-label="Mois suivant"
+                                            >
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </a>
+                                        @else
+                                            <span class="feed-calendar-nav-btn is-disabled" aria-disabled="true">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="feed-calendar-month-meta">
+                                        {{ $calendarSidebar['monthRange']['start'] }} - {{ $calendarSidebar['monthRange']['end'] }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -365,6 +398,22 @@
         .feed-comment-submit { border-radius: 999px; min-width: 95px; font-weight: 700; }
         .feed-calendar-month-shell { display: grid; gap: 0.9rem; }
         .feed-calendar-month-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; padding: 0.2rem 0 0.4rem; }
+        .feed-calendar-month-tools { display: grid; gap: 0.45rem; justify-items: end; }
+        .feed-calendar-nav { display: inline-flex; align-items: center; gap: 0.35rem; }
+        .feed-calendar-nav-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d6dde8;
+            color: #1d4ed8;
+            background: #fff;
+            text-decoration: none;
+        }
+        .feed-calendar-nav-btn:hover { background: #eef5ff; color: #1e40af; }
+        .feed-calendar-nav-btn.is-disabled { color: #98a2b3; border-color: #e5e7eb; background: #f8fafc; pointer-events: none; }
         .feed-calendar-year-label { font-size: 0.82rem; color: #667085; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
         .feed-calendar-month-title { margin: 0.15rem 0 0; font-size: 1.35rem; font-weight: 800; color: #1c1e21; }
         .feed-calendar-month-meta { color: #667085; font-size: 0.85rem; text-align: right; line-height: 1.4; }
@@ -389,6 +438,7 @@
             .feed-inline-comment { align-items: flex-start; flex-wrap: wrap; }
             .feed-comment-submit { width: 100%; }
             .feed-calendar-month-head { flex-direction: column; }
+            .feed-calendar-month-tools { justify-items: start; }
             .feed-calendar-month-meta { text-align: left; }
         }
     </style>
