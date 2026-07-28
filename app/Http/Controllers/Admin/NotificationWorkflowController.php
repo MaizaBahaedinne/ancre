@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NotificationWorkflow;
 use App\Models\NotificationReceiver;
+use App\Support\NotificationWorkflowSynchronizer;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
@@ -13,7 +14,10 @@ class NotificationWorkflowController extends Controller
 {
     public function index()
     {
-        $workflows = NotificationWorkflow::with('receivers')->orderBy('created_at', 'desc')->get();
+        // Keep DB workflows aligned with TriggerRegistry before rendering.
+        app(NotificationWorkflowSynchronizer::class)->sync();
+
+        $workflows = NotificationWorkflow::with('receivers')->orderBy('trigger')->get();
         return view('admin.notifications.workflows.index', compact('workflows'));
     }
 
