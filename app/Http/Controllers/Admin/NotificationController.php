@@ -101,7 +101,7 @@ class NotificationController extends Controller
             ->values();
 
         $actors = User::query()
-            ->with('parentProfile')
+            ->with(['personnel', 'parentProfile'])
             ->whereIn('id', $actorIds)
             ->get()
             ->keyBy('id');
@@ -116,9 +116,7 @@ class NotificationController extends Controller
 
             $actor = is_numeric($actorId) ? $actors->get((int) $actorId) : null;
             $actorName = $metadata['created_by_name'] ?? $actor?->name;
-            $actorAvatar = $actor?->parentProfile?->photo
-                ? asset('storage/'.$actor->parentProfile->photo)
-                : null;
+            $actorAvatar = $actor?->avatarUrl();
 
             $item = $notification->toArray();
             $item['actor_name'] = $actorName;

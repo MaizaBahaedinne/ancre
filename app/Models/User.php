@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use App\Support\AvatarUrl;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -57,6 +58,16 @@ class User extends Authenticatable
     public function personnel(): HasOne
     {
         return $this->hasOne(Personnel::class, 'user_id');
+    }
+
+    public function avatarPath(): ?string
+    {
+        return $this->personnel?->photo ?: $this->parentProfile?->photo;
+    }
+
+    public function avatarUrl(): ?string
+    {
+        return AvatarUrl::fromPath($this->avatarPath());
     }
 
     public function notifications()

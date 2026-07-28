@@ -347,11 +347,11 @@
                     <details class="modern-user-menu">
                         <summary>
                             @php
-                                $userAvatar = auth()->user()->parentProfile?->photo;
+                                $userAvatarUrl = auth()->user()?->avatarUrl();
                             @endphp
                             <span class="modern-user-avatar">
-                                @if($userAvatar)
-                                    <img src="{{ asset('storage/'.$userAvatar) }}" alt="Avatar de {{ auth()->user()->name }}">
+                                @if($userAvatarUrl)
+                                    <img src="{{ $userAvatarUrl }}" alt="Avatar de {{ auth()->user()->name }}">
                                 @else
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 @endif

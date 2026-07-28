@@ -37,6 +37,7 @@ class PlatformFeedController extends Controller
             'commentSummary' => $metrics['commentSummary'],
             'latestComments' => $metrics['latestComments'],
             'currentUserReactions' => $metrics['currentUserReactions'],
+            'currentUserAvatar' => $this->resolveUserAvatar($user),
             'activeAcademicYear' => $activeYear,
             'periodColorMap' => $this->periodColorMap(),
         ]);
@@ -133,6 +134,10 @@ class PlatformFeedController extends Controller
                     'author_avatar' => $this->resolveUserAvatar($announcement->author),
                     'source_label' => 'Annonce',
                     'target_url' => null,
+                    'media_type' => null,
+                    'media_url' => null,
+                    'media_alt' => null,
+                    'meta_line' => null,
                 ];
             });
 
@@ -154,6 +159,10 @@ class PlatformFeedController extends Controller
                     'author_avatar' => null,
                     'source_label' => 'Blog',
                     'target_url' => route('vitrine.blog.show', ['slug' => $blog->slug]),
+                    'media_type' => $blog->cover_url ? 'image' : null,
+                    'media_url' => $blog->cover_url ?: null,
+                    'media_alt' => $blog->title,
+                    'meta_line' => 'Article de blog',
                 ];
             });
 
@@ -175,6 +184,8 @@ class PlatformFeedController extends Controller
                 $avatar = $activity->responsablePersonnel?->photo
                     ? asset('storage/'.$activity->responsablePersonnel->photo)
                     : $this->resolveUserAvatar($responsableUser);
+                $activityTime = $startTime ?: 'Horaire non precise';
+                $metaLine = trim(($activity->date?->format('d/m/Y') ?? '').' · '.$activityTime);
 
                 return [
                     'source_type' => 'activity',
@@ -186,6 +197,10 @@ class PlatformFeedController extends Controller
                     'author_avatar' => $avatar,
                     'source_label' => 'Activite',
                     'target_url' => route('activites.show', ['activite' => $activity->id]),
+                    'media_type' => 'activity-card',
+                    'media_url' => null,
+                    'media_alt' => $activity->titre,
+                    'meta_line' => $metaLine,
                 ];
             });
 
@@ -306,14 +321,6 @@ class PlatformFeedController extends Controller
             return null;
         }
 
-        if (! empty($user->personnel?->photo)) {
-            return asset('storage/'.$user->personnel->photo);
-        }
-
-        if (! empty($user->parentProfile?->photo)) {
-            return asset('storage/'.$user->parentProfile->photo);
-        }
-
-        return null;
+        return $user->avatarUrl();
     }
 }
