@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\VitrineAdminController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PlatformFeedController;
 use App\Http\Controllers\RequestManagementController;
 use App\Http\Controllers\RequestSubjectController;
 use App\Http\Controllers\SalleController;
@@ -41,11 +42,11 @@ Route::get('/', function () {
     $user = auth()->user();
 
     if ($user->hasRole('Administrateur')) {
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('platform.feed');
     }
 
     if ($user->hasRole('Responsable')) {
-        return redirect()->route('responsable.dashboard');
+        return redirect()->route('platform.feed');
     }
 
     if ($user->hasRole('Educateur')) {
@@ -93,6 +94,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+
+    Route::get('/fil-actualite', [PlatformFeedController::class, 'index'])->name('platform.feed');
+    Route::post('/fil-actualite/annonces', [PlatformFeedController::class, 'storeAnnouncement'])->name('platform.feed.announcements.store');
+    Route::post('/fil-actualite/reactions', [PlatformFeedController::class, 'react'])->name('platform.feed.reactions.store');
+    Route::post('/fil-actualite/commentaires', [PlatformFeedController::class, 'comment'])->name('platform.feed.comments.store');
     
     // Notification routes
     Route::get('/api/notifications/count', [NotificationController::class, 'count'])->name('notifications.count');

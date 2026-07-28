@@ -13,6 +13,11 @@ class TriggerRegistry
 {
     public function triggerFromRouteName(string $routeName): ?string
     {
+        $ignoredPrefixes = (array) config('notification_triggers.route_discovery.ignore_route_name_prefixes', []);
+        if (collect($ignoredPrefixes)->contains(fn (string $prefix) => Str::startsWith($routeName, $prefix))) {
+            return null;
+        }
+
         $inferred = $this->inferFromRouteName($routeName);
 
         return $inferred['trigger'] ?? null;

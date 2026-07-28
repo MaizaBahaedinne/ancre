@@ -53,6 +53,7 @@ return [
             'admin.notifications.',
             'admin.developer.',
             'admin.vitrine.',
+            'platform.feed.',
         ],
 
         // Route action => trigger action

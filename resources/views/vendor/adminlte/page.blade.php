@@ -45,6 +45,10 @@
                             <i class="fa-solid fa-house"></i>
                             <span>Accueil</span>
                         </a>
+                        <a href="{{ route('platform.feed') }}" class="modern-nav-link {{ request()->routeIs('platform.feed*') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-newspaper"></i>
+                            <span>Fil d'accueil</span>
+                        </a>
                     </div>
                 @endcan
 
