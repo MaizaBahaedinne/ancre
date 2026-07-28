@@ -100,19 +100,31 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 });
 
-Route::middleware(['auth', 'role:Administrateur'])->group(function () {
-    Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
-});
+Route::middleware('auth')->group(function () {
+    Route::get('/admin', function (Request $request) {
+        $roleNames = $request->user()->roles()->pluck('name');
 
-Route::middleware(['auth', 'role:Responsable'])->group(function () {
-    Route::get('/responsable', [DashboardController::class, 'index'])->name('responsable.dashboard');
-});
+        abort_unless($roleNames->contains('Administrateur') || $roleNames->contains('admin'), 403);
 
-Route::middleware(['auth', 'role:Educateur'])->group(function () {
-    Route::get('/educateur', [DashboardController::class, 'index'])->name('educateur.dashboard');
-});
+        return app(DashboardController::class)->index($request);
+    })->name('admin.dashboard');
 
-Route::middleware(['auth', 'role:Parent'])->group(function () {
+    Route::get('/responsable', function (Request $request) {
+        $roleNames = $request->user()->roles()->pluck('name');
+
+        abort_unless($roleNames->contains('Responsable') || $roleNames->contains('responsable'), 403);
+
+        return app(DashboardController::class)->index($request);
+    })->name('responsable.dashboard');
+
+    Route::get('/educateur', function (Request $request) {
+        $roleNames = $request->user()->roles()->pluck('name');
+
+        abort_unless($roleNames->contains('Educateur') || $roleNames->contains('educateur'), 403);
+
+        return app(DashboardController::class)->index($request);
+    })->name('educateur.dashboard');
+
     Route::get('/parent', [DashboardController::class, 'index'])->name('parent.dashboard');
     Route::get('/parent/incidents/{incident}', [ParentIncidentController::class, 'show'])->name('parent.incidents.show');
     Route::get('/parent/activites', [ParentActivityController::class, 'index'])->name('parent.activites.index');
