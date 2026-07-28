@@ -31,7 +31,7 @@ class AcademicYearController extends Controller
     public function store(StoreAcademicYearRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $periods = $data['periods'] ?? [];
+        $periods = $this->flattenPeriods($data['periods'] ?? []);
         unset($data['periods']);
 
         if (! empty($data['is_active'])) {
@@ -64,7 +64,7 @@ class AcademicYearController extends Controller
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
         $data = $request->validated();
-        $periods = $data['periods'] ?? [];
+        $periods = $this->flattenPeriods($data['periods'] ?? []);
         unset($data['periods']);
 
         if (! empty($data['is_active'])) {
@@ -100,5 +100,30 @@ class AcademicYearController extends Controller
                 'notes' => $period['notes'] ?? null,
             ]);
         }
+    }
+
+    /**
+     * @param array<string, array<int, array<string, mixed>>> $periods
+     * @return array<int, array<string, mixed>>
+     */
+    private function flattenPeriods(array $periods): array
+    {
+        $flattened = [];
+
+        foreach ($periods as $typeRows) {
+            if (! is_array($typeRows)) {
+                continue;
+            }
+
+            foreach ($typeRows as $period) {
+                if (! is_array($period)) {
+                    continue;
+                }
+
+                $flattened[] = $period;
+            }
+        }
+
+        return $flattened;
     }
 }
