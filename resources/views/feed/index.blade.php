@@ -31,7 +31,7 @@
                 <div class="feed-card feed-composer mb-4" data-composer>
                     <div class="feed-card-body">
                         <form action="{{ route('platform.feed.announcements.store') }}" method="POST" enctype="multipart/form-data" id="feed-composer-form">
-                            @csrf
+                @if($canPublish)
                             <input type="hidden" name="mode" value="text" id="feed-composer-mode">
 
                             <div class="feed-composer-top">
@@ -48,13 +48,14 @@
                                         type="text"
                                         name="title"
                                         class="form-control feed-composer-input"
-                                        maxlength="255"
+                                        @if ($canPublish)
                                         value="{{ old('title') }}"
                                         placeholder="Commencer un post"
                                     >
                                 </div>
-                            </div>
-
+                                            @if ($canPublish)
+                                            value="{{ old('title') }}"
+                                            placeholder="Commencer un post"
                             <div class="feed-composer-tabs" role="tablist" aria-label="Modes de publication">
                                 <button type="button" class="feed-composer-tab is-active" data-mode-tab="text">
                                     <i class="fa-solid fa-pen"></i>
