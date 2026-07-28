@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\NotificationWorkflow;
 use App\Models\NotificationReceiver;
 use App\Models\NotificationLog;
+use App\Services\NotificationService;
 use App\Support\NotificationTemplateVariables;
 use App\Support\NotificationWorkflowSynchronizer;
 use Illuminate\Http\Request;
@@ -80,6 +81,27 @@ class NotificationWorkflowController extends Controller
 
         return redirect()->route('admin.notifications.workflows.show', $notificationWorkflow)
             ->with('success', 'Workflow mis à jour avec succès');
+    }
+
+    public function test(Request $request, NotificationWorkflow $notificationWorkflow)
+    {
+        $validated = $request->validate([
+            'target_user_id' => 'required|integer|exists:users,id',
+            'test_metadata' => 'nullable|json',
+        ]);
+
+        $targetUser = User::query()->findOrFail((int) $validated['target_user_id']);
+        $metadata = [];
+
+        if (!empty($validated['test_metadata'])) {
+            $decoded = json_decode($validated['test_metadata'], true);
+            $metadata = is_array($decoded) ? $decoded : [];
+        }
+
+        $notification = NotificationService::sendTest($notificationWorkflow, $targetUser, $metadata);
+
+        return redirect()->route('admin.notifications.workflows.show', $notificationWorkflow)
+            ->with('success', 'Notification de test envoyee (ID: '.$notification->id.').');
     }
 
     public function addReceiver(Request $request, NotificationWorkflow $notificationWorkflow)

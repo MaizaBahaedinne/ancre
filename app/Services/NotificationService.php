@@ -40,9 +40,31 @@ class NotificationService
     }
 
     /**
+     * Send a test notification for a workflow to one target user.
+     */
+    public static function sendTest(NotificationWorkflow $workflow, User $user, array $metadata = []): Notification
+    {
+        $receiver = (object) [
+            'receiver_type' => 'user',
+        ];
+
+        $data = [
+            'subject' => 'Test notification: '.$workflow->name,
+            'description' => 'Notification de test generee depuis l\'interface workflow.',
+            'metadata' => array_merge([
+                'test_mode' => true,
+                'tested_at' => now()->toDateTimeString(),
+                'tested_by_id' => auth()->id(),
+            ], $metadata),
+        ];
+
+        return self::createNotification($workflow, $user, $receiver, $data);
+    }
+
+    /**
      * Create a notification record
      */
-    private static function createNotification($workflow, $user, $receiver, $data)
+    private static function createNotification($workflow, $user, $receiver, $data): Notification
     {
         [$subject, $description] = self::buildContent($workflow, $data);
 
@@ -65,6 +87,7 @@ class NotificationService
         ]);
 
         // TODO: Dispatch email and SMS
+        return $notification;
     }
 
     /**

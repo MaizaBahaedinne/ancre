@@ -268,6 +268,7 @@ Route::middleware(['auth', 'permission:notifications.manage'])->prefix('admin/no
     Route::get('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'show'])->name('workflows.show');
     Route::get('/workflows/{notificationWorkflow}/edit', [NotificationWorkflowController::class, 'edit'])->name('workflows.edit');
     Route::put('/workflows/{notificationWorkflow}', [NotificationWorkflowController::class, 'update'])->name('workflows.update');
+    Route::post('/workflows/{notificationWorkflow}/test', [NotificationWorkflowController::class, 'test'])->name('workflows.test');
     Route::post('/workflows/{notificationWorkflow}/receivers', [NotificationWorkflowController::class, 'addReceiver'])->name('receivers.store');
     Route::post('/receivers/{notificationReceiver}/toggle', [NotificationWorkflowController::class, 'toggleReceiver'])->name('receivers.toggle');
     Route::delete('/receivers/{notificationReceiver}', [NotificationWorkflowController::class, 'removeReceiver'])->name('receivers.destroy');

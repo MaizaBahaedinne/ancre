@@ -261,6 +261,50 @@
     </div>
 
     <div class="card mt-4">
+        <div class="card-header bg-warning">
+            <h3 class="card-title">Tester ce workflow</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('admin.notifications.workflows.test', $notificationWorkflow) }}" method="POST">
+                @csrf
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="target_user_id">Utilisateur cible</label>
+                            <select name="target_user_id" id="target_user_id" class="form-control @error('target_user_id') is-invalid @enderror" required>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ (int) old('target_user_id', auth()->id()) === (int) $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} (ID: {{ $user->id }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('target_user_id')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="test_metadata">Metadata JSON (optionnel)</label>
+                            <textarea name="test_metadata" id="test_metadata" class="form-control @error('test_metadata') is-invalid @enderror" rows="3" placeholder='{"school_name":"Demo School","created_by_name":"Admin Test"}'>{{ old('test_metadata') }}</textarea>
+                            @error('test_metadata')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                            <small class="form-text text-muted">
+                                Utilise ce JSON pour alimenter les variables de template (ex: {school_name}, {created_by_name}, {parent_full_name}).
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-vial"></i> Envoyer notification de test
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
         <div class="card-header bg-primary">
             <h3 class="card-title">Variables disponibles pour les templates</h3>
         </div>
