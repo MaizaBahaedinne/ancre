@@ -257,12 +257,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const escaped = escapeHtml(rawDescription);
         const safeMetadata = metadata && typeof metadata === 'object' ? metadata : {};
 
-        return escaped.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, key) => {
+        const withValues = escaped.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, key) => {
             if (Object.prototype.hasOwnProperty.call(safeMetadata, key) && safeMetadata[key] !== null && safeMetadata[key] !== '') {
                 return `<strong>${escapeHtml(String(safeMetadata[key]))}</strong>`;
             }
 
-            return match;
+            return '';
         });
+
+        return withValues
+            .replace(/\s{2,}/g, ' ')
+            .replace(/\s+\./g, '.')
+            .trim();
     }
 });

@@ -16,6 +16,15 @@ class NotificationTemplateVariables
             ['name' => '{workflow_name}', 'description' => 'Nom du workflow configure'],
             ['name' => '{subject}', 'description' => 'Sujet envoye par le payload (si fourni)'],
             ['name' => '{description}', 'description' => 'Description envoyee par le payload (si fournie)'],
+            ['name' => '{entity}', 'description' => 'Entite derivee du trigger (ex: parent, school)'],
+            ['name' => '{entity_id}', 'description' => 'Identifiant generique de l\'entite'],
+            ['name' => '{entity_name}', 'description' => 'Nom generique de l\'entite'],
+            ['name' => '{route_name}', 'description' => 'Nom de la route qui a declenche l\'action'],
+            ['name' => '{request_method}', 'description' => 'Methode HTTP (POST/PUT/PATCH/DELETE)'],
+            ['name' => '{action_url}', 'description' => 'Lien vers la ressource/route associee'],
+            ['name' => '{created_by_id}', 'description' => 'ID de l\'acteur qui a declenche l\'action'],
+            ['name' => '{created_by_name}', 'description' => 'Nom de l\'acteur qui a declenche l\'action'],
+            ['name' => '{created_by_email}', 'description' => 'Email de l\'acteur qui a declenche l\'action'],
         ];
 
         $specific = match ($trigger) {

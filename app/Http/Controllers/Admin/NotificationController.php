@@ -27,6 +27,7 @@ class NotificationController extends Controller
     {
         $notifications = auth()->user()
             ->unreadNotifications()
+            ->where('notification_type', 'system')
             ->orderBy('created_at', 'desc')
             ->limit(20)
             ->get();
@@ -44,6 +45,7 @@ class NotificationController extends Controller
 
         $notifications = auth()->user()
             ->notifications()
+            ->where('notification_type', 'system')
             ->whereNotNull('read_at')
             ->orderBy('created_at', 'desc')
             ->limit($limit)

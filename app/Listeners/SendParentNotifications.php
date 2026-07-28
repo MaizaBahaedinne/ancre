@@ -188,6 +188,9 @@ class SendParentNotifications
             $rendered = str_replace('{'.$key.'}', $safeValue, $rendered);
         }
 
-        return $rendered;
+        $rendered = preg_replace('/\{[a-zA-Z0-9_]+\}/', '', $rendered) ?? $rendered;
+        $rendered = preg_replace('/\s{2,}/', ' ', $rendered) ?? $rendered;
+
+        return trim($rendered);
     }
 }

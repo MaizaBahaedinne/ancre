@@ -6,6 +6,9 @@ use App\Models\Notification;
 use App\Models\NotificationLog;
 use App\Models\NotificationWorkflow;
 use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
 class NotificationService
 {
@@ -48,6 +51,8 @@ class NotificationService
             'receiver_type' => 'user',
         ];
 
+        $defaultMetadata = self::defaultTestMetadata($workflow->trigger, $user);
+
         $data = [
             'subject' => 'Test notification: '.$workflow->name,
             'description' => 'Notification de test generee depuis l\'interface workflow.',
@@ -55,7 +60,7 @@ class NotificationService
                 'test_mode' => true,
                 'tested_at' => now()->toDateTimeString(),
                 'tested_by_id' => auth()->id(),
-            ], $metadata),
+            ], $defaultMetadata, $metadata),
         ];
 
         return self::createNotification($workflow, $user, $receiver, $data);
@@ -95,11 +100,21 @@ class NotificationService
      */
     private static function resolveReceivers($receiver)
     {
-        return match ($receiver->receiver_type) {
-            'role' => User::role($receiver->receiver_value)->get(),
-            'user' => User::where('id', $receiver->receiver_value)->get(),
-            default => collect(),
-        };
+        try {
+            return match ($receiver->receiver_type) {
+                'role' => User::role($receiver->receiver_value)->get(),
+                'user' => User::where('id', $receiver->receiver_value)->get(),
+                default => collect(),
+            };
+        } catch (RoleDoesNotExist $exception) {
+            Log::warning('Notification receiver role does not exist', [
+                'receiver_type' => $receiver->receiver_type ?? null,
+                'receiver_value' => $receiver->receiver_value ?? null,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return collect();
+        }
     }
 
     /**
@@ -154,7 +169,59 @@ class NotificationService
             $rendered = str_replace('{'.$key.'}', $safeValue, $rendered);
         }
 
-        return $rendered;
+        // Remove any unresolved placeholders from the final text.
+        $rendered = preg_replace('/\{[a-zA-Z0-9_]+\}/', '', $rendered) ?? $rendered;
+
+        // Normalize whitespace after placeholder cleanup.
+        $rendered = preg_replace('/\s{2,}/', ' ', $rendered) ?? $rendered;
+
+        return trim($rendered);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function defaultTestMetadata(string $trigger, User $targetUser): array
+    {
+        [$entity] = array_pad(explode('.', $trigger, 2), 2, null);
+        $entity = (string) ($entity ?? 'item');
+
+        $generic = [
+            'entity' => $entity,
+            'entity_id' => 999999,
+            'entity_name' => Str::headline(str_replace('_', ' ', $entity)).' Test',
+            $entity.'_id' => 999999,
+            $entity.'_name' => Str::headline(str_replace('_', ' ', $entity)).' Test',
+        ];
+
+        return array_merge($generic, match ($trigger) {
+            'parent.created' => [
+                'parent_id' => 999999,
+                'parent_nom' => 'Parent',
+                'parent_prenom' => 'Test',
+                'parent_full_name' => 'Parent Test',
+                'parent_email' => 'parent.test@example.com',
+                'parent_phone' => '+21600000000',
+                'parent_user_name' => $targetUser->name,
+                'parent_user_email' => $targetUser->email,
+                'children_count' => 1,
+                'created_by_id' => auth()->id(),
+                'created_by_name' => auth()->user()?->name,
+                'created_by_email' => auth()->user()?->email,
+            ],
+            'school.created' => [
+                'school_id' => 999999,
+                'school_name' => 'Ecole Test',
+                'created_by' => auth()->id(),
+                'created_by_name' => auth()->user()?->name,
+                'created_by_email' => auth()->user()?->email,
+            ],
+            default => [
+                'created_by_id' => auth()->id(),
+                'created_by_name' => auth()->user()?->name,
+                'created_by_email' => auth()->user()?->email,
+            ],
+        });
     }
 
     /**

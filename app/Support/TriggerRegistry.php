@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Route;
 
 class TriggerRegistry
 {
+    public function triggerFromRouteName(string $routeName): ?string
+    {
+        $inferred = $this->inferFromRouteName($routeName);
+
+        return $inferred['trigger'] ?? null;
+    }
+
     /**
      * Return all known trigger definitions, merged from config and discovered events.
      *

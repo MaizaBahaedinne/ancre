@@ -70,6 +70,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Runtime Dispatch
+    |--------------------------------------------------------------------------
+    |
+    | Route discovery only creates trigger definitions. These options control
+    | automatic runtime dispatch based on route names.
+    |
+    */
+    'runtime' => [
+        'auto_dispatch_from_routes' => true,
+
+        // Dispatch only after successful requests using these HTTP methods.
+        'dispatch_methods' => ['POST', 'PUT', 'PATCH', 'DELETE'],
+
+        // Avoid duplicate notifications for triggers already dispatched manually.
+        'skip_triggers' => [
+            'parent.created',
+            'school.created',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Module Mapping
     |--------------------------------------------------------------------------
     |
