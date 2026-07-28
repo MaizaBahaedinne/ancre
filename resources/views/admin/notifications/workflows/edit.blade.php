@@ -81,7 +81,7 @@
                             Variables disponibles: {trigger}, {workflow_name}, + metadata du trigger (ex: {school_name}, {school_id}, {created_by}).
                         </small>
                         <small class="text-muted d-block">
-                            Les formats {key} et {{key}} sont acceptes.
+                            Les formats {key} et @{{key}} sont acceptes.
                         </small>
                     </div>
                 </div>
