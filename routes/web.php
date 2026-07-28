@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\NotificationWorkflowController;
+use App\Http\Controllers\Admin\TriggerRegistryController;
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\ActivityRegistrationController;
 use App\Http\Controllers\AcademicYearController;
@@ -265,6 +266,12 @@ Route::middleware(['auth', 'permission:notifications.manage'])->prefix('admin/no
     Route::post('/workflows/{notificationWorkflow}/receivers', [NotificationWorkflowController::class, 'addReceiver'])->name('receivers.store');
     Route::post('/receivers/{notificationReceiver}/toggle', [NotificationWorkflowController::class, 'toggleReceiver'])->name('receivers.toggle');
     Route::delete('/receivers/{notificationReceiver}', [NotificationWorkflowController::class, 'removeReceiver'])->name('receivers.destroy');
+
+    Route::get('/registry', [TriggerRegistryController::class, 'index'])->name('registry.index');
+    Route::post('/registry/sync', [TriggerRegistryController::class, 'sync'])->name('registry.sync');
+    Route::get('/registry/{trigger}/edit', [TriggerRegistryController::class, 'edit'])->name('registry.edit');
+    Route::put('/registry/{trigger}', [TriggerRegistryController::class, 'update'])->name('registry.update');
+    Route::delete('/registry/{trigger}', [TriggerRegistryController::class, 'destroy'])->name('registry.destroy');
 });
 
 Route::middleware(['auth', 'permission:children.view'])->group(function () {

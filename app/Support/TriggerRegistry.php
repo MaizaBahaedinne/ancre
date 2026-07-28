@@ -3,7 +3,9 @@
 namespace App\Support;
 
 use App\Contracts\DefinesNotificationTrigger;
+use App\Models\NotificationTriggerOverride;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class TriggerRegistry
@@ -17,6 +19,7 @@ class TriggerRegistry
     {
         $configured = config('notification_triggers.definitions', []);
         $discovered = $this->discoverFromEvents();
+        $overrides = $this->overridesFromDatabase();
 
         $byTrigger = [];
 
@@ -34,7 +37,47 @@ class TriggerRegistry
             );
         }
 
+        // Database overrides are highest priority.
+        foreach ($overrides as $definition) {
+            $normalized = $this->normalize($definition);
+            $current = $byTrigger[$normalized['trigger']] ?? [];
+
+            // Only override keys explicitly set in DB.
+            foreach (['name', 'description', 'module', 'is_enabled', 'receivers'] as $key) {
+                if (array_key_exists($key, $definition) && $definition[$key] !== null) {
+                    $current[$key] = $normalized[$key];
+                }
+            }
+
+            $current['trigger'] = $normalized['trigger'];
+            $byTrigger[$normalized['trigger']] = $current;
+        }
+
         return array_values($byTrigger);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function overridesFromDatabase(): array
+    {
+        if (!Schema::hasTable('notification_trigger_overrides')) {
+            return [];
+        }
+
+        return NotificationTriggerOverride::query()
+            ->get()
+            ->map(function (NotificationTriggerOverride $item): array {
+                return [
+                    'trigger' => $item->trigger,
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'module' => $item->module,
+                    'is_enabled' => $item->is_enabled,
+                    'receivers' => $item->receivers,
+                ];
+            })
+            ->all();
     }
 
     /**

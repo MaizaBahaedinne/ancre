@@ -182,6 +182,10 @@
                             <i class="fa-solid fa-bell"></i>
                             <span>Workflows</span>
                         </a>
+                        <a href="{{ route('admin.notifications.registry.index') }}" class="modern-nav-link {{ request()->routeIs('admin.notifications.registry.*') ? 'is-active' : '' }}">
+                            <i class="fa-solid fa-diagram-project"></i>
+                            <span>Trigger Registry</span>
+                        </a>
                     </div>
                 @endif
 
