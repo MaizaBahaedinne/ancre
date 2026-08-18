@@ -34,7 +34,7 @@ use App\Http\Controllers\VitrineController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/home', function () {
     if (! auth()->check()) {
         return redirect()->route('vitrine.home');
     }
@@ -60,7 +60,7 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 })->name('home');
 
-Route::prefix('vitrine')->name('vitrine.')->group(function () {
+Route::name('vitrine.')->group(function () {
     Route::get('/', [VitrineController::class, 'home'])->name('home');
     Route::get('/a-propos', [VitrineController::class, 'about'])->name('about');
     Route::get('/services', [VitrineController::class, 'services'])->name('services');
@@ -75,13 +75,37 @@ Route::prefix('vitrine')->name('vitrine.')->group(function () {
     Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest'])->name('visit-request.submit');
 });
 
-Route::middleware(['auth', 'role:Parent'])->prefix('vitrine')->name('vitrine.')->group(function () {
+Route::middleware(['auth', 'role:Parent'])->name('vitrine.')->group(function () {
     Route::post('/actualites/{blogPost}/commentaires', [VitrineController::class, 'storeBlogComment'])
         ->name('blog.comments.store')
         ->whereNumber('blogPost');
 
     Route::post('/actualites/{blogPost}/reactions', [VitrineController::class, 'storeBlogReaction'])
         ->name('blog.reactions.store')
+        ->whereNumber('blogPost');
+});
+
+// Compatibilite legacy pour les anciennes URLs /vitrine/*
+Route::prefix('vitrine')->group(function () {
+    Route::get('/', fn () => redirect()->route('vitrine.home', [], 301));
+    Route::get('/a-propos', fn () => redirect()->route('vitrine.about', [], 301));
+    Route::get('/services', fn () => redirect()->route('vitrine.services', [], 301));
+    Route::get('/activites', fn () => redirect()->route('vitrine.activities', [], 301));
+    Route::get('/actualites', fn () => redirect()->route('vitrine.blog', [], 301));
+    Route::get('/actualites/{slug}', fn (string $slug) => redirect()->route('vitrine.blog.show', ['slug' => $slug], 301));
+    Route::get('/contact', fn () => redirect()->route('vitrine.contact', [], 301));
+    Route::get('/privacy-policy-terms', fn () => redirect()->route('vitrine.privacy', [], 301));
+    Route::get('/conditions', fn () => redirect()->route('vitrine.conditions', [], 301));
+    Route::post('/contact', [VitrineController::class, 'submitContact']);
+    Route::post('/newsletter/subscribe', [VitrineController::class, 'subscribeNewsletter']);
+    Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest']);
+});
+
+Route::middleware(['auth', 'role:Parent'])->prefix('vitrine')->group(function () {
+    Route::post('/actualites/{blogPost}/commentaires', [VitrineController::class, 'storeBlogComment'])
+        ->whereNumber('blogPost');
+
+    Route::post('/actualites/{blogPost}/reactions', [VitrineController::class, 'storeBlogReaction'])
         ->whereNumber('blogPost');
 });
 
