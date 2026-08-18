@@ -771,6 +771,16 @@
     </style>
 </head>
 <body>
+    @php
+        $vitrineHomeUrl = \Illuminate\Support\Facades\Route::has('vitrine.home') ? route('vitrine.home') : url('/');
+        $vitrineAboutUrl = \Illuminate\Support\Facades\Route::has('vitrine.about') ? route('vitrine.about') : url('/a-propos');
+        $vitrineServicesUrl = \Illuminate\Support\Facades\Route::has('vitrine.services') ? route('vitrine.services') : url('/services');
+        $vitrineActivitiesUrl = \Illuminate\Support\Facades\Route::has('vitrine.activities') ? route('vitrine.activities') : url('/activites');
+        $vitrineBlogUrl = \Illuminate\Support\Facades\Route::has('vitrine.blog') ? route('vitrine.blog') : url('/actualites');
+        $vitrineContactUrl = \Illuminate\Support\Facades\Route::has('vitrine.contact') ? route('vitrine.contact') : url('/contact');
+        $vitrinePrivacyUrl = \Illuminate\Support\Facades\Route::has('vitrine.privacy') ? route('vitrine.privacy') : url('/privacy-policy-terms');
+        $vitrineConditionsUrl = \Illuminate\Support\Facades\Route::has('vitrine.conditions') ? route('vitrine.conditions') : url('/conditions');
+    @endphp
     <div class="ribbon">
         <div class="ribbon-inner">
             <span class="ribbon-pill"><i class="fa-solid fa-phone"></i> {{ $settings?->phone ?: '+216 XX XXX XXX' }}</span>
@@ -780,7 +790,7 @@
 
     <header class="site-header">
         <div class="header-inner">
-            <a href="{{ route('vitrine.home') }}" class="brand">
+            <a href="{{ $vitrineHomeUrl }}" class="brand">
                 <img class="brand-logo" src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}">
                 <span>
                     <p class="brand-title">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</p>
@@ -794,12 +804,12 @@
 
             <div class="nav-shell" id="mobile-nav">
                 <nav class="main-nav">
-                    <a href="{{ route('vitrine.home') }}" class="{{ ($currentSlug ?? '') === 'home' ? 'active' : '' }}">Accueil</a>
-                    <a href="{{ route('vitrine.about') }}" class="{{ ($currentSlug ?? '') === 'about' ? 'active' : '' }}">A propos</a>
-                    <a href="{{ route('vitrine.services') }}" class="{{ ($currentSlug ?? '') === 'services' ? 'active' : '' }}">Services</a>
-                    <a href="{{ route('vitrine.activities') }}" class="{{ ($currentSlug ?? '') === 'activities' ? 'active' : '' }}">Activites</a>
-                    <a href="{{ route('vitrine.blog') }}" class="{{ ($currentSlug ?? '') === 'blog' ? 'active' : '' }}">Actualites</a>
-                    <a href="{{ route('vitrine.contact') }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
+                    <a href="{{ $vitrineHomeUrl }}" class="{{ ($currentSlug ?? '') === 'home' ? 'active' : '' }}">Accueil</a>
+                    <a href="{{ $vitrineAboutUrl }}" class="{{ ($currentSlug ?? '') === 'about' ? 'active' : '' }}">A propos</a>
+                    <a href="{{ $vitrineServicesUrl }}" class="{{ ($currentSlug ?? '') === 'services' ? 'active' : '' }}">Services</a>
+                    <a href="{{ $vitrineActivitiesUrl }}" class="{{ ($currentSlug ?? '') === 'activities' ? 'active' : '' }}">Activites</a>
+                    <a href="{{ $vitrineBlogUrl }}" class="{{ ($currentSlug ?? '') === 'blog' ? 'active' : '' }}">Actualites</a>
+                    <a href="{{ $vitrineContactUrl }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
                 </nav>
                 @auth
                     @php
@@ -859,19 +869,19 @@
             <div>
                 <h4>Navigation</h4>
                 <div class="footer-nav">
-                    <a href="{{ route('vitrine.home') }}">Accueil</a>
-                    <a href="{{ route('vitrine.about') }}">A propos</a>
-                    <a href="{{ route('vitrine.services') }}">Services</a>
-                    <a href="{{ route('vitrine.activities') }}">Activites</a>
-                    <a href="{{ route('vitrine.blog') }}">Actualites</a>
-                    <a href="{{ route('vitrine.contact') }}">Contact</a>
+                    <a href="{{ $vitrineHomeUrl }}">Accueil</a>
+                    <a href="{{ $vitrineAboutUrl }}">A propos</a>
+                    <a href="{{ $vitrineServicesUrl }}">Services</a>
+                    <a href="{{ $vitrineActivitiesUrl }}">Activites</a>
+                    <a href="{{ $vitrineBlogUrl }}">Actualites</a>
+                    <a href="{{ $vitrineContactUrl }}">Contact</a>
                 </div>
             </div>
             <div>
                 <h4>Informations legales</h4>
                 <div class="footer-nav">
-                    <a href="{{ route('vitrine.privacy') }}">Privacy Policy Terms</a>
-                    <a href="{{ route('vitrine.conditions') }}">Conditions</a>
+                    <a href="{{ $vitrinePrivacyUrl }}">Privacy Policy Terms</a>
+                    <a href="{{ $vitrineConditionsUrl }}">Conditions</a>
                 </div>
             </div>
         </div>

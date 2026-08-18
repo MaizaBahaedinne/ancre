@@ -76,6 +76,11 @@
         }
 
         $inscriptionUrl = $settings?->parent_space_url ?: route('login');
+        $vitrineContactUrl = \Illuminate\Support\Facades\Route::has('vitrine.contact') ? route('vitrine.contact') : url('/contact');
+        $vitrineServicesUrl = \Illuminate\Support\Facades\Route::has('vitrine.services') ? route('vitrine.services') : url('/services');
+        $vitrineActivitiesUrl = \Illuminate\Support\Facades\Route::has('vitrine.activities') ? route('vitrine.activities') : url('/activites');
+        $vitrineNewsletterSubmitUrl = \Illuminate\Support\Facades\Route::has('vitrine.newsletter.subscribe') ? route('vitrine.newsletter.subscribe') : url('/newsletter/subscribe');
+        $vitrineVisitSubmitUrl = \Illuminate\Support\Facades\Route::has('vitrine.visit-request.submit') ? route('vitrine.visit-request.submit') : url('/visit-request');
 
         $showBlogSection = (bool) ($pageMeta['home_show_blog_section'] ?? true);
         $showTestimonialsSection = (bool) ($pageMeta['home_show_testimonials_section'] ?? true);
@@ -123,7 +128,7 @@
                     <p class="hero-lead">{{ $settings?->hero_subtitle ?: ($page?->hero_subtitle ?: 'Chaque journee est pensee pour son bien-etre, son eveil et son autonomie dans un cadre securise et bienveillant.') }}</p>
                     <div class="hero-actions">
                         <a href="{{ $inscriptionUrl }}" class="btn-hero-alt"><i class="fa-solid fa-user-plus"></i> Inscrire mon enfant</a>
-                        <a href="{{ route('vitrine.contact') }}" class="btn-hero"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
+                        <a href="{{ $vitrineContactUrl }}" class="btn-hero"><i class="fa-solid fa-phone-volume"></i> Nous contacter</a>
                     </div>
                 </div>
 
@@ -145,7 +150,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('vitrine.visit-request.submit') }}" class="form-grid">
+                    <form method="POST" action="{{ $vitrineVisitSubmitUrl }}" class="form-grid">
                         @csrf
                         <div class="hero-visit-grid">
                             <div>
@@ -310,7 +315,7 @@
                         <article class="panel"><p class="muted">Aucun service disponible.</p></article>
                     @endforelse
                 </div>
-                <a href="{{ route('vitrine.services') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
+                <a href="{{ $vitrineServicesUrl }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
             </div>
         </section>
 
@@ -335,7 +340,7 @@
                         <article class="panel"><p class="muted">Aucune activite disponible.</p></article>
                     @endforelse
                 </div>
-                <a href="{{ route('vitrine.activities') }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
+                <a href="{{ $vitrineActivitiesUrl }}" class="btn-parent" style="display:inline-flex;margin-top:1rem;">Lire plus</a>
             </div>
         </section>
 
@@ -433,7 +438,7 @@
                         </ul>
                     </div>
                 @endif
-                <form action="{{ route('vitrine.newsletter.subscribe') }}" method="POST" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+                <form action="{{ $vitrineNewsletterSubmitUrl }}" method="POST" style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
                     @csrf
                     <input type="email" name="newsletter_email" placeholder="Votre email" style="min-width:280px;max-width:420px;border:1px solid #d6e1ea;border-radius:999px;padding:0.7rem 1rem;">
                     <button type="submit" class="btn-parent" style="border:0;cursor:pointer;">S'abonner</button>
