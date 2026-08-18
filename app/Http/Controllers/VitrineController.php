@@ -85,15 +85,57 @@ class VitrineController extends Controller
             }
         }
 
-        $socialPosts = VitrineSocialPost::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->latest()
-            ->get();
+        $socialPosts = collect();
+        if (Schema::hasTable('vitrine_social_posts')) {
+            try {
+                $socialPosts = VitrineSocialPost::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->latest()
+                    ->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine social posts', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
 
-        $servicesAuto = VitrineService::query()->where('is_active', true)->count();
+        $services = collect();
+        if (Schema::hasTable('vitrine_services')) {
+            try {
+                $services = VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine services', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $schedules = collect();
+        if (Schema::hasTable('vitrine_schedules')) {
+            try {
+                $schedules = VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine schedules', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $professionals = collect();
+        if (Schema::hasTable('personnels')) {
+            try {
+                $professionals = Personnel::query()->latest('id')->take(4)->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load professionals for vitrine', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $servicesAuto = $services->count();
         $parentsAuto = Schema::hasTable('parents') ? ParentModel::query()->count() : 0;
-        $staffAuto = Personnel::query()->count();
+        $staffAuto = Schema::hasTable('personnels') ? Personnel::query()->count() : 0;
         $activitiesAuto = Schema::hasTable('activites')
             ? Activite::query()->count()
             : $socialPosts->count();
@@ -102,13 +144,13 @@ class VitrineController extends Controller
             'currentSlug' => 'home',
             'page' => $homePage,
             'aboutPage' => $this->pageBySlug('about'),
-            'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'servicesFeatured' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->take($servicesCount)->get(),
-            'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'services' => $services,
+            'servicesFeatured' => $services->take($servicesCount),
+            'schedules' => $schedules,
             'socialPosts' => $socialPosts->take(6),
             'activitiesFeatured' => $socialPosts->take($activitiesCount),
             'blogPosts' => $blogPosts,
-            'professionals' => Personnel::query()->latest('id')->take(4)->get(),
+            'professionals' => $professionals,
             'testimonials' => $testimonials,
             'faqs' => $faqs,
             'statsAuto' => [
@@ -263,30 +305,74 @@ class VitrineController extends Controller
             }
         }
 
+        $services = collect();
+        if (Schema::hasTable('vitrine_services')) {
+            try {
+                $services = VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine services page services', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $schedules = collect();
+        if (Schema::hasTable('vitrine_schedules')) {
+            try {
+                $schedules = VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine services page schedules', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return view('public.vitrine.services', $this->sharedData([
             'currentSlug' => 'services',
             'page' => $this->pageBySlug('services'),
-            'services' => VitrineService::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'services' => $services,
+            'schedules' => $schedules,
             'packages' => $packages,
         ]));
     }
 
     public function activities(): View
     {
+        $socialPosts = collect();
+        if (Schema::hasTable('vitrine_social_posts')) {
+            try {
+                $socialPosts = VitrineSocialPost::query()->where('is_active', true)->orderBy('sort_order')->latest()->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load activities social posts', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return view('public.vitrine.activities', $this->sharedData([
             'currentSlug' => 'activities',
             'page' => $this->pageBySlug('activities'),
-            'socialPosts' => VitrineSocialPost::query()->where('is_active', true)->orderBy('sort_order')->latest()->get(),
+            'socialPosts' => $socialPosts,
         ]));
     }
 
     public function contact(): View
     {
+        $schedules = collect();
+        if (Schema::hasTable('vitrine_schedules')) {
+            try {
+                $schedules = VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get();
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load contact schedules', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return view('public.vitrine.contact', $this->sharedData([
             'currentSlug' => 'contact',
             'page' => $this->pageBySlug('contact'),
-            'schedules' => VitrineSchedule::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'schedules' => $schedules,
         ]));
     }
 
@@ -318,7 +404,7 @@ class VitrineController extends Controller
             'message' => ['required', 'string', 'max:4000'],
         ]);
 
-        $settings = VitrineSetting::query()->first();
+        $settings = Schema::hasTable('vitrine_settings') ? VitrineSetting::query()->first() : null;
         $recipient = $settings?->email ?: config('mail.from.address');
 
         $mailBody = "Nouveau message via formulaire vitrine\n\n"
@@ -350,6 +436,10 @@ class VitrineController extends Controller
 
     public function subscribeNewsletter(Request $request): RedirectResponse
     {
+        if (! Schema::hasTable('vitrine_newsletter_subscribers')) {
+            return back()->with('newsletter_success', 'Merci, votre demande a bien ete recue.');
+        }
+
         $validated = $request->validateWithBag('newsletter', [
             'newsletter_email' => ['required', 'email', 'max:255'],
         ]);
@@ -367,6 +457,10 @@ class VitrineController extends Controller
 
     public function submitVisitRequest(Request $request): RedirectResponse
     {
+        if (! Schema::hasTable('vitrine_visit_requests')) {
+            return back()->with('visit_success', 'Votre demande a bien ete envoyee.');
+        }
+
         $validated = $request->validateWithBag('visitRequest', [
             'full_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:255'],
@@ -385,19 +479,34 @@ class VitrineController extends Controller
 
     private function sharedData(array $data = []): array
     {
-        $settings = VitrineSetting::query()->first();
+        $settings = Schema::hasTable('vitrine_settings') ? VitrineSetting::query()->first() : null;
+        $pagesMenu = collect();
+
+        if (Schema::hasTable('vitrine_pages')) {
+            try {
+                $pagesMenu = VitrinePage::query()
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->get(['slug', 'title']);
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to load vitrine pages menu', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
 
         return array_merge([
             'settings' => $settings,
-            'pagesMenu' => VitrinePage::query()
-                ->where('is_published', true)
-                ->orderBy('sort_order')
-                ->get(['slug', 'title']),
+            'pagesMenu' => $pagesMenu,
         ], $data);
     }
 
     private function pageBySlug(string $slug): ?VitrinePage
     {
+        if (! Schema::hasTable('vitrine_pages')) {
+            return null;
+        }
+
         return VitrinePage::query()
             ->where('slug', $slug)
             ->where('is_published', true)
