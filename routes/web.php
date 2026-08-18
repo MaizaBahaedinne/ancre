@@ -87,15 +87,15 @@ Route::middleware(['auth', 'role:Parent'])->name('vitrine.')->group(function () 
 
 // Compatibilite legacy pour les anciennes URLs /vitrine/*
 Route::prefix('vitrine')->group(function () {
-    Route::get('/', fn () => redirect()->route('vitrine.home', [], 301));
-    Route::get('/a-propos', fn () => redirect()->route('vitrine.about', [], 301));
-    Route::get('/services', fn () => redirect()->route('vitrine.services', [], 301));
-    Route::get('/activites', fn () => redirect()->route('vitrine.activities', [], 301));
-    Route::get('/actualites', fn () => redirect()->route('vitrine.blog', [], 301));
-    Route::get('/actualites/{slug}', fn (string $slug) => redirect()->route('vitrine.blog.show', ['slug' => $slug], 301));
-    Route::get('/contact', fn () => redirect()->route('vitrine.contact', [], 301));
-    Route::get('/privacy-policy-terms', fn () => redirect()->route('vitrine.privacy', [], 301));
-    Route::get('/conditions', fn () => redirect()->route('vitrine.conditions', [], 301));
+    Route::get('/', fn () => redirect('/', 301));
+    Route::get('/a-propos', fn () => redirect('/a-propos', 301));
+    Route::get('/services', fn () => redirect('/services', 301));
+    Route::get('/activites', fn () => redirect('/activites', 301));
+    Route::get('/actualites', fn () => redirect('/actualites', 301));
+    Route::get('/actualites/{slug}', fn (string $slug) => redirect('/actualites/'.$slug, 301));
+    Route::get('/contact', fn () => redirect('/contact', 301));
+    Route::get('/privacy-policy-terms', fn () => redirect('/privacy-policy-terms', 301));
+    Route::get('/conditions', fn () => redirect('/conditions', 301));
     Route::post('/contact', [VitrineController::class, 'submitContact']);
     Route::post('/newsletter/subscribe', [VitrineController::class, 'subscribeNewsletter']);
     Route::post('/visit-request', [VitrineController::class, 'submitVisitRequest']);

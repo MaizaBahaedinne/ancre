@@ -24,7 +24,7 @@
                 }
 
                 $rawImage = trim($rawImage);
-                $heroImages[] = str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'));
+                $heroImages[] = \Illuminate\Support\Str::startsWith($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'));
             }
         }
         if (empty($heroImages)) {
@@ -43,7 +43,7 @@
         $aboutImageUrl = $pageMeta['about_image_url'] ?? null;
         if (is_string($aboutImageUrl) && trim($aboutImageUrl) !== '') {
             $candidate = trim($aboutImageUrl);
-            if (str_starts_with($candidate, 'http')) {
+            if (\Illuminate\Support\Str::startsWith($candidate, 'http')) {
                 $aboutImage = $candidate;
             } else {
                 $relativePath = ltrim($candidate, '/');
@@ -217,6 +217,7 @@
                                 <span><i class="fa-solid fa-circle-check" style="color:#2d6f85;"></i> {{ $highlight }}</span>
                             @endforeach
                         </div>
+                    </article>
                 </div>
             </div>
         </section>
