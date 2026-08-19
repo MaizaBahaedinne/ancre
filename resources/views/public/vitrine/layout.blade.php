@@ -9,13 +9,8 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/png" href="{{ asset('images/fav_ico.png') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     <link rel="preconnect" href="https://img.magnific.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 
     <style>
@@ -44,7 +39,7 @@
         html, body { margin: 0; padding: 0; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--ink-900);
             background: #f7fafc;
             line-height: 1.55;
@@ -121,7 +116,7 @@
         }
 
         .brand-title {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
             font-size: 0.98rem;
             line-height: 1.1;
             color: var(--brand-dark);
@@ -355,7 +350,7 @@
             padding: 0.34rem 0.72rem;
         }
 
-        h1, h2, h3 { font-family: 'Nunito', sans-serif; color: var(--ink-900); letter-spacing: 0.01em; }
+        h1, h2, h3 { font-family: 'Trebuchet MS', 'Segoe UI', sans-serif; color: var(--ink-900); letter-spacing: 0.01em; }
 
         h1 {
             color: #fff;
@@ -998,10 +993,23 @@
             fbq('track', 'PageView');
         };
 
+        const loadFontAwesome = () => {
+            if (window.matchMedia('(max-width: 780px)').matches) {
+                return;
+            }
+
+            const iconCss = document.createElement('link');
+            iconCss.rel = 'stylesheet';
+            iconCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css';
+            document.head.appendChild(iconCss);
+        };
+
         if ('requestIdleCallback' in window) {
             requestIdleCallback(loadTrackers, { timeout: 2000 });
+            requestIdleCallback(loadFontAwesome, { timeout: 1800 });
         } else {
             window.setTimeout(loadTrackers, 1200);
+            window.setTimeout(loadFontAwesome, 1000);
         }
     </script>
 </body>

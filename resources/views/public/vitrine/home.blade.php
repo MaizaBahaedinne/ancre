@@ -128,7 +128,7 @@
                         referrerpolicy="no-referrer"
                     >
                 @endif
-                @foreach(array_slice($heroImages, 1) as $index => $image)
+                @foreach(array_slice($heroImages, 1, 2) as $index => $image)
                     <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ ($index + 1) * $heroImageStepSeconds }}s;"></span>
                 @endforeach
             </div>
