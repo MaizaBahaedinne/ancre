@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Garderie')</title>
     <meta name="description" content="@yield('meta_description', 'Site vitrine de la garderie Ancre Des Elites')">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/png" href="{{ asset('images/fav_ico.png') }}">
 
     <!-- Google tag (gtag.js) -->
