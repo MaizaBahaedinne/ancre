@@ -2,6 +2,7 @@
     $countdown = is_array($websiteCountdown ?? null) ? $websiteCountdown : [];
     $countdownEnabled = (bool) ($countdown['enabled'] ?? false);
     $siteName = $settings?->site_name ?: 'Ancre Des Elites';
+    $countdownBackground = asset('images/vitrine/vitrine-05.jpg');
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -29,61 +30,105 @@
         body {
             margin: 0;
             min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 1rem;
+            padding: 0;
             font-family: 'Manrope', sans-serif;
             color: var(--ink);
+            background: #071a33;
+        }
+
+        .countdown-hero {
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
             background:
-                radial-gradient(circle at 9% 14%, rgba(201, 142, 53, 0.25), transparent 36%),
-                radial-gradient(circle at 86% 12%, rgba(12, 122, 191, 0.2), transparent 30%),
-                linear-gradient(165deg, #edf5fb 0%, #f5f9fd 45%, #fffdfa 100%);
+                linear-gradient(90deg, rgba(3, 17, 35, 0.94) 0%, rgba(3, 17, 35, 0.82) 38%, rgba(3, 17, 35, 0.52) 100%),
+                url('{{ $countdownBackground }}') center/cover no-repeat;
         }
 
-        .countdown-shell {
-            width: min(920px, 100%);
-            background: #fff;
-            border-radius: 28px;
-            border: 1px solid var(--line);
-            box-shadow: 0 28px 60px rgba(6, 38, 72, 0.15);
-            padding: clamp(1.1rem, 2.6vw, 2rem);
+        .countdown-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 24%, rgba(201, 142, 53, 0.24), transparent 22%),
+                radial-gradient(circle at 82% 16%, rgba(12, 122, 191, 0.16), transparent 24%);
+            pointer-events: none;
         }
 
-        .head {
+        .countdown-grid {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+            align-items: center;
+            gap: 2rem;
+            width: min(1320px, calc(100% - 2rem));
+            margin-inline: auto;
+            padding: clamp(1.2rem, 3vw, 3rem) 0;
+        }
+
+        .countdown-copy {
+            color: #fff;
+            max-width: 44rem;
+        }
+
+        .brand-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-            text-align: center;
+            gap: 0.9rem;
+            margin-bottom: 1rem;
         }
 
-        .head img {
-            width: 56px;
-            height: 56px;
+        .brand-row img {
+            width: 62px;
+            height: 62px;
             object-fit: contain;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.35));
         }
 
-        .head h1 {
+        .brand-row h1 {
             margin: 0;
             font-family: 'Fraunces', serif;
-            font-size: clamp(1.35rem, 2.6vw, 2rem);
-            line-height: 1.15;
+            font-size: clamp(1.5rem, 3vw, 2.4rem);
+            line-height: 1.1;
+            color: #fff;
         }
 
-        .kicker {
-            margin: 0.85rem auto 0;
-            text-align: center;
-            color: var(--ink-soft);
-            max-width: 66ch;
+        .brand-row p {
+            margin: 0.25rem 0 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .hero-title {
+            margin: 0.2rem 0 0;
+            font-family: 'Fraunces', serif;
+            color: #fff;
+            font-size: clamp(2rem, 4vw, 4.25rem);
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            max-width: 12ch;
+        }
+
+        .hero-text {
+            margin: 1rem 0 0;
+            max-width: 58ch;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 1rem;
         }
 
         .timer-box {
-            margin-top: 1.1rem;
-            background: linear-gradient(135deg, #052a5e, #0d4f72);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-top: 1.35rem;
+            background: rgba(8, 28, 52, 0.62);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
             color: #fff;
-            padding: 1rem;
+            padding: 1.15rem;
+            backdrop-filter: blur(10px);
+            max-width: 760px;
         }
 
         .timer-head {
@@ -111,7 +156,7 @@
         .timer-title {
             margin: 0.65rem 0 0;
             color: #fff;
-            font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+            font-size: clamp(1.15rem, 2vw, 1.65rem);
             line-height: 1.25;
         }
 
@@ -154,11 +199,13 @@
         }
 
         .newsletter {
-            margin-top: 1.05rem;
-            background: var(--paper);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 0.95rem;
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.93);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 22px;
+            padding: 1rem;
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+            backdrop-filter: blur(8px);
         }
 
         .newsletter h2 {
@@ -226,71 +273,137 @@
             padding: 1.2rem 0.5rem;
         }
 
+        .hero-side {
+            position: relative;
+            display: grid;
+            gap: 1rem;
+            align-content: center;
+        }
+
+        .hero-panel {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            padding: 1rem;
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-panel h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .hero-panel p {
+            margin: 0.4rem 0 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
         @media (max-width: 760px) {
+            .countdown-grid {
+                grid-template-columns: 1fr;
+                width: min(100% - 1rem, 100%);
+                gap: 1rem;
+            }
+
             .timer-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .countdown-copy {
+                order: 2;
+            }
+
+            .hero-side {
+                order: 1;
+            }
+
+            .hero-title {
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
-    <main class="countdown-shell">
-        <header class="head">
-            <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $siteName }}">
-            <h1>{{ $siteName }}</h1>
-        </header>
-
-        @if($countdownEnabled)
-            <p class="kicker">Le site sera disponible apres la fin du compte a rebours. Merci de votre patience.</p>
-            <section class="timer-box" data-site-countdown data-target="{{ $countdown['target_iso'] }}" data-expired-label="{{ e($countdown['expired_label']) }}">
-                <div class="timer-head">
-                    <span class="timer-badge"><i class="fa-regular fa-clock"></i> Countdown</span>
-                    <span>{{ $countdown['timezone'] }}</span>
-                </div>
-                <h2 class="timer-title">{{ $countdown['title'] }}</h2>
-                <p class="timer-subtitle">{{ $countdown['subtitle'] }}</p>
-
-                <div class="timer-grid" role="timer" aria-live="polite">
-                    <div class="timer-cell"><strong data-unit="days">00</strong><span>Jours</span></div>
-                    <div class="timer-cell"><strong data-unit="hours">00</strong><span>Heures</span></div>
-                    <div class="timer-cell"><strong data-unit="minutes">00</strong><span>Minutes</span></div>
-                    <div class="timer-cell"><strong data-unit="seconds">00</strong><span>Secondes</span></div>
-                </div>
-                <p class="timer-note" data-note>Le compte a rebours est en cours.</p>
-            </section>
-
-            <section class="newsletter">
-                <h2>Newsletter</h2>
-                <p>Recevez une alerte quand le site sera de nouveau accessible.</p>
-
-                @if(session('newsletter_success'))
-                    <div class="alert alert-ok">{{ session('newsletter_success') }}</div>
-                @endif
-
-                @if($errors->newsletter->any())
-                    <div class="alert alert-err">
-                        <ul>
-                            @foreach($errors->newsletter->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+    <main class="countdown-hero">
+        <div class="countdown-grid">
+            <section class="countdown-copy">
+                <div class="brand-row">
+                    <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $siteName }}">
+                    <div>
+                        <h1>{{ $siteName }}</h1>
+                        <p>Page d'attente officielle</p>
                     </div>
-                @endif
+                </div>
 
-                <form method="POST" action="{{ route('vitrine.newsletter.subscribe') }}">
-                    @csrf
-                    <input type="hidden" name="source_page" value="countdown">
-                    <input type="email" name="newsletter_email" placeholder="Votre email" required>
-                    <button type="submit">S'abonner</button>
-                </form>
+                @if($countdownEnabled)
+                    <h2 class="hero-title">Une nouvelle aventure educative commence bientot.</h2>
+                    <p class="hero-text">L'espace vitrine est temporairement ferme pendant la preparation du lancement. Le site principal redeviendra accessible automatiquement a la fin du compte a rebours.</p>
+
+                    <section class="timer-box" data-site-countdown data-target="{{ $countdown['target_iso'] }}" data-expired-label="{{ e($countdown['expired_label']) }}">
+                        <div class="timer-head">
+                            <span class="timer-badge"><i class="fa-regular fa-clock"></i> Countdown</span>
+                            <span>{{ $countdown['timezone'] }}</span>
+                        </div>
+                        <h2 class="timer-title">{{ $countdown['title'] }}</h2>
+                        <p class="timer-subtitle">{{ $countdown['subtitle'] }}</p>
+
+                        <div class="timer-grid" role="timer" aria-live="polite">
+                            <div class="timer-cell"><strong data-unit="days">00</strong><span>Jours</span></div>
+                            <div class="timer-cell"><strong data-unit="hours">00</strong><span>Heures</span></div>
+                            <div class="timer-cell"><strong data-unit="minutes">00</strong><span>Minutes</span></div>
+                            <div class="timer-cell"><strong data-unit="seconds">00</strong><span>Secondes</span></div>
+                        </div>
+                        <p class="timer-note" data-note>Le compte a rebours est en cours.</p>
+                    </section>
+
+                    <section class="newsletter">
+                        <h2>Recevoir l'ouverture</h2>
+                        <p>Inscrivez-vous pour etre averti quand le site revient en ligne.</p>
+
+                        @if(session('newsletter_success'))
+                            <div class="alert alert-ok">{{ session('newsletter_success') }}</div>
+                        @endif
+
+                        @if($errors->newsletter->any())
+                            <div class="alert alert-err">
+                                <ul>
+                                    @foreach($errors->newsletter->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('vitrine.newsletter.subscribe') }}">
+                            @csrf
+                            <input type="hidden" name="source_page" value="countdown">
+                            <input type="email" name="newsletter_email" placeholder="Votre email" required>
+                            <button type="submit">S'abonner</button>
+                        </form>
+                    </section>
+                @else
+                    <section class="hero-panel">
+                        <h2>Countdown inactif</h2>
+                        <p>Le compte a rebours est desactive actuellement.</p>
+                        <a href="{{ route('vitrine.home') }}" style="display:inline-block;margin-top:0.8rem;color:#fff;text-decoration:none;font-weight:700;">Aller vers le site</a>
+                    </section>
+                @endif
             </section>
-        @else
-            <section class="is-off">
-                <h2 style="margin:0;">Countdown inactif</h2>
-                <p style="color:var(--ink-soft);">Le countdown est desactive actuellement.</p>
-                <a href="{{ route('vitrine.home') }}" style="color:#0c7abf;text-decoration:none;font-weight:700;">Aller vers le site</a>
-            </section>
-        @endif
+
+            <aside class="hero-side">
+                <section class="hero-panel">
+                    <h2>Acces temporairement ferme</h2>
+                    <p>Quand le countdown est actif, la vitrine publique est bloquee. L'administration reste accesible normalement.</p>
+                </section>
+
+                <section class="hero-panel">
+                    <h2>Design full width</h2>
+                    <p>Fond immersif, branding Ancre Des Elites et compteur centralise dans une vraie page d'attente indépendante.</p>
+                </section>
+            </aside>
+        </div>
     </main>
 
     @if($countdownEnabled)
