@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+@php
+    $countdownEnabled = (bool) config('app.website_countdown.enabled', false);
+    $countdownTitle = (string) config('app.website_countdown.title', 'Ouverture prochaine');
+    $countdownSubtitle = (string) config('app.website_countdown.subtitle', 'Le lancement du nouveau site approche.');
+    $countdownExpiredLabel = (string) config('app.website_countdown.expired_label', 'Le compte a rebours est termine.');
+    $countdownTargetIso = null;
+
+    if ($countdownEnabled) {
+        try {
+            $countdownTargetIso = \Illuminate\Support\Carbon::parse(
+                (string) config('app.website_countdown.target'),
+                (string) config('app.website_countdown.timezone', 'Africa/Tunis')
+            )->toIso8601String();
+        } catch (\Throwable $e) {
+            $countdownEnabled = false;
+        }
+    }
+@endphp
 <html lang="fr">
 <head>
     <meta charset="utf-8">
@@ -105,6 +123,89 @@
 
         .hero { padding: 4rem 0 2.8rem; }
 
+        .countdown-wrap {
+            padding: 1.1rem 0 0.4rem;
+        }
+
+        .countdown-card {
+            background: linear-gradient(125deg, #0f2942, #0d4f72);
+            border-radius: 24px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: var(--shadow);
+            padding: 1.1rem;
+        }
+
+        .countdown-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+
+        .countdown-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 700;
+            background: rgba(244, 183, 64, 0.2);
+            border: 1px solid rgba(244, 183, 64, 0.45);
+        }
+
+        .countdown-title {
+            margin: 0;
+            font-family: 'Fraunces', serif;
+            font-size: clamp(1.15rem, 2vw, 1.55rem);
+            line-height: 1.25;
+        }
+
+        .countdown-subtitle {
+            margin: 0.35rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.6rem;
+        }
+
+        .countdown-cell {
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            padding: 0.7rem 0.45rem;
+        }
+
+        .countdown-cell strong {
+            display: block;
+            font-size: clamp(1.4rem, 2.6vw, 2rem);
+            line-height: 1;
+            font-family: 'Fraunces', serif;
+        }
+
+        .countdown-cell span {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .countdown-note {
+            margin: 0.7rem 0 0;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
         .hero-grid {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
@@ -181,7 +282,7 @@
             min-height: 340px;
             background:
                 linear-gradient(140deg, rgba(15, 41, 66, 0.92), rgba(22, 70, 101, 0.85)),
-                url('{{ asset('images/vitrine/vitrine-05.jpg') }}') center/cover;
+                url('{{ asset("images/vitrine/vitrine-05.jpg") }}') center/cover;
             color: #fff;
             padding: 1.5rem;
             display: flex;
@@ -327,6 +428,7 @@
 
             .program-row { grid-template-columns: 120px 1fr; }
             .hero { padding-top: 2.1rem; }
+            .countdown-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
     </style>
 </head>
@@ -348,6 +450,28 @@
     </header>
 
     <main>
+        @if($countdownEnabled && $countdownTargetIso)
+            <section class="countdown-wrap">
+                <div class="container">
+                    <div class="countdown-card" data-countdown-target="{{ $countdownTargetIso }}" data-countdown-expired-label="{{ e($countdownExpiredLabel) }}">
+                        <div class="countdown-head">
+                            <span class="countdown-badge"><i class="fa-regular fa-clock"></i> Countdown</span>
+                            <span>{{ config('app.website_countdown.timezone', 'Africa/Tunis') }}</span>
+                        </div>
+                        <h2 class="countdown-title">{{ $countdownTitle }}</h2>
+                        <p class="countdown-subtitle">{{ $countdownSubtitle }}</p>
+                        <div class="countdown-grid" role="timer" aria-live="polite">
+                            <div class="countdown-cell"><strong data-unit="days">00</strong><span>Jours</span></div>
+                            <div class="countdown-cell"><strong data-unit="hours">00</strong><span>Heures</span></div>
+                            <div class="countdown-cell"><strong data-unit="minutes">00</strong><span>Minutes</span></div>
+                            <div class="countdown-cell"><strong data-unit="seconds">00</strong><span>Secondes</span></div>
+                        </div>
+                        <p class="countdown-note" data-countdown-note>Le compte a rebours est en cours.</p>
+                    </div>
+                </div>
+            </section>
+        @endif
+
         <section class="hero">
             <div class="container hero-grid">
                 <article class="hero-copy">
@@ -449,5 +573,60 @@
             <span>© {{ date('Y') }} Ancre Des Elites. Tous droits reserves.</span>
         </div>
     </footer>
+
+    @if($countdownEnabled && $countdownTargetIso)
+        <script>
+            (function () {
+                var root = document.querySelector('[data-countdown-target]');
+                if (!root) {
+                    return;
+                }
+
+                var target = new Date(root.getAttribute('data-countdown-target')).getTime();
+                var expiredLabel = root.getAttribute('data-countdown-expired-label') || 'Le compte a rebours est termine.';
+                var note = root.querySelector('[data-countdown-note]');
+                var units = {
+                    days: root.querySelector('[data-unit="days"]'),
+                    hours: root.querySelector('[data-unit="hours"]'),
+                    minutes: root.querySelector('[data-unit="minutes"]'),
+                    seconds: root.querySelector('[data-unit="seconds"]')
+                };
+
+                function pad(value) {
+                    return String(value).padStart(2, '0');
+                }
+
+                function render() {
+                    var now = Date.now();
+                    var diff = target - now;
+
+                    if (diff <= 0) {
+                        units.days.textContent = '00';
+                        units.hours.textContent = '00';
+                        units.minutes.textContent = '00';
+                        units.seconds.textContent = '00';
+                        if (note) {
+                            note.textContent = expiredLabel;
+                        }
+                        clearInterval(timer);
+                        return;
+                    }
+
+                    var days = Math.floor(diff / 86400000);
+                    var hours = Math.floor((diff % 86400000) / 3600000);
+                    var minutes = Math.floor((diff % 3600000) / 60000);
+                    var seconds = Math.floor((diff % 60000) / 1000);
+
+                    units.days.textContent = pad(days);
+                    units.hours.textContent = pad(hours);
+                    units.minutes.textContent = pad(minutes);
+                    units.seconds.textContent = pad(seconds);
+                }
+
+                render();
+                var timer = setInterval(render, 1000);
+            })();
+        </script>
+    @endif
 </body>
 </html>
