@@ -60,7 +60,7 @@
             --radius-lg: 22px;
             --radius-md: 14px;
             --container: min(1100px, calc(100% - 2.4rem));
-            --shadow-soft: 0 16px 36px rgba(22, 42, 58, 0.09);
+            --shadow-soft: none;
         }
 
         * { box-sizing: border-box; }
@@ -283,10 +283,10 @@
             padding: 0.67rem 1rem;
             box-shadow: none;
             white-space: nowrap;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.25s ease;
         }
 
-        .btn-parent:hover { transform: translateY(-1px); box-shadow: 0 16px 24px rgba(5, 42, 94, 0.28); }
+        .btn-parent:hover { transform: translateY(-1px); }
 
         .hero {
             position: relative;
@@ -566,7 +566,7 @@
             font-size: clamp(1.65rem, 3.4vw, 2.4rem);
             line-height: 1.1;
             color: var(--brand-dark);
-            text-shadow: 0 6px 16px rgba(201, 142, 53, 0.22);
+            text-shadow: none;
         }
 
         .schedule { width: 100%; border-collapse: collapse; }
@@ -584,7 +584,7 @@
             overflow: hidden;
             background: #fff;
             box-shadow: var(--shadow-soft);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.25s ease;
         }
 
         .social-card:hover { transform: translateY(-2px); box-shadow: none; }
