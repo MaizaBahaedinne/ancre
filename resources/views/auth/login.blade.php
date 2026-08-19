@@ -1,9 +1,9 @@
 <x-guest-layout>
     <div class="auth-card-header">
-        <span class="auth-pill"><i class="fa-solid fa-shield-halved"></i> Connexion securisee</span>
-        <p class="auth-kicker">Bienvenue</p>
-        <h1 class="auth-title">Heureux de vous revoir</h1>
-        <p class="auth-subtitle">Connectez-vous pour acceder a votre espace Ancre Des Elites.</p>
+        <span class="auth-pill"><i class="fa-solid fa-shield-halved"></i> Connexion parent securisee</span>
+        <p class="auth-kicker">Bienvenue parent</p>
+        <h1 class="auth-title">Accedez a votre espace famille</h1>
+        <p class="auth-subtitle">Connectez-vous pour suivre la scolarite et les informations de votre enfant.</p>
     </div>
 
     @if (session('status'))
@@ -18,10 +18,10 @@
         @csrf
 
         <div class="auth-field">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">Email parent</label>
             <div class="auth-input-wrap">
                 <i class="fa-regular fa-envelope"></i>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="form-control auth-input @error('email') is-invalid @enderror" placeholder="vous@domaine.tn">
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="form-control auth-input @error('email') is-invalid @enderror" placeholder="parent@domaine.tn">
             </div>
             @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
@@ -47,12 +47,12 @@
         </div>
 
         <div class="auth-assist-row">
-            <span><i class="fa-solid fa-lock"></i> Session protegee</span>
-            <span><i class="fa-regular fa-clock"></i> Acces rapide</span>
+            <span><i class="fa-solid fa-lock"></i> Session parent protegee</span>
+            <span><i class="fa-regular fa-clock"></i> Acces rapide aux infos famille</span>
         </div>
 
         <button type="submit" class="btn btn-primary auth-submit-btn">Se connecter</button>
 
-        <p class="auth-footnote">En vous connectant, vous acceptez les regles de securite de la plateforme.</p>
+        <p class="auth-footnote">En vous connectant, vous acceptez les regles de securite de l'espace parent.</p>
     </form>
 </x-guest-layout>

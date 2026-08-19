@@ -101,6 +101,44 @@
                 opacity: 0.92;
             }
 
+            .auth-mascot-panel {
+                position: relative;
+                margin-top: 0.4rem;
+                padding: 1.05rem;
+                border-radius: 22px;
+                background: linear-gradient(160deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06));
+                border: 1px solid rgba(255, 255, 255, 0.28);
+                overflow: hidden;
+            }
+
+            .auth-mascot-panel::before {
+                content: '';
+                position: absolute;
+                inset: auto -4.8rem -5.8rem auto;
+                width: 13rem;
+                height: 13rem;
+                border-radius: 999px;
+                background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.4), rgba(245, 158, 11, 0));
+                pointer-events: none;
+            }
+
+            .auth-mascot-image {
+                display: block;
+                width: min(100%, 310px);
+                margin: 0 auto;
+                object-fit: contain;
+                filter: drop-shadow(0 20px 28px rgba(5, 15, 33, 0.35));
+            }
+
+            .auth-mascot-caption {
+                margin: 0.55rem 0 0;
+                text-align: center;
+                font-size: 0.82rem;
+                font-weight: 700;
+                letter-spacing: 0.03em;
+                color: rgba(239, 246, 255, 0.9);
+            }
+
             .auth-showcase-points {
                 margin: 0;
                 padding: 1rem;
@@ -204,6 +242,10 @@
                 .auth-brand-wrap {
                     padding: 1.4rem;
                 }
+
+                .auth-mascot-image {
+                    width: min(100%, 240px);
+                }
             }
 
             @media (max-width: 767.98px) {
@@ -251,15 +293,25 @@
                 </a>
 
                 <div class="auth-showcase-copy">
-                    <p class="auth-showcase-kicker">Administration unifiee</p>
-                    <h2 class="auth-showcase-title">Une plateforme claire pour diriger l'ecole en temps reel.</h2>
-                    <p class="auth-showcase-text">Suivez les inscriptions, paiements, presences et demandes parentales avec des interfaces adaptees a chaque role.</p>
+                    <p class="auth-showcase-kicker">Espace Parents</p>
+                    <h2 class="auth-showcase-title">Restez connecte a la vie scolaire de votre enfant, en toute simplicite.</h2>
+                    <p class="auth-showcase-text">Consultez les messages, suivis et informations importantes dans une experience fluide, claire et securisee.</p>
                 </div>
 
+                <figure class="auth-mascot-panel mb-0">
+                    <img
+                        src="{{ asset('images/auth/parent-mascot.png') }}"
+                        alt="Mascotte espace parent"
+                        class="auth-mascot-image"
+                        onerror="this.onerror=null; this.src='{{ asset('images/logo encre des elites.webp') }}';"
+                    >
+                    <figcaption class="auth-mascot-caption">Ancre Des Elites vous souhaite la bienvenue</figcaption>
+                </figure>
+
                 <ul class="auth-showcase-points">
-                    <li><i class="fa-solid fa-circle-check"></i><span>Suivi quotidien et indicateurs en temps reel</span></li>
-                    <li><i class="fa-solid fa-circle-check"></i><span>Gestion centralisee des inscriptions et paiements</span></li>
-                    <li><i class="fa-solid fa-circle-check"></i><span>Experience adaptee selon le role utilisateur</span></li>
+                    <li><i class="fa-solid fa-circle-check"></i><span>Vue rapide des annonces et informations de l'etablissement</span></li>
+                    <li><i class="fa-solid fa-circle-check"></i><span>Suivi simplifie des echanges avec l'equipe educative</span></li>
+                    <li><i class="fa-solid fa-circle-check"></i><span>Connexion securisee dediee aux familles</span></li>
                 </ul>
             </section>
 
