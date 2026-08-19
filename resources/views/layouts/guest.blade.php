@@ -26,242 +26,169 @@
                 margin: 0;
                 min-height: 100vh;
                 font-family: 'Sora', 'Figtree', sans-serif;
-                display: grid;
-                place-items: center;
-                padding: 1rem;
-                background: radial-gradient(circle at 85% 12%, rgba(14, 165, 233, 0.2), transparent 25%), radial-gradient(circle at 8% 85%, rgba(245, 158, 11, 0.15), transparent 30%), linear-gradient(160deg, #ecf4fb 0%, #f6f8fb 48%, #eef2f9 100%);
+                background: radial-gradient(circle at 12% 14%, rgba(245, 158, 11, 0.24), transparent 38%), radial-gradient(circle at 90% 84%, rgba(14, 165, 233, 0.18), transparent 42%), linear-gradient(150deg, #041326 0%, #0b2448 55%, #0a3c63 100%);
             }
 
-            .auth-layout {
-                width: min(1120px, 100%);
-                display: grid;
-                grid-template-columns: minmax(0, 1.3fr) minmax(360px, 450px);
-                gap: 1rem;
-                align-items: stretch;
-            }
-
-            .auth-brand-wrap {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                gap: 1.5rem;
-                padding: 2rem;
-                border-radius: 28px;
-                background: linear-gradient(145deg, rgba(13, 34, 66, 0.95), rgba(13, 56, 108, 0.9));
-                color: #eff6ff;
-                box-shadow: 0 24px 60px rgba(8, 27, 53, 0.27);
-            }
-
-            .auth-brand-link {
+            .auth-stage {
+                min-height: 100vh;
                 display: flex;
                 align-items: center;
-                gap: 1rem;
-                color: #eff6ff;
-                text-decoration: none;
+                width: 100%;
             }
 
-            .auth-brand-link:hover {
-                color: #eff6ff;
-            }
-
-            .auth-brand-mark {
-                width: 4.2rem;
-                height: 4.2rem;
-                border-radius: 22px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .auth-brand-logo {
-                width: 2.45rem;
-                height: 2.45rem;
-                object-fit: contain;
-            }
-
-            .auth-brand-link strong,
-            .auth-brand-link small {
-                display: block;
-            }
-
-            .auth-brand-link small {
-                opacity: 0.9;
-            }
-
-            .auth-showcase-title {
-                margin: 0.4rem 0;
-                font-size: clamp(1.45rem, 2vw, 2rem);
-                line-height: 1.22;
-            }
-
-            .auth-showcase-text {
-                margin: 0;
-                opacity: 0.92;
-            }
-
-            .auth-mascot-panel {
-                position: relative;
-                margin-top: 0.4rem;
-                padding: 1.05rem;
-                border-radius: 22px;
-                background: linear-gradient(160deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06));
-                border: 1px solid rgba(255, 255, 255, 0.28);
+            .auth-login-card {
+                border: 0;
+                border-radius: 1.1rem;
                 overflow: hidden;
+                box-shadow: 0 28px 65px rgba(2, 8, 23, 0.38);
             }
 
-            .auth-mascot-panel::before {
+            .auth-visual-side {
+                position: relative;
+                min-height: 620px;
+                background: linear-gradient(165deg, #0b2448 0%, #0d3c66 62%, #0d5f99 100%);
+            }
+
+            .auth-visual-side::before {
                 content: '';
                 position: absolute;
-                inset: auto -4.8rem -5.8rem auto;
-                width: 13rem;
-                height: 13rem;
-                border-radius: 999px;
-                background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.4), rgba(245, 158, 11, 0));
-                pointer-events: none;
+                inset: 0;
+                background: radial-gradient(circle at 18% 18%, rgba(245, 158, 11, 0.34), transparent 45%);
             }
 
-            .auth-mascot-image {
-                display: block;
-                width: min(100%, 310px);
-                margin: 0 auto;
-                object-fit: contain;
-                filter: drop-shadow(0 20px 28px rgba(5, 15, 33, 0.35));
-            }
-
-            .auth-mascot-caption {
-                margin: 0.55rem 0 0;
-                text-align: center;
-                font-size: 0.82rem;
-                font-weight: 700;
-                letter-spacing: 0.03em;
-                color: rgba(239, 246, 255, 0.9);
-            }
-
-            .auth-showcase-points {
-                margin: 0;
-                padding: 1rem;
-                list-style: none;
-                display: grid;
-                gap: 0.65rem;
-                border-radius: 16px;
-                background: rgba(8, 27, 53, 0.25);
-                border: 1px solid rgba(125, 211, 252, 0.28);
-            }
-
-            .auth-showcase-points li {
+            .auth-visual-wrap {
+                position: relative;
+                z-index: 1;
+                height: 100%;
                 display: flex;
-                gap: 0.65rem;
-                align-items: flex-start;
+                flex-direction: column;
+                justify-content: center;
+                padding: 2rem 1.6rem;
+                color: #eef6ff;
             }
 
-            .auth-card-shell {
-                padding: 2rem;
-                border-radius: 28px;
-                background: rgba(255, 255, 255, 0.97);
-                box-shadow: 0 22px 60px rgba(15, 23, 42, 0.13);
-                border: 1px solid rgba(148, 163, 184, 0.24);
+            .auth-visual-brand {
+                margin-bottom: 1.1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            .auth-visual-brand img {
+                width: 38px;
+                height: 38px;
+                object-fit: contain;
+            }
+
+            .auth-visual-image {
+                width: min(100%, 330px);
+                height: auto;
+                object-fit: contain;
+                filter: drop-shadow(0 18px 28px rgba(3, 13, 32, 0.45));
+            }
+
+            .auth-visual-copy {
+                margin-top: 1rem;
+                text-align: center;
+            }
+
+            .auth-visual-copy h2 {
+                margin: 0;
+                font-size: clamp(1.15rem, 1.6vw, 1.45rem);
+                line-height: 1.35;
+            }
+
+            .auth-visual-copy p {
+                margin: 0.6rem 0 0;
+                opacity: 0.9;
+                font-size: 0.95rem;
+            }
+
+            .auth-form-side {
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            }
+
+            .auth-form-body {
+                width: 100%;
+                padding: clamp(1.6rem, 2.2vw, 2.5rem);
+            }
+
+            .auth-logo-row {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                margin-bottom: 1.1rem;
+            }
+
+            .auth-logo-row img {
+                width: 40px;
+                height: 40px;
+                object-fit: contain;
+            }
+
+            .auth-logo-row span {
+                color: #0b2448;
+                font-weight: 700;
+                letter-spacing: 0.02em;
             }
 
             .auth-title {
                 margin: 0;
                 color: #0b1b37;
+                font-size: clamp(1.35rem, 2vw, 1.75rem);
             }
 
             .auth-subtitle {
                 color: #5f6f89;
+                margin: 0.45rem 0 1.4rem;
             }
 
-            .auth-form-grid {
-                display: grid;
-                gap: 1rem;
+            .auth-control {
+                border-radius: 0.7rem;
+                border: 1px solid rgba(100, 116, 139, 0.32);
+                min-height: 3.1rem;
             }
 
-            .auth-input-wrap {
-                display: grid;
-                grid-template-columns: 2.65rem minmax(0, 1fr);
-                align-items: center;
-                border: 1px solid rgba(148, 163, 184, 0.35);
-                border-radius: 14px;
-                background: #fff;
-            }
-
-            .auth-input-wrap:focus-within {
+            .auth-control:focus {
                 border-color: rgba(14, 165, 233, 0.66);
-                box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+                box-shadow: 0 0 0 0.18rem rgba(14, 165, 233, 0.18);
             }
 
-            .auth-input-wrap i {
-                text-align: center;
-                color: #64748b;
-            }
-
-            .auth-input {
-                min-height: 2.9rem;
+            .auth-login-btn {
+                min-height: 3rem;
+                border-radius: 0.75rem;
                 border: 0;
-                box-shadow: none;
-            }
-
-            .auth-input:focus {
-                box-shadow: none;
-            }
-
-            .auth-form-row,
-            .auth-assist-row {
-                display: flex;
-                justify-content: space-between;
-                gap: 0.75rem;
-                align-items: center;
-            }
-
-            .auth-assist-row {
-                font-size: 0.8rem;
                 font-weight: 700;
-                padding: 0.6rem 0.75rem;
-                border-radius: 12px;
-                background: linear-gradient(135deg, rgba(14, 165, 233, 0.09), rgba(59, 130, 246, 0.07));
-                border: 1px solid rgba(148, 163, 184, 0.2);
+                background: linear-gradient(135deg, #0b2448, #0c7abf);
+                box-shadow: 0 12px 24px rgba(12, 122, 191, 0.24);
             }
 
-            .auth-submit-btn {
-                min-height: 2.95rem;
-                border-radius: 14px;
-                border: 0;
-                font-weight: 800;
-                background: linear-gradient(135deg, #0b2448, #0c7abf);
-                box-shadow: 0 14px 28px rgba(12, 122, 191, 0.3);
+            .auth-meta,
+            .auth-meta a {
+                color: #5f6f89;
+                font-size: 0.9rem;
+            }
+
+            .auth-link {
+                color: #0c7abf;
+                text-decoration: none;
+            }
+
+            .auth-link:hover {
+                color: #0b2448;
             }
 
             @media (max-width: 991.98px) {
-                .auth-layout {
-                    grid-template-columns: 1fr;
-                    max-width: 560px;
-                }
-
-                .auth-brand-wrap {
-                    padding: 1.4rem;
-                }
-
-                .auth-mascot-image {
-                    width: min(100%, 240px);
+                .auth-visual-side {
+                    min-height: 540px;
                 }
             }
 
             @media (max-width: 767.98px) {
-                .auth-brand-wrap {
-                    display: none;
-                }
-
-                .auth-card-shell {
-                    padding: 1.2rem;
-                    border-radius: 20px;
-                }
-
-                .auth-form-row,
-                .auth-assist-row {
-                    flex-direction: column;
-                    align-items: flex-start;
+                .auth-stage {
+                    padding: 1rem 0;
                 }
             }
         </style>
@@ -277,45 +204,35 @@
         <!-- End Google Tag Manager (noscript) -->
         <div class="modern-admin-bg"></div>
 
-        <main class="auth-layout">
-            <div class="auth-orb auth-orb-one"></div>
-            <div class="auth-orb auth-orb-two"></div>
+        <main class="auth-stage">
+            <div class="container py-4 h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-12 col-xl-10">
+                        <div class="card auth-login-card">
+                            <div class="row g-0">
+                                <div class="col-md-5 d-none d-md-block auth-visual-side">
+                                    <div class="auth-visual-wrap">
+                                        <div class="auth-visual-brand">
+                                            <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites">
+                                            <span>Ancre Des Elites</span>
+                                        </div>
+                                        <img src="{{ asset('images/auth/parent-mascot.png') }}" alt="Illustration parent" class="auth-visual-image">
+                                        <div class="auth-visual-copy">
+                                            <h2>Espace Parents</h2>
+                                            <p>Connexion securisee pour suivre les informations de votre enfant.</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-            <section class="auth-brand-wrap">
-                <a href="{{ route('home') }}" class="auth-brand-link">
-                    <span class="auth-brand-mark">
-                        <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites" class="auth-brand-logo">
-                    </span>
-                    <span>
-                        <strong>Ancre Des Elites</strong>
-                        <small>Espace authentification</small>
-                    </span>
-                </a>
-
-                <div class="auth-showcase-copy">
-                    <p class="auth-showcase-kicker">Espace Parents</p>
-                    <h2 class="auth-showcase-title">Restez connecte a la vie scolaire de votre enfant, en toute simplicite.</h2>
-                    <p class="auth-showcase-text">Consultez les messages, suivis et informations importantes dans une experience fluide, claire et securisee.</p>
+                                <div class="col-md-7 d-flex align-items-center auth-form-side">
+                                    <div class="auth-form-body">
+                                        {{ $slot }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <figure class="auth-mascot-panel mb-0">
-                    <img
-                        src="{{ asset('images/auth/parent-mascot.png') }}"
-                        alt="Mascotte espace parent"
-                        class="auth-mascot-image"
-                    >
-                    <figcaption class="auth-mascot-caption">Ancre Des Elites vous souhaite la bienvenue</figcaption>
-                </figure>
-
-                <ul class="auth-showcase-points">
-                    <li><i class="fa-solid fa-circle-check"></i><span>Vue rapide des annonces et informations de l'etablissement</span></li>
-                    <li><i class="fa-solid fa-circle-check"></i><span>Suivi simplifie des echanges avec l'equipe educative</span></li>
-                    <li><i class="fa-solid fa-circle-check"></i><span>Connexion securisee dediee aux familles</span></li>
-                </ul>
-            </section>
-
-            <div class="auth-card-shell">
-                {{ $slot }}
             </div>
         </main>
 
