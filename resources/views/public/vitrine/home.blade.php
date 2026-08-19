@@ -2,6 +2,7 @@
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Accueil')
 @section('meta_description', 'Garderie Ancre des Elites a Tunis: cadre securise, equipe bienveillante, activites educatives et accompagnement des familles. Demandez une visite.')
+@section('og_image', asset('images/vitrine/vitrine-01.jpg'))
 
 @section('content')
     @php
@@ -131,7 +132,10 @@
                     >
                 @endif
                 @foreach(array_slice($heroImages, 1, 2) as $index => $image)
-                    <span class="hero-slide" style="background-image:url(&quot;{{ $image }}&quot;);animation-delay:{{ ($index + 1) * $heroImageStepSeconds }}s;"></span>
+                    @php
+                        $heroSlideStyle = 'background-image:url('.$image.');animation-delay:'.(($index + 1) * $heroImageStepSeconds).'s;';
+                    @endphp
+                    <span class="hero-slide" style="{{ $heroSlideStyle }}"></span>
                 @endforeach
             </div>
             <div class="hero-content hero-grid">

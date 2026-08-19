@@ -2,6 +2,7 @@
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | A propos')
 @section('meta_description', 'Decouvrez la mission de la Garderie Ancre des Elites: ecoute, respect du rythme, bienveillance, autonomie et partenariat avec les familles a Sfax.')
+@section('og_image', $page?->hero_image ? asset('storage/'.$page->hero_image) : asset('images/vitrine/vitrine-04.jpg'))
 
 @section('content')
     @php

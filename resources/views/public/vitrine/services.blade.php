@@ -2,6 +2,7 @@
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Services')
 @section('meta_description', 'Services de garderie a Sfax: accueil, eveil, encadrement bienveillant et environnement securise pour l epanouissement de votre enfant.')
+@section('og_image', $page?->hero_image ? asset('storage/'.$page->hero_image) : asset('images/vitrine/vitrine-02.jpg'))
 
 @section('content')
     @php

@@ -2,6 +2,7 @@
 
 @section('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Contact')
 @section('meta_description', 'Contactez la Garderie Ancre des Elites a Sfax pour demander une visite, obtenir des informations et lancer l inscription de votre enfant.')
+@section('og_image', $page?->hero_image ? asset('storage/'.$page->hero_image) : asset('images/vitrine/vitrine-05.jpg'))
 
 @section('content')
     @php

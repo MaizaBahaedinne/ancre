@@ -12,6 +12,17 @@
     <!-- End Google Tag Manager -->
     <title>@yield('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Garderie')</title>
     <meta name="description" content="@yield('meta_description', 'Site vitrine de la garderie Ancre Des Elites')">
+    <meta property="og:site_name" content="{{ $settings?->site_name ?: 'Ancre Des Elites' }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@yield('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Garderie')">
+    <meta property="og:description" content="@yield('meta_description', 'Site vitrine de la garderie Ancre Des Elites')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', asset('images/logo-ancre-des-elites.svg'))">
+    <meta property="og:image:alt" content="{{ $settings?->site_name ?: 'Ancre Des Elites' }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', ($settings?->site_name ?: 'Ancre Des Elites').' | Garderie')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Site vitrine de la garderie Ancre Des Elites')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logo-ancre-des-elites.svg'))">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/png" href="{{ asset('images/fav_ico.png') }}">
