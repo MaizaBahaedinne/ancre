@@ -11,6 +11,7 @@
 
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     <link rel="preconnect" href="https://img.magnific.com" crossorigin>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 
     <style>
@@ -993,23 +994,10 @@
             fbq('track', 'PageView');
         };
 
-        const loadFontAwesome = () => {
-            if (window.matchMedia('(max-width: 780px)').matches) {
-                return;
-            }
-
-            const iconCss = document.createElement('link');
-            iconCss.rel = 'stylesheet';
-            iconCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css';
-            document.head.appendChild(iconCss);
-        };
-
         if ('requestIdleCallback' in window) {
             requestIdleCallback(loadTrackers, { timeout: 2000 });
-            requestIdleCallback(loadFontAwesome, { timeout: 1800 });
         } else {
             window.setTimeout(loadTrackers, 1200);
-            window.setTimeout(loadFontAwesome, 1000);
         }
     </script>
 </body>
