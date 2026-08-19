@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        $heroImage = 'https://images.unsplash.com/photo-1453733190371-0a9bedd82893?auto=format&fit=crop&w=1800&q=80';
+        $heroImage = asset('images/vitrine/vitrine-04.jpg');
     @endphp
     <main>
         <section class="hero hero-subpage">
@@ -27,7 +27,7 @@
                     @forelse($posts as $post)
                         <article class="panel">
                             <div style="height:190px;border-radius:14px;overflow:hidden;margin-bottom:0.7rem;background:#edf3f7;">
-                                <img src="{{ $post->cover_url ?: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1000&q=80' }}" alt="{{ $post->title }}" style="width:100%;height:100%;object-fit:cover;">
+                                <img src="{{ $post->cover_url ?: asset('images/vitrine/vitrine-03.jpg') }}" alt="{{ $post->title }}" style="width:100%;height:100%;object-fit:cover;">
                             </div>
                             <h3>{{ $post->title }}</h3>
                             <p class="muted">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content ?: ''), 140) }}</p>

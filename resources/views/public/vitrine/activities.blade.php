@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : asset('images/vitrine/vitrine-01.jpg');
     @endphp
     <main>
         <section class="hero hero-subpage">
@@ -31,7 +31,7 @@
                                 @elseif($post->thumbnail_url)
                                     <img src="{{ $post->thumbnail_url }}" alt="{{ $post->platform }}">
                                 @else
-                                    <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1000&q=80" alt="Activite garderie">
+                                    <img src="{{ asset('images/vitrine/vitrine-03.jpg') }}" alt="Activite garderie">
                                 @endif
                             </div>
                             <div class="social-meta">

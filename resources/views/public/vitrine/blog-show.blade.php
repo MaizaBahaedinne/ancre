@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        $heroImage = $post->cover_url ?: 'https://images.unsplash.com/photo-1453733190371-0a9bedd82893?auto=format&fit=crop&w=1800&q=80';
+        $heroImage = $post->cover_url ?: asset('images/vitrine/vitrine-04.jpg');
         $likes = (int) ($reactionCounts['like'] ?? 0);
         $loves = (int) ($reactionCounts['love'] ?? 0);
         $claps = (int) ($reactionCounts['clap'] ?? 0);

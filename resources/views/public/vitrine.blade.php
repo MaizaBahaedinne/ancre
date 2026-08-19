@@ -181,7 +181,7 @@
             min-height: 340px;
             background:
                 linear-gradient(140deg, rgba(15, 41, 66, 0.92), rgba(22, 70, 101, 0.85)),
-                url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1200&q=80') center/cover;
+                url('{{ asset('images/vitrine/vitrine-05.jpg') }}') center/cover;
             color: #fff;
             padding: 1.5rem;
             display: flex;

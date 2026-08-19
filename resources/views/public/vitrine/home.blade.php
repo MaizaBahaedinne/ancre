@@ -6,14 +6,19 @@
 @section('content')
     @php
         $pageMeta = is_array($page?->meta ?? null) ? $page->meta : [];
-        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=62';
+        $vitrineImage1 = asset('images/vitrine/vitrine-01.jpg');
+        $vitrineImage2 = asset('images/vitrine/vitrine-02.jpg');
+        $vitrineImage3 = asset('images/vitrine/vitrine-03.jpg');
+        $vitrineImage4 = asset('images/vitrine/vitrine-04.jpg');
+        $vitrineImage5 = asset('images/vitrine/vitrine-05.jpg');
+
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : $vitrineImage1;
         $heroImagesDefault = [
             $heroImage,
-            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=62',
-            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=900&q=62',
-            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=62',
-            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=900&q=62',
-            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=900&q=62',
+            $vitrineImage2,
+            $vitrineImage3,
+            $vitrineImage4,
+            $vitrineImage5,
         ];
 
         $heroImages = [];
@@ -49,14 +54,10 @@
                 $relativePath = ltrim($candidate, '/');
                 $aboutImage = file_exists(public_path($relativePath))
                     ? asset($relativePath)
-                    : (file_exists(public_path('images/about-child-tunisie.jpg'))
-                        ? asset('images/about-child-tunisie.jpg')
-                        : 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80');
+                    : $vitrineImage5;
             }
         } else {
-            $aboutImage = file_exists(public_path('images/about-child-tunisie.jpg'))
-                ? asset('images/about-child-tunisie.jpg')
-                : 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80';
+            $aboutImage = $vitrineImage5;
         }
 
         $aboutHighlights = [
@@ -224,7 +225,7 @@
                 <h2 class="section-title">A propos de nous</h2>
                 <div class="grid-2 reveal">
                     <aside class="media-frame" style="min-height:280px;">
-                        <img src="https://img.magnific.com/photos-premium/maman-heureuse-conduit-enfant-ecole-chemin-du-retour-ecole_261642-3102.jpg?w=1480" alt="Enfant tunisien" loading="lazy">
+                        <img src="{{ $vitrineImage5 }}" alt="Enfant tunisien" loading="lazy">
                     </aside>
                     <article class="panel" style="display:grid;gap:0.7rem;align-content:start;">
                         <p class="muted" style="font-size:1.02rem;">{{ $aboutSnippet }}</p>
@@ -342,7 +343,7 @@
                                 @elseif($post->thumbnail_url)
                                     <img src="{{ $post->thumbnail_url }}" alt="{{ $post->platform }}">
                                 @else
-                                    <img src="https://images.unsplash.com/photo-1526634332515-d56c5fd16991?auto=format&fit=crop&w=1000&q=80" alt="Publication activite">
+                                    <img src="{{ $vitrineImage3 }}" alt="Publication activite">
                                 @endif
                             </div>
                             <div class="social-meta"><strong>{{ ucfirst($post->platform) }}</strong> - {{ $post->caption ?: 'Voir la publication' }}</div>
@@ -416,7 +417,7 @@
                         @php
                             $memberPhoto = $member->photo
                                 ? (\Illuminate\Support\Str::startsWith($member->photo, ['http://', 'https://']) ? $member->photo : asset('storage/'.$member->photo))
-                                : 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=700&q=80';
+                                : $vitrineImage4;
                             $memberName = trim(($member->prenom ?? '').' '.($member->nom ?? '')) ?: 'Professionnel';
                         @endphp
                         <article class="panel">

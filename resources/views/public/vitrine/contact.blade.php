@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1527525443983-6e60c75fff46?auto=format&fit=crop&w=1800&q=80';
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : asset('images/vitrine/vitrine-05.jpg');
     @endphp
     <main>
         <section class="hero hero-subpage">
