@@ -328,8 +328,8 @@
             content: '';
             position: absolute;
             inset: auto 0 0;
-            height: 90px;
-            background: rgba(247, 250, 252, 0.9);
+            height: 0;
+            background: transparent;
             pointer-events: none;
         }
 
@@ -412,10 +412,10 @@
         }
 
         .hero-visit-card {
-            background: rgba(255, 255, 255, 0.97);
+            background: #fffaf2;
             border: 1px solid rgba(201, 142, 53, 0.56);
             border-radius: 22px;
-            box-shadow: 0 10px 20px rgba(20, 34, 48, 0.12);
+            box-shadow: none;
             padding: 1rem;
             backdrop-filter: none;
         }
@@ -464,8 +464,8 @@
         }
 
         .section { padding: clamp(1.7rem, 4vw, 3rem) 0; }
-        .section-soft { background: #f2f7fb; }
-        .section-warm { background: #fff7e9; }
+        .section-soft { background: #f6efe3; }
+        .section-warm { background: #f6efe3; }
 
         .section-title {
             margin: 0 0 0.45rem;
@@ -486,7 +486,7 @@
         .contact-grid { display: grid; gap: 1rem; grid-template-columns: 1.25fr 1fr; }
 
         .panel {
-            background: var(--surface);
+            background: #fffaf2;
             border: 1px solid var(--line);
             border-top: 3px solid rgba(201, 142, 53, 0.5);
             border-radius: var(--radius-xl);
@@ -509,7 +509,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--accent-soft);
+            background: #f4e1bf;
             border: 1px solid rgba(201, 142, 53, 0.35);
             color: var(--brand-dark);
             margin-bottom: 0.64rem;
@@ -531,7 +531,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(201, 142, 53, 0.2);
+            background: #f4e1bf;
             color: var(--brand-dark);
             font-size: 1.2rem;
         }
@@ -543,7 +543,7 @@
             border-radius: var(--radius-xl);
             border: 1px solid var(--line);
             overflow: hidden;
-            background: #eaf2f7;
+            background: #fffaf2;
             box-shadow: var(--shadow-soft);
         }
 
