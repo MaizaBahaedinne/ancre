@@ -114,8 +114,118 @@
             'experience' => (int) ($pageMeta['home_stat_experience_years'] ?? 5),
             'activities' => (int) ($pageMeta['home_stat_activities_count'] ?? ($pageMeta['home_manual_activities_count'] ?? 20)),
         ];
+
+        $countdown = is_array($websiteCountdown ?? null) ? $websiteCountdown : [];
+        $countdownEnabled = (bool) ($countdown['enabled'] ?? false);
     @endphp
+
+    @if($countdownEnabled)
+        <style>
+            .site-countdown {
+                width: min(760px, calc(100% - 2.4rem));
+                margin: 1.2rem auto 0;
+                background: linear-gradient(130deg, #052a5e, #0d4f72);
+                border-radius: 18px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 14px 26px rgba(5, 42, 94, 0.2);
+                color: #fff;
+                padding: 1rem;
+            }
+
+            .site-countdown-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.6rem;
+                flex-wrap: wrap;
+                margin-bottom: 0.7rem;
+            }
+
+            .site-countdown-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                font-weight: 700;
+                font-size: 0.78rem;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                padding: 0.28rem 0.68rem;
+                border-radius: 999px;
+                background: rgba(201, 142, 53, 0.24);
+                border: 1px solid rgba(201, 142, 53, 0.6);
+            }
+
+            .site-countdown-title {
+                margin: 0;
+                color: #fff;
+                font-size: clamp(1.2rem, 2vw, 1.6rem);
+            }
+
+            .site-countdown-subtitle {
+                margin: 0.35rem 0 0;
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            .site-countdown-grid {
+                margin-top: 0.8rem;
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.55rem;
+            }
+
+            .site-countdown-cell {
+                text-align: center;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.14);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                padding: 0.62rem 0.45rem;
+            }
+
+            .site-countdown-cell strong {
+                display: block;
+                font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+                line-height: 1;
+            }
+
+            .site-countdown-cell span {
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: rgba(255, 255, 255, 0.92);
+            }
+
+            .site-countdown-note {
+                margin: 0.72rem 0 0;
+                font-size: 0.9rem;
+            }
+
+            @media (max-width: 720px) {
+                .site-countdown-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+        </style>
+    @endif
+
     <main>
+        @if($countdownEnabled)
+            <section class="site-countdown" data-site-countdown data-target="{{ $countdown['target_iso'] }}" data-expired-label="{{ e($countdown['expired_label']) }}">
+                <div class="site-countdown-head">
+                    <span class="site-countdown-badge"><i class="fa-regular fa-clock"></i> Countdown</span>
+                    <span>{{ $countdown['timezone'] }}</span>
+                </div>
+                <h2 class="site-countdown-title">{{ $countdown['title'] }}</h2>
+                <p class="site-countdown-subtitle">{{ $countdown['subtitle'] }}</p>
+                <div class="site-countdown-grid" role="timer" aria-live="polite">
+                    <div class="site-countdown-cell"><strong data-unit="days">00</strong><span>Jours</span></div>
+                    <div class="site-countdown-cell"><strong data-unit="hours">00</strong><span>Heures</span></div>
+                    <div class="site-countdown-cell"><strong data-unit="minutes">00</strong><span>Minutes</span></div>
+                    <div class="site-countdown-cell"><strong data-unit="seconds">00</strong><span>Secondes</span></div>
+                </div>
+                <p class="site-countdown-note" data-note>Le compte a rebours est en cours.</p>
+            </section>
+        @endif
+
         <section class="hero" style="--hero-cycle-duration: {{ $heroCycleDurationSeconds }}s;">
             <div class="hero-media" aria-hidden="true">
                 @if(!empty($heroImages[0]))
@@ -473,5 +583,64 @@
                 </div>
             </div>
         </section>
+
+        @if($countdownEnabled)
+            <script>
+                (function () {
+                    var root = document.querySelector('[data-site-countdown]');
+                    if (!root) {
+                        return;
+                    }
+
+                    var target = new Date(root.getAttribute('data-target')).getTime();
+                    if (Number.isNaN(target)) {
+                        return;
+                    }
+
+                    var note = root.querySelector('[data-note]');
+                    var expiredLabel = root.getAttribute('data-expired-label') || 'Le compte a rebours est termine.';
+                    var units = {
+                        days: root.querySelector('[data-unit="days"]'),
+                        hours: root.querySelector('[data-unit="hours"]'),
+                        minutes: root.querySelector('[data-unit="minutes"]'),
+                        seconds: root.querySelector('[data-unit="seconds"]')
+                    };
+
+                    function pad(value) {
+                        return String(value).padStart(2, '0');
+                    }
+
+                    function draw() {
+                        var now = Date.now();
+                        var diff = target - now;
+
+                        if (diff <= 0) {
+                            units.days.textContent = '00';
+                            units.hours.textContent = '00';
+                            units.minutes.textContent = '00';
+                            units.seconds.textContent = '00';
+                            if (note) {
+                                note.textContent = expiredLabel;
+                            }
+                            clearInterval(timer);
+                            return;
+                        }
+
+                        var days = Math.floor(diff / 86400000);
+                        var hours = Math.floor((diff % 86400000) / 3600000);
+                        var minutes = Math.floor((diff % 3600000) / 60000);
+                        var seconds = Math.floor((diff % 60000) / 1000);
+
+                        units.days.textContent = pad(days);
+                        units.hours.textContent = pad(hours);
+                        units.minutes.textContent = pad(minutes);
+                        units.seconds.textContent = pad(seconds);
+                    }
+
+                    draw();
+                    var timer = setInterval(draw, 1000);
+                })();
+            </script>
+        @endif
     </main>
 @endsection

@@ -123,13 +123,4 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'website_countdown' => [
-        'enabled' => (bool) env('WEBSITE_COUNTDOWN_ENABLED', false),
-        'target' => env('WEBSITE_COUNTDOWN_TARGET'),
-        'timezone' => env('WEBSITE_COUNTDOWN_TIMEZONE', 'Africa/Tunis'),
-        'title' => env('WEBSITE_COUNTDOWN_TITLE', 'Ouverture prochaine'),
-        'subtitle' => env('WEBSITE_COUNTDOWN_SUBTITLE', 'Le lancement du nouveau site approche.'),
-        'expired_label' => env('WEBSITE_COUNTDOWN_EXPIRED_LABEL', 'Le compte a rebours est termine.'),
-    ],
-
 ];

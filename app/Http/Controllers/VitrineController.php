@@ -22,6 +22,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
@@ -481,6 +482,38 @@ class VitrineController extends Controller
     {
         $settings = Schema::hasTable('vitrine_settings') ? VitrineSetting::query()->first() : null;
         $pagesMenu = collect();
+        $websiteCountdown = [
+            'enabled' => false,
+            'target_iso' => null,
+            'timezone' => 'Africa/Tunis',
+            'title' => 'Ouverture des inscriptions',
+            'subtitle' => 'Le nouveau portail est bientot disponible.',
+            'expired_label' => 'Le lancement est en ligne.',
+        ];
+
+        if ($settings?->countdown_enabled && !empty($settings->countdown_target_at)) {
+            try {
+                $timezone = !empty($settings->countdown_timezone) ? $settings->countdown_timezone : 'Africa/Tunis';
+                $target = $settings->countdown_target_at instanceof Carbon
+                    ? $settings->countdown_target_at->copy()
+                    : Carbon::parse((string) $settings->countdown_target_at);
+
+                $target = $target->setTimezone($timezone);
+
+                $websiteCountdown = [
+                    'enabled' => true,
+                    'target_iso' => $target->toIso8601String(),
+                    'timezone' => $timezone,
+                    'title' => !empty($settings->countdown_title) ? $settings->countdown_title : 'Ouverture des inscriptions',
+                    'subtitle' => !empty($settings->countdown_subtitle) ? $settings->countdown_subtitle : 'Le nouveau portail est bientot disponible.',
+                    'expired_label' => !empty($settings->countdown_expired_label) ? $settings->countdown_expired_label : 'Le lancement est en ligne.',
+                ];
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to build website countdown payload', [
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        }
 
         if (Schema::hasTable('vitrine_pages')) {
             try {
@@ -498,6 +531,7 @@ class VitrineController extends Controller
         return array_merge([
             'settings' => $settings,
             'pagesMenu' => $pagesMenu,
+            'websiteCountdown' => $websiteCountdown,
         ], $data);
     }
 

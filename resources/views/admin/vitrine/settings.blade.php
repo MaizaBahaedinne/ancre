@@ -73,6 +73,45 @@
                     <input type="text" name="youtube_url" class="form-control" value="{{ old('youtube_url', $settings->youtube_url) }}">
                 </div>
 
+                <div class="col-12"><hr class="my-2"></div>
+
+                <div class="col-12">
+                    <h6 class="mb-1">Countdown site web</h6>
+                    <p class="text-muted mb-0">Activez et configurez le compte a rebours affiche sur la page d'accueil vitrine.</p>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="countdown_enabled" name="countdown_enabled" value="1" @checked(old('countdown_enabled', $settings->countdown_enabled))>
+                        <label class="form-check-label" for="countdown_enabled">Activer le countdown</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Date cible</label>
+                    <input type="datetime-local" name="countdown_target_at" class="form-control" value="{{ old('countdown_target_at', optional($settings->countdown_target_at)->format('Y-m-d\\TH:i')) }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Fuseau horaire</label>
+                    <input type="text" name="countdown_timezone" class="form-control" value="{{ old('countdown_timezone', $settings->countdown_timezone ?: 'Africa/Tunis') }}" placeholder="Africa/Tunis">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Titre</label>
+                    <input type="text" name="countdown_title" class="form-control" value="{{ old('countdown_title', $settings->countdown_title) }}" placeholder="Ouverture des inscriptions">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Sous-titre</label>
+                    <input type="text" name="countdown_subtitle" class="form-control" value="{{ old('countdown_subtitle', $settings->countdown_subtitle) }}" placeholder="Le nouveau portail est bientot disponible.">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Message fin de countdown</label>
+                    <input type="text" name="countdown_expired_label" class="form-control" value="{{ old('countdown_expired_label', $settings->countdown_expired_label) }}" placeholder="Le lancement est en ligne.">
+                </div>
+
                 <div class="col-12">
                     <button class="btn btn-primary" type="submit">Enregistrer les parametres</button>
                 </div>

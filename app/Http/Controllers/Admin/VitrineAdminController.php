@@ -37,6 +37,11 @@ class VitrineAdminController extends Controller
             'site_name' => 'Ancre Des Elites',
             'tagline' => 'Garderie et eveil',
             'parent_space_url' => '/login',
+            'countdown_enabled' => false,
+            'countdown_timezone' => 'Africa/Tunis',
+            'countdown_title' => 'Ouverture des inscriptions',
+            'countdown_subtitle' => 'Le nouveau portail est bientot disponible.',
+            'countdown_expired_label' => 'Le lancement est en ligne.',
         ]);
 
         return view('admin.vitrine.settings', [
@@ -139,7 +144,21 @@ class VitrineAdminController extends Controller
             'instagram_url' => ['nullable', 'string', 'max:2048'],
             'tiktok_url' => ['nullable', 'string', 'max:2048'],
             'youtube_url' => ['nullable', 'string', 'max:2048'],
+            'countdown_enabled' => ['nullable', 'boolean'],
+            'countdown_target_at' => ['nullable', 'date'],
+            'countdown_timezone' => ['nullable', 'string', 'max:64'],
+            'countdown_title' => ['nullable', 'string', 'max:255'],
+            'countdown_subtitle' => ['nullable', 'string', 'max:255'],
+            'countdown_expired_label' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $validated['countdown_enabled'] = $request->boolean('countdown_enabled');
+        $validated['countdown_timezone'] = trim((string) ($validated['countdown_timezone'] ?? '')) !== ''
+            ? trim((string) $validated['countdown_timezone'])
+            : 'Africa/Tunis';
+        $validated['countdown_target_at'] = trim((string) ($validated['countdown_target_at'] ?? '')) !== ''
+            ? $validated['countdown_target_at']
+            : null;
 
         $settings->update($validated);
 

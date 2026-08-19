@@ -23,5 +23,16 @@ class VitrineSetting extends Model
         'instagram_url',
         'tiktok_url',
         'youtube_url',
+        'countdown_enabled',
+        'countdown_target_at',
+        'countdown_timezone',
+        'countdown_title',
+        'countdown_subtitle',
+        'countdown_expired_label',
+    ];
+
+    protected $casts = [
+        'countdown_enabled' => 'boolean',
+        'countdown_target_at' => 'datetime',
     ];
 }
