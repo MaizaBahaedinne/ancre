@@ -377,6 +377,13 @@ class VitrineController extends Controller
         ]));
     }
 
+    public function countdown(): View
+    {
+        return view('public.vitrine.countdown', $this->sharedData([
+            'currentSlug' => 'countdown',
+        ]));
+    }
+
     public function privacy(): View
     {
         return view('public.vitrine.legal', $this->sharedData([
