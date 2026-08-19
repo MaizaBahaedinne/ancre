@@ -9,38 +9,11 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/png" href="{{ asset('images/fav_ico.png') }}">
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5DZD61ZT7J"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-5DZD61ZT7J');
-    </script>
-
-    <!-- Meta Pixel Code -->
-    <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '993359207082096');
-        fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=993359207082096&ev=PageView&noscript=1"
-    alt="" /></noscript>
-    <!-- End Meta Pixel Code -->
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 
     <style>
         :root {
@@ -797,10 +770,26 @@
             .grid-3, .social-grid, .grid-4, .form-row, .footer-inner { grid-template-columns: 1fr; }
             .hero-visit-grid { grid-template-columns: 1fr; }
             .title-center { text-align: left; }
+
+            .hero-slide {
+                animation: none;
+                opacity: 0;
+            }
+
+            .hero-slide:first-child {
+                opacity: 1;
+            }
+
+            .reveal > * {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
         }
     </style>
 </head>
 <body>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=993359207082096&ev=PageView&noscript=1" alt="" /></noscript>
     @php
         $vitrineHomeUrl = \Illuminate\Support\Facades\Route::has('vitrine.home') ? route('vitrine.home') : url('/');
         $vitrineAboutUrl = \Illuminate\Support\Facades\Route::has('vitrine.about') ? route('vitrine.about') : url('/a-propos');
@@ -967,6 +956,37 @@
             strip.addEventListener('mouseleave', startAuto);
             startAuto();
         });
+
+        // Load third-party trackers after the main content is interactive.
+        const loadTrackers = () => {
+            const gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-5DZD61ZT7J';
+            document.head.appendChild(gaScript);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'G-5DZD61ZT7J');
+
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '993359207082096');
+            fbq('track', 'PageView');
+        };
+
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadTrackers, { timeout: 2000 });
+        } else {
+            window.setTimeout(loadTrackers, 1200);
+        }
     </script>
 </body>
 </html>

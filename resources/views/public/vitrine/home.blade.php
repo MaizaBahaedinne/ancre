@@ -6,14 +6,14 @@
 @section('content')
     @php
         $pageMeta = is_array($page?->meta ?? null) ? $page->meta : [];
-        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80';
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1280&q=72';
         $heroImagesDefault = [
             $heroImage,
-            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1800&q=80',
-            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=1800&q=80',
-            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1800&q=80',
-            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=1800&q=80',
-            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=1800&q=80',
+            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1280&q=72',
+            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=1280&q=72',
+            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1280&q=72',
+            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=1280&q=72',
+            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=1280&q=72',
         ];
 
         $heroImages = [];
@@ -31,7 +31,7 @@
             $heroImages = $heroImagesDefault;
         }
         $heroImages = array_slice($heroImages, 0, 6);
-        $heroImageStepSeconds = max(2, min(12, (int) ($pageMeta['home_animation_duration_seconds'] ?? 4)));
+        $heroImageStepSeconds = max(4, min(12, (int) ($pageMeta['home_animation_duration_seconds'] ?? 6)));
         $heroCycleDurationSeconds = max(12, count($heroImages) * $heroImageStepSeconds);
 
         $heroBadgeText = $pageMeta['hero_badge_text'] ?? 'Garderie de confiance a Sfax';
