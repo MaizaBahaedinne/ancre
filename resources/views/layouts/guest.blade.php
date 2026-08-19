@@ -67,21 +67,6 @@
                 color: #eef6ff;
             }
 
-            .auth-visual-brand {
-                margin-bottom: 1.1rem;
-                display: flex;
-                align-items: center;
-                gap: 0.75rem;
-                font-weight: 700;
-                letter-spacing: 0.02em;
-            }
-
-            .auth-visual-brand img {
-                width: 38px;
-                height: 38px;
-                object-fit: contain;
-            }
-
             .auth-visual-image {
                 width: min(100%, 330px);
                 height: auto;
@@ -211,14 +196,16 @@
                         <div class="card auth-login-card">
                             <div class="row g-0">
                                 <div class="col-md-5 d-none d-md-block auth-visual-side">
+                                    @php
+                                        $kapyImagePath = 'images/auth/kapy.png';
+                                        $kapyImageUrl = file_exists(public_path($kapyImagePath))
+                                            ? asset($kapyImagePath)
+                                            : asset('images/logo encre des elites.webp');
+                                    @endphp
                                     <div class="auth-visual-wrap">
-                                        <div class="auth-visual-brand">
-                                            <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo Ancre Des Elites">
-                                            <span>Ancre Des Elites</span>
-                                        </div>
-                                        <img src="{{ asset('images/auth/parent-mascot.png') }}" alt="Illustration parent" class="auth-visual-image">
+                                        <img src="{{ $kapyImageUrl }}" alt="Mascotte Kapy" class="auth-visual-image">
                                         <div class="auth-visual-copy">
-                                            <h2>Espace Parents</h2>
+                                            <h2>Kapy vous souhaite la bienvenue</h2>
                                             <p>Connexion securisee pour suivre les informations de votre enfant.</p>
                                         </div>
                                     </div>
