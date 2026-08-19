@@ -6,14 +6,14 @@
 @section('content')
     @php
         $pageMeta = is_array($page?->meta ?? null) ? $page->meta : [];
-        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1280&q=72';
+        $heroImage = $page?->hero_image ? asset('storage/'.$page->hero_image) : 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=62';
         $heroImagesDefault = [
             $heroImage,
-            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1280&q=72',
-            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=1280&q=72',
-            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1280&q=72',
-            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=1280&q=72',
-            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=1280&q=72',
+            'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=62',
+            'https://images.unsplash.com/photo-1503919005314-30d93d07d823?auto=format&fit=crop&w=900&q=62',
+            'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=62',
+            'https://images.unsplash.com/photo-1516627442634-75371039cb3a?auto=format&fit=crop&w=900&q=62',
+            'https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=900&q=62',
         ];
 
         $heroImages = [];
@@ -117,8 +117,19 @@
     <main>
         <section class="hero" style="--hero-cycle-duration: {{ $heroCycleDurationSeconds }}s;">
             <div class="hero-media" aria-hidden="true">
-                @foreach($heroImages as $index => $image)
-                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ $index * $heroImageStepSeconds }}s;"></span>
+                @if(!empty($heroImages[0]))
+                    <img
+                        src="{{ $heroImages[0] }}"
+                        alt=""
+                        class="hero-lcp-image"
+                        fetchpriority="high"
+                        decoding="async"
+                        loading="eager"
+                        referrerpolicy="no-referrer"
+                    >
+                @endif
+                @foreach(array_slice($heroImages, 1) as $index => $image)
+                    <span class="hero-slide" style="background-image:url('{{ $image }}');animation-delay:{{ ($index + 1) * $heroImageStepSeconds }}s;"></span>
                 @endforeach
             </div>
             <div class="hero-content hero-grid">

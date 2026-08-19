@@ -11,7 +11,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+    <link rel="preconnect" href="https://img.magnific.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 
@@ -279,6 +282,15 @@
             position: absolute;
             inset: 0;
             z-index: -3;
+        }
+
+        .hero-lcp-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
         }
 
         .hero-slide {
@@ -810,7 +822,7 @@
     <header class="site-header">
         <div class="header-inner">
             <a href="{{ $vitrineHomeUrl }}" class="brand">
-                <img class="brand-logo" src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}">
+                <img class="brand-logo" src="{{ asset('images/logo-ancre-des-elites.svg') }}" width="58" height="58" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" decoding="async" fetchpriority="high">
                 <span>
                     <p class="brand-title">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</p>
                     <p class="brand-sub">{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
@@ -872,7 +884,7 @@
         <div class="footer-inner">
             <div>
                 <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem;">
-                    <img src="{{ asset('images/logo encre des elites.webp') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" style="width:72px;height:72px;border-radius:0;background:transparent;padding:0;">
+                    <img src="{{ asset('images/logo-ancre-des-elites.svg') }}" alt="Logo {{ $settings?->site_name ?: 'Ancre Des Elites' }}" width="72" height="72" style="width:72px;height:72px;border-radius:0;background:transparent;padding:0;" decoding="async">
                     <h3 style="margin:0;">{{ $settings?->site_name ?: 'Ancre Des Elites' }}</h3>
                 </div>
                 <p>{{ $settings?->tagline ?: 'Garderie et eveil' }}</p>
@@ -959,6 +971,10 @@
 
         // Load third-party trackers after the main content is interactive.
         const loadTrackers = () => {
+            if (window.matchMedia('(max-width: 780px)').matches) {
+                return;
+            }
+
             const gaScript = document.createElement('script');
             gaScript.async = true;
             gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-5DZD61ZT7J';
