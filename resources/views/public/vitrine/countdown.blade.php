@@ -71,7 +71,11 @@
 
         .countdown-copy {
             color: #fff;
-            max-width: 72rem;
+            max-width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .brand-row {
@@ -79,6 +83,7 @@
             align-items: center;
             gap: 0.9rem;
             margin-bottom: 1rem;
+            justify-content: center;
         }
 
         .brand-row img {
@@ -92,7 +97,7 @@
         .brand-row h1 {
             margin: 0;
             font-family: 'Fraunces', serif;
-            font-size: clamp(1.5rem, 3vw, 2.4rem);
+            font-size: clamp(1.3rem, 2.2vw, 2rem);
             line-height: 1.1;
             color: #fff;
         }
@@ -106,17 +111,18 @@
             margin: 0.2rem 0 0;
             font-family: 'Fraunces', serif;
             color: #fff;
-            font-size: clamp(2rem, 4vw, 4.25rem);
+            font-size: clamp(1.8rem, 3.2vw, 3.2rem);
             line-height: 1.05;
             letter-spacing: -0.02em;
-            max-width: 18ch;
+            max-width: 28ch;
         }
 
         .hero-text {
             margin: 1rem 0 0;
             max-width: 72ch;
             color: rgba(255, 255, 255, 0.88);
-            font-size: 1rem;
+            font-size: 1.02rem;
+            line-height: 1.7;
         }
 
         .timer-box {
@@ -129,6 +135,8 @@
             padding: 1.15rem;
             backdrop-filter: blur(10px);
             max-width: 760px;
+            width: 100%;
+            text-align: center;
         }
 
         .timer-head {
@@ -137,6 +145,7 @@
             gap: 0.6rem;
             flex-wrap: wrap;
             align-items: center;
+            width: 100%;
         }
 
         .timer-badge {
@@ -156,13 +165,14 @@
         .timer-title {
             margin: 0.65rem 0 0;
             color: #fff;
-            font-size: clamp(1.15rem, 2vw, 1.65rem);
+            font-size: clamp(1.05rem, 1.5vw, 1.35rem);
             line-height: 1.25;
         }
 
         .timer-subtitle {
             margin: 0.35rem 0 0;
             color: rgba(255, 255, 255, 0.92);
+            font-size: 0.95rem;
         }
 
         .timer-grid {
@@ -206,22 +216,28 @@
             padding: 1rem;
             box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
             backdrop-filter: blur(8px);
+            width: 100%;
+            max-width: 760px;
         }
 
         .newsletter h2 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            color: var(--ink);
+            text-align: center;
         }
 
         .newsletter p {
             margin: 0.3rem 0 0.75rem;
             color: var(--ink-soft);
+            text-align: center;
         }
 
         .newsletter form {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: 0.55rem;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
         .newsletter input {
@@ -285,6 +301,14 @@
 
             .hero-title {
                 max-width: none;
+            }
+
+            .newsletter form {
+                grid-template-columns: 1fr;
+            }
+
+            .newsletter button {
+                width: 100%;
             }
         }
     </style>
