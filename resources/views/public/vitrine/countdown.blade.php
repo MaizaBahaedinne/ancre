@@ -61,17 +61,17 @@
             z-index: 1;
             min-height: 100vh;
             display: grid;
-            grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+            grid-template-columns: minmax(0, 1fr);
             align-items: center;
-            gap: 2rem;
-            width: min(1320px, calc(100% - 2rem));
+            gap: 0;
+            width: min(1260px, calc(100% - 2rem));
             margin-inline: auto;
             padding: clamp(1.2rem, 3vw, 3rem) 0;
         }
 
         .countdown-copy {
             color: #fff;
-            max-width: 44rem;
+            max-width: 72rem;
         }
 
         .brand-row {
@@ -109,12 +109,12 @@
             font-size: clamp(2rem, 4vw, 4.25rem);
             line-height: 1.05;
             letter-spacing: -0.02em;
-            max-width: 12ch;
+            max-width: 18ch;
         }
 
         .hero-text {
             margin: 1rem 0 0;
-            max-width: 58ch;
+            max-width: 72ch;
             color: rgba(255, 255, 255, 0.88);
             font-size: 1rem;
         }
@@ -273,50 +273,14 @@
             padding: 1.2rem 0.5rem;
         }
 
-        .hero-side {
-            position: relative;
-            display: grid;
-            gap: 1rem;
-            align-content: center;
-        }
-
-        .hero-panel {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 22px;
-            padding: 1rem;
-            color: #fff;
-            backdrop-filter: blur(10px);
-        }
-
-        .hero-panel h2 {
-            margin: 0;
-            color: #fff;
-            font-size: 1.1rem;
-        }
-
-        .hero-panel p {
-            margin: 0.4rem 0 0;
-            color: rgba(255, 255, 255, 0.82);
-        }
-
         @media (max-width: 760px) {
             .countdown-grid {
-                grid-template-columns: 1fr;
                 width: min(100% - 1rem, 100%);
                 gap: 1rem;
             }
 
             .timer-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .countdown-copy {
-                order: 2;
-            }
-
-            .hero-side {
-                order: 1;
             }
 
             .hero-title {
@@ -384,25 +348,13 @@
                         </form>
                     </section>
                 @else
-                    <section class="hero-panel">
+                    <section class="newsletter" style="max-width:42rem;">
                         <h2>Countdown inactif</h2>
                         <p>Le compte a rebours est desactive actuellement.</p>
-                        <a href="{{ route('vitrine.home') }}" style="display:inline-block;margin-top:0.8rem;color:#fff;text-decoration:none;font-weight:700;">Aller vers le site</a>
+                        <a href="{{ route('vitrine.home') }}" style="display:inline-block;margin-top:0.25rem;color:#0c7abf;text-decoration:none;font-weight:700;">Aller vers le site</a>
                     </section>
                 @endif
             </section>
-
-            <aside class="hero-side">
-                <section class="hero-panel">
-                    <h2>Acces temporairement ferme</h2>
-                    <p>Quand le countdown est actif, la vitrine publique est bloquee. L'administration reste accesible normalement.</p>
-                </section>
-
-                <section class="hero-panel">
-                    <h2>Design full width</h2>
-                    <p>Fond immersif, branding Ancre Des Elites et compteur centralise dans une vraie page d'attente indépendante.</p>
-                </section>
-            </aside>
         </div>
     </main>
 
