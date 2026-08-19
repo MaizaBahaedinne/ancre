@@ -79,10 +79,6 @@
             border-radius: 18px;
             background: #fff;
             padding: 1rem;
-                <!-- Google Tag Manager (noscript) -->
-                <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGXNT48V"
-                height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-                <!-- End Google Tag Manager (noscript) -->
         }
 
         .camera-stage {
@@ -265,6 +261,10 @@
     </style>
 </head>
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGXNT48V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <main class="scanner-shell">
         <section class="scanner-card">
             <header class="scanner-hero">
