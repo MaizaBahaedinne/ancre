@@ -60,7 +60,7 @@ Route::get('/home', function () {
     return redirect()->route('dashboard');
 })->name('home');
 
-Route::name('vitrine.')->group(function () {
+Route::middleware('vitrine.countdown')->name('vitrine.')->group(function () {
     Route::get('/', [VitrineController::class, 'home'])->name('home');
     Route::get('/countdown', [VitrineController::class, 'countdown'])->name('countdown');
     Route::get('/a-propos', [VitrineController::class, 'about'])->name('about');
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'role:Parent'])->name('vitrine.')->group(function () 
 });
 
 // Compatibilite legacy pour les anciennes URLs /vitrine/*
-Route::prefix('vitrine')->group(function () {
+Route::middleware('vitrine.countdown')->prefix('vitrine')->group(function () {
     Route::get('/', fn () => redirect('/', 301));
     Route::get('/countdown', fn () => redirect('/countdown', 301));
     Route::get('/a-propos', fn () => redirect('/a-propos', 301));

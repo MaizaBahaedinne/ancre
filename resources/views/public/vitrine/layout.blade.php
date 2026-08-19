@@ -846,9 +846,6 @@
                     <a href="{{ $vitrineActivitiesUrl }}" class="{{ ($currentSlug ?? '') === 'activities' ? 'active' : '' }}">Activites</a>
                     <a href="{{ $vitrineBlogUrl }}" class="{{ ($currentSlug ?? '') === 'blog' ? 'active' : '' }}">Actualites</a>
                     <a href="{{ $vitrineContactUrl }}" class="{{ ($currentSlug ?? '') === 'contact' ? 'active' : '' }}">Contact</a>
-                    @if(($websiteCountdown['enabled'] ?? false) && Route::has('vitrine.countdown'))
-                        <a href="{{ route('vitrine.countdown') }}" class="{{ ($currentSlug ?? '') === 'countdown' ? 'active' : '' }}">Countdown</a>
-                    @endif
                 </nav>
                 @auth
                     @php

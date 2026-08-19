@@ -450,13 +450,14 @@ class VitrineController extends Controller
 
         $validated = $request->validateWithBag('newsletter', [
             'newsletter_email' => ['required', 'email', 'max:255'],
+            'source_page' => ['nullable', 'string', 'max:50'],
         ]);
 
         $subscriber = VitrineNewsletterSubscriber::query()->firstOrNew([
             'email' => $validated['newsletter_email'],
         ]);
 
-        $subscriber->source_page = 'home';
+        $subscriber->source_page = !empty($validated['source_page']) ? $validated['source_page'] : 'home';
         $subscriber->is_active = true;
         $subscriber->save();
 
