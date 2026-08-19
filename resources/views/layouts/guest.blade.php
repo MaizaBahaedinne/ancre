@@ -303,7 +303,6 @@
                         src="{{ asset('images/auth/parent-mascot.png') }}"
                         alt="Mascotte espace parent"
                         class="auth-mascot-image"
-                        onerror="this.onerror=null; this.src='{{ asset('images/logo encre des elites.webp') }}';"
                     >
                     <figcaption class="auth-mascot-caption">Ancre Des Elites vous souhaite la bienvenue</figcaption>
                 </figure>
