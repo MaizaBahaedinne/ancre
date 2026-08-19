@@ -447,8 +447,8 @@
         }
 
         .section { padding: clamp(1.7rem, 4vw, 3rem) 0; }
-        .section-soft { background: #f6efe3; }
-        .section-warm { background: #f6efe3; }
+        .section-soft { background: #ffffff; }
+        .section-warm { background: #ffffff; }
 
         .section-title {
             margin: 0 0 0.45rem;
